@@ -1,61 +1,82 @@
-// ==================================
-// CHESS UNIVERSE — CORE INTERACTIONS
-// ==================================
+"use strict";
 
-const menuButton = document.getElementById("menuButton");
-const navigation = document.getElementById("navigation");
+document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
 
-// Mobile navigation
-if (menuButton && navigation) {
-    menuButton.addEventListener("click", () => {
-        const isOpen = navigation.classList.toggle("open");
+    // MOBILE NAVIGATION
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener("click", function () {
+            const isOpen = navLinks.classList.toggle("active");
 
-        menuButton.setAttribute("aria-expanded", isOpen);
-        menuButton.textContent = isOpen ? "✕" : "☰";
-    });
+            menuToggle.setAttribute("aria-expanded", String(isOpen));
+            menuToggle.textContent = isOpen ? "✕" : "☰";
+        });
 
-    // Close menu after selecting a navigation link
-    navigation.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", () => {
-            navigation.classList.remove("open");
-            menuButton.setAttribute("aria-expanded", "false");
-            menuButton.textContent = "☰";
+        // Close the menu after selecting a link
+        navLinks.querySelectorAll("a").forEach(function (link) {
+            link.addEventListener("click", function () {
+                navLinks.classList.remove("active");
+                menuToggle.setAttribute("aria-expanded", "false");
+                menuToggle.textContent = "☰";
+            });
+        });
+
+        // Close the menu when switching to desktop layout
+        window.addEventListener("resize", function () {
+            if (window.innerWidth > 700) {
+                navLinks.classList.remove("active");
+                menuToggle.setAttribute("aria-expanded", "false");
+                menuToggle.textContent = "☰";
+            }
+        });
+    }
+
+    // SMOOTH SCROLLING FOR INTERNAL LINKS
+    document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            const targetId = link.getAttribute("href");
+
+            if (!targetId || targetId === "#") {
+                return;
+            }
+
+            const target = document.querySelector(targetId);
+
+            if (target) {
+                event.preventDefault();
+
+                target.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
         });
     });
-}
 
-// Smooth navigation and active link feedback
-document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    link.addEventListener("click", (event) => {
-        const targetId = link.getAttribute("href");
+    // SMALL ENTRANCE ANIMATION FOR FEATURE CARDS
+    const cards = document.querySelectorAll(".feature-card");
 
-        if (targetId === "#") {
-            event.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
+    if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("visible");
+                    observer.unobserve(entry.target);
+                }
             });
-            return;
-        }
+        }, {
+            threshold: 0.15
+        });
 
-        const target = document.querySelector(targetId);
+        cards.forEach(function (card) {
+            observer.observe(card);
+        });
+    } else {
+        cards.forEach(function (card) {
+            card.classList.add("visible");
+        });
+    }
 
-        if (target) {
-            event.preventDefault();
-
-            target.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        }
-    });
+    console.log("♟ Chess Universe initialized successfully!");
 });
-
-// Console message for developers
-console.log(
-    "%c♟ CHESS UNIVERSE",
-    "color:#61f5c5;font-size:24px;font-weight:bold;"
-);
-
-console.log("Welcome to your own chess universe.");
-console.log("Build 001 — Website interface initialized.");
