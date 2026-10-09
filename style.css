@@ -3,7 +3,6 @@
 :root {
     --bg: #080b14;
     --panel: #101626;
-    --panel-light: #151e31;
     --cyan: #00e5ff;
     --purple: #9560ff;
     --text: #f3f6ff;
@@ -44,25 +43,25 @@ button {
     color: var(--bg);
 }
 
-/* NAVIGATION */
+/* NAVBAR */
 
 .navbar {
-    height: 82px;
-    padding: 0 7%;
+    min-height: 76px;
+    padding: 14px 7%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(8, 11, 20, 0.88);
-    backdrop-filter: blur(18px);
+    background: rgba(8, 11, 20, 0.94);
+    backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
 }
 
 .logo {
     font-family: 'Orbitron', sans-serif;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
     letter-spacing: 1px;
     display: inline-flex;
@@ -72,9 +71,9 @@ button {
 
 .logo-icon {
     color: var(--cyan);
-    font-size: 27px;
+    font-size: 26px;
     margin-right: 5px;
-    filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.55));
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.5));
 }
 
 .logo-highlight {
@@ -84,31 +83,29 @@ button {
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 35px;
+    gap: 30px;
 }
 
-.nav-links > a {
+.nav-links a {
     color: var(--muted);
     font-weight: 700;
-    transition: color 0.25s ease;
+    transition: color 0.2s ease;
 }
 
-.nav-links > a:hover {
+.nav-links a:hover {
     color: var(--cyan);
 }
 
 .nav-links .nav-play {
     color: var(--bg);
     background: var(--cyan);
-    padding: 11px 22px;
+    padding: 10px 20px;
     border-radius: 5px;
-    transition: 0.25s ease;
 }
 
 .nav-links .nav-play:hover {
     color: var(--bg);
     background: white;
-    box-shadow: 0 0 25px rgba(0, 229, 255, 0.3);
 }
 
 .menu-toggle {
@@ -124,12 +121,12 @@ button {
 /* HERO */
 
 .hero {
-    min-height: 650px;
-    padding: 95px 9% 80px;
+    min-height: 620px;
+    padding: 85px 8%;
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
     align-items: center;
-    gap: 45px;
+    gap: 40px;
     position: relative;
     isolation: isolate;
 }
@@ -145,41 +142,36 @@ button {
 }
 
 .hero-content {
-    animation: fadeUp 0.8s ease both;
+    animation: fadeUp 0.7s ease both;
 }
 
 .badge {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
     border: 1px solid rgba(0, 229, 255, 0.25);
     color: var(--cyan);
     background: rgba(0, 229, 255, 0.055);
     border-radius: 4px;
-    padding: 9px 13px;
-    font-size: 12px;
+    padding: 9px 12px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 2px;
-    margin-bottom: 28px;
+    letter-spacing: 1.5px;
+    margin-bottom: 25px;
 }
 
 .status-dot {
-    height: 7px;
     width: 7px;
+    height: 7px;
     background: var(--cyan);
     border-radius: 50%;
-    box-shadow: 0 0 12px var(--cyan);
+    box-shadow: 0 0 10px var(--cyan);
     animation: pulse 1.8s infinite;
 }
 
-h1,
-h2,
-h3 {
-    font-family: 'Orbitron', sans-serif;
-}
-
 .hero h1 {
-    font-size: clamp(43px, 6vw, 77px);
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(42px, 6vw, 76px);
     line-height: 1.12;
     font-weight: 900;
     letter-spacing: -2px;
@@ -196,47 +188,47 @@ h3 {
     max-width: 450px;
     color: var(--muted);
     line-height: 1.8;
-    font-size: 21px;
-    margin: 25px 0 32px;
+    font-size: 20px;
+    margin: 24px 0 30px;
 }
 
 .hero-buttons {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 14px;
 }
 
 .primary-button,
 .secondary-button {
-    min-height: 52px;
-    padding: 15px 21px;
+    min-height: 50px;
+    padding: 14px 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 12px;
     font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.7px;
     border-radius: 5px;
-    transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .primary-button {
     color: var(--bg);
     background: var(--cyan);
-    box-shadow: 0 0 25px rgba(0, 229, 255, 0.12);
-}
-
-.primary-button span {
-    font-size: 17px;
+    box-shadow: 0 0 22px rgba(0, 229, 255, 0.12);
 }
 
 .primary-button:hover {
     transform: translateY(-3px);
     background: white;
-    box-shadow: 0 8px 30px rgba(0, 229, 255, 0.22);
+    box-shadow: 0 8px 28px rgba(0, 229, 255, 0.2);
+}
+
+.primary-button span {
+    font-size: 16px;
 }
 
 .secondary-button {
@@ -254,8 +246,8 @@ h3 {
 .hero-stats {
     display: flex;
     align-items: center;
-    gap: 24px;
-    margin-top: 55px;
+    gap: 23px;
+    margin-top: 45px;
 }
 
 .stat {
@@ -266,23 +258,23 @@ h3 {
 
 .stat strong {
     font-family: 'Orbitron', sans-serif;
-    font-size: 24px;
+    font-size: 23px;
 }
 
 .stat span {
     color: var(--muted);
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 1.4px;
+    letter-spacing: 1px;
 }
 
 .stat-divider {
     width: 1px;
-    height: 38px;
+    height: 35px;
     background: var(--border);
 }
 
-/* CHESSBOARD VISUAL */
+/* DECORATIVE CHESSBOARD */
 
 .chess-visual {
     min-width: 0;
@@ -291,7 +283,7 @@ h3 {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    animation: fadeIn 1.2s ease both;
+    animation: fadeIn 1s ease both;
 }
 
 .visual-glow {
@@ -299,24 +291,23 @@ h3 {
     width: 80%;
     aspect-ratio: 1;
     background: rgba(117, 74, 255, 0.19);
-    filter: blur(80px);
+    filter: blur(65px);
     border-radius: 50%;
     animation: glow 5s ease-in-out infinite alternate;
 }
 
 .mini-board {
-    width: min(100%, 390px);
+    width: min(100%, 370px);
     aspect-ratio: 1;
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(8, minmax(0, 1fr));
     border: 5px solid #252d43;
     border-radius: 5px;
     overflow: hidden;
     box-shadow:
-        0 0 0 1px rgba(0, 229, 255, 0.25),
-        0 0 45px rgba(0, 229, 255, 0.12),
-        0 30px 80px rgba(0, 0, 0, 0.5);
-    transform: perspective(1000px) rotateY(-7deg) rotateX(3deg);
+        0 0 0 1px rgba(0, 229, 255, 0.2),
+        0 0 40px rgba(0, 229, 255, 0.1),
+        0 25px 60px rgba(0, 0, 0, 0.4);
     position: relative;
     z-index: 1;
     animation: boardFloat 6s ease-in-out infinite;
@@ -327,74 +318,70 @@ h3 {
     align-items: center;
     justify-content: center;
     font-family: serif;
-    font-size: clamp(17px, 3vw, 34px);
+    font-size: clamp(16px, 3vw, 32px);
     line-height: 1;
 }
 
 .square.light {
     background: #c9d7e9;
     color: #171d31;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .square.dark {
     background: #394663;
     color: #f7f9ff;
-    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
 }
 
 .floating-card {
     position: absolute;
     right: -5px;
-    bottom: 30px;
+    bottom: 25px;
     z-index: 2;
     display: flex;
     align-items: center;
-    gap: 13px;
-    padding: 15px 18px;
-    background: rgba(16, 22, 38, 0.95);
+    gap: 12px;
+    padding: 14px;
+    background: #101626;
     border: 1px solid rgba(0, 229, 255, 0.28);
     border-radius: 8px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
     animation: cardFloat 4s ease-in-out infinite;
 }
 
 .floating-icon {
     color: var(--cyan);
-    font-size: 30px;
+    font-size: 28px;
 }
 
 .floating-card div {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
 }
 
 .floating-card strong {
     font-family: 'Orbitron', sans-serif;
     font-size: 10px;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
 }
 
 .floating-card div span {
     color: var(--muted);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 /* FEATURES */
 
 .features-section {
-    padding: 100px 9%;
-    background:
-        linear-gradient(rgba(255, 255, 255, 0.012), rgba(255, 255, 255, 0.012)),
-        var(--bg);
+    padding: 90px 8%;
+    background: rgba(255, 255, 255, 0.012);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
 }
 
 .section-heading {
     text-align: center;
-    margin-bottom: 55px;
+    margin-bottom: 48px;
 }
 
 .eyebrow {
@@ -402,36 +389,38 @@ h3 {
     color: var(--cyan);
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 3px;
-    margin-bottom: 20px;
+    letter-spacing: 2.5px;
+    margin-bottom: 18px;
 }
 
 .section-heading h2,
 .final-cta h2 {
-    font-size: clamp(25px, 4vw, 42px);
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(25px, 4vw, 40px);
     line-height: 1.45;
 }
 
 .section-heading p {
     color: var(--muted);
-    margin-top: 14px;
+    margin-top: 12px;
 }
 
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
+    gap: 20px;
 }
 
 .feature-card {
-    min-height: 290px;
-    padding: 30px 25px;
+    min-width: 0;
+    min-height: 285px;
+    padding: 28px 23px;
     background: linear-gradient(145deg, #121a2b, #0c111e);
     border: 1px solid var(--border);
     border-radius: 8px;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.25s ease, border-color 0.25s ease;
 }
 
 .feature-card::before {
@@ -439,16 +428,15 @@ h3 {
     position: absolute;
     top: 0;
     left: 0;
-    width: 70px;
+    width: 65px;
     height: 2px;
     background: var(--cyan);
-    transition: width 0.3s ease;
+    transition: width 0.25s ease;
 }
 
 .feature-card:hover {
-    transform: translateY(-7px);
+    transform: translateY(-6px);
     border-color: rgba(0, 229, 255, 0.35);
-    box-shadow: 0 15px 40px rgba(0, 229, 255, 0.055);
 }
 
 .feature-card:hover::before {
@@ -456,8 +444,8 @@ h3 {
 }
 
 .feature-icon {
-    width: 54px;
-    height: 54px;
+    width: 52px;
+    height: 52px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -465,8 +453,8 @@ h3 {
     border: 1px solid rgba(0, 229, 255, 0.17);
     border-radius: 8px;
     color: var(--cyan);
-    font-size: 30px;
-    margin-bottom: 23px;
+    font-size: 29px;
+    margin-bottom: 20px;
 }
 
 .feature-number {
@@ -474,19 +462,20 @@ h3 {
     font-family: 'Orbitron', sans-serif;
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.3px;
 }
 
 .feature-card h3 {
-    font-size: 17px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
     margin: 12px 0;
 }
 
 .feature-card p {
     color: var(--muted);
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.7;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
 .feature-link {
@@ -497,16 +486,16 @@ h3 {
     font-family: 'Orbitron', sans-serif;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
 }
 
 .feature-link span {
-    font-size: 17px;
+    font-size: 16px;
     transition: transform 0.2s ease;
 }
 
 .feature-link:hover span {
-    transform: translate(4px, -3px);
+    transform: translate(3px, -3px);
 }
 
 .coming-soon {
@@ -514,37 +503,39 @@ h3 {
     color: #a8b1c8;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
-    padding: 8px 12px;
+    padding: 8px 11px;
     border-radius: 4px;
     font-family: 'Orbitron', sans-serif;
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
 }
 
-/* FINAL CALL TO ACTION */
+/* FINAL SECTION */
 
 .final-cta {
-    padding: 105px 20px;
+    padding: 90px 20px;
     text-align: center;
-    position: relative;
-    overflow: hidden;
-    background: radial-gradient(ellipse at center, rgba(93, 59, 175, 0.13), transparent 65%);
+    background: radial-gradient(
+        ellipse at center,
+        rgba(93, 59, 175, 0.13),
+        transparent 65%
+    );
 }
 
 .final-cta h2 {
-    margin-bottom: 30px;
+    margin-bottom: 28px;
 }
 
 /* FOOTER */
 
 .footer {
-    padding: 30px 7%;
-    min-height: 100px;
+    padding: 28px 7%;
+    min-height: 95px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 18px;
     flex-wrap: wrap;
     background: #060810;
     border-top: 1px solid var(--border);
@@ -561,7 +552,7 @@ h3 {
 @keyframes fadeUp {
     from {
         opacity: 0;
-        transform: translateY(25px);
+        transform: translateY(20px);
     }
 
     to {
@@ -583,7 +574,7 @@ h3 {
 @keyframes pulse {
     0%, 100% {
         opacity: 1;
-        box-shadow: 0 0 12px var(--cyan);
+        box-shadow: 0 0 10px var(--cyan);
     }
 
     50% {
@@ -606,11 +597,11 @@ h3 {
 
 @keyframes boardFloat {
     0%, 100% {
-        transform: perspective(1000px) rotateY(-7deg) rotateX(3deg) translateY(0);
+        transform: translateY(0);
     }
 
     50% {
-        transform: perspective(1000px) rotateY(-4deg) rotateX(1deg) translateY(-9px);
+        transform: translateY(-7px);
     }
 }
 
@@ -620,11 +611,11 @@ h3 {
     }
 
     50% {
-        transform: translateY(-7px);
+        transform: translateY(-5px);
     }
 }
 
-/* TABLETS */
+/* TABLET */
 
 @media (max-width: 1000px) {
     .hero {
@@ -639,15 +630,15 @@ h3 {
     }
 
     .feature-grid {
-        gap: 14px;
+        gap: 13px;
     }
 
     .feature-card {
-        padding: 25px 18px;
+        padding: 23px 17px;
     }
 
     .floating-card {
-        right: -10px;
+        right: -8px;
     }
 }
 
@@ -655,16 +646,16 @@ h3 {
 
 @media (max-width: 700px) {
     .navbar {
-        height: 70px;
-        padding: 0 5%;
+        min-height: 68px;
+        padding: 12px 5%;
     }
 
     .logo {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .logo-icon {
-        font-size: 24px;
+        font-size: 23px;
     }
 
     .menu-toggle {
@@ -674,13 +665,13 @@ h3 {
     .nav-links {
         display: none;
         position: absolute;
-        top: 69px;
+        top: 100%;
         left: 0;
         right: 0;
-        padding: 22px 5% 26px;
+        padding: 20px 5% 24px;
         flex-direction: column;
         align-items: stretch;
-        gap: 18px;
+        gap: 17px;
         background: #0c1120;
         border-bottom: 1px solid var(--border);
     }
@@ -694,45 +685,45 @@ h3 {
     }
 
     .hero {
-        padding: 65px 6% 70px;
+        padding: 60px 6% 65px;
         grid-template-columns: 1fr;
-        gap: 45px;
+        gap: 42px;
     }
 
     .hero h1 {
-        font-size: clamp(43px, 12vw, 66px);
+        font-size: clamp(40px, 11vw, 62px);
     }
 
     .hero-description {
-        font-size: 19px;
+        font-size: 18px;
     }
 
     .hero-stats {
-        gap: 17px;
-        margin-top: 38px;
+        gap: 16px;
+        margin-top: 35px;
     }
 
     .stat strong {
-        font-size: 20px;
+        font-size: 19px;
     }
 
     .stat span {
         font-size: 9px;
-        letter-spacing: 0.8px;
+        letter-spacing: 0.6px;
     }
 
     .chess-visual {
-        padding: 8px 10px 35px;
+        padding: 8px 10px 32px;
     }
 
     .mini-board {
-        width: min(100%, 350px);
+        width: min(100%, 340px);
     }
 
     .floating-card {
         right: 0;
         bottom: 0;
-        padding: 12px;
+        padding: 11px;
     }
 
     .floating-card strong {
@@ -740,35 +731,35 @@ h3 {
     }
 
     .floating-card div span {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .features-section {
-        padding: 75px 6%;
+        padding: 70px 6%;
     }
 
     .section-heading {
-        margin-bottom: 38px;
+        margin-bottom: 35px;
     }
 
     .feature-grid {
         grid-template-columns: 1fr;
-        gap: 18px;
+        gap: 17px;
     }
 
     .feature-card {
         min-height: auto;
-        padding: 27px;
+        padding: 25px;
     }
 
     .final-cta {
-        padding: 75px 6%;
+        padding: 70px 6%;
     }
 
     .footer {
         flex-direction: column;
         text-align: center;
-        padding: 30px 5%;
+        padding: 28px 5%;
     }
 }
 
@@ -785,16 +776,16 @@ h3 {
     }
 
     .hero-stats {
-        gap: 12px;
+        gap: 10px;
     }
 
     .stat strong {
-        font-size: 17px;
+        font-size: 16px;
     }
 
     .badge {
-        font-size: 10px;
-        letter-spacing: 1px;
+        font-size: 9px;
+        letter-spacing: 0.8px;
     }
 
     .floating-card {
@@ -802,7 +793,7 @@ h3 {
     }
 }
 
-/* REDUCED MOTION ACCESSIBILITY */
+/* ACCESSIBILITY */
 
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -813,4 +804,4 @@ h3 {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-    }
+}
