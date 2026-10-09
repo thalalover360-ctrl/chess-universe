@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess Universe | Play</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:18px;background:#0b1019;color:#f4f7ff;font-family:Arial,sans-serif}
+header{max-width:850px;margin:0 auto 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{font-size:clamp(20px,5vw,30px);margin:0}
+a{color:#66f5c7;text-decoration:none}
+.app{max-width:850px;margin:auto;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(210px,.8fr);gap:18px;align-items:start}
+#board{display:grid;grid-template-columns:repeat(8,1fr);width:100%;aspect-ratio:1;border:4px solid #263348;border-radius:5px;overflow:hidden}
+.sq{border:0;padding:0;aspect-ratio:1;display:flex;justify-content:center;align-items:center;position:relative;font-size:clamp(25px,7vw,58px);cursor:pointer}
+.light{background:#e8edf2}.dark{background:#71945a}
+.sq.selected{box-shadow:inset 0 0 0 4px #ffd166}
+.sq.legal:after{content:"";position:absolute;width:23%;height:23%;border-radius:50%;background:#17223566}
+.sq.capture:after{content:"";position:absolute;inset:4%;border:4px solid #e45c5c;border-radius:50%}
+.piece{position:relative;z-index:1}
+.white{color:#fff;text-shadow:0 1px 2px #222,1px 0 #222,-1px 0 #222,0 -1px #222}
+.black{color:#20232b}
+.panel{background:#151e2b;border:1px solid #2a374a;border-radius:14px;padding:17px}
+#status{font-weight:bold;font-size:19px;margin:0 0 8px}
+#message{font-size:13px;color:#aebbd0;line-height:1.5;min-height:38px}
+button.action{background:#26354a;color:#fff;border:0;border-radius:8px;padding:12px 10px;cursor:pointer;font-weight:bold}
+button.action.primary{background:#66f5c7;color:#0b1713}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+h2{font-size:13px;color:#aebbd0;text-transform:uppercase;letter-spacing:1px;margin-top:22px}
+#history{font:13px/1.8 monospace;overflow-wrap:anywhere;max-height:180px;overflow:auto}
+.small{color:#8292a8;font-size:11px;line-height:1.6;margin-top:18px}
+@media(max-width:650px){body{padding:12px}.app{grid-template-columns:1fr}.panel{padding:14px}.sq{font-size:clamp(29px,10vw,56px)}header{margin-bottom:14px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>♟ Chess Universe</h1>
+  <a href="index.html">← Home</a>
+</header>
+
+<main class="app">
+  <div id="board" aria-label="Chess board"></div>
+  <section class="panel">
+    <p id="status">Loading chess...</p>
+    <p id="message">Your battlefield awaits.</p>
+
+    <div class="controls">
+      <button class="action primary" id="new">New game</button>
+      <button class="action" id="undo">Undo move</button>
+      <button class="action" id="flip">Flip board</button>
+    </div>
+
+    <h2>Move history</h2>
+    <div id="history">No moves yet.</div>
+    <p class="small">Build 002 · Local two-player chess. Online multiplayer will be added separately.</p>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script>
+const board=document.getElementById("board");
+const status=document.getElementById("status");
+const message=document.getElementById("message");
+const historyBox=document.getElementById("history");
+
+const icons={
+ w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},
+ b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}
+};
+
+let game=null,selected=null,legal=[],flipped=false;
+
+function startGame(){
+ game=new Chess();
+ selected=null;
+ legal=[];
+ render();
+}
+
+function squares(){
+ const files=["a","b","c","d","e","f","g","h"];
+ const ranks=[8,7,6,5,4,3,2,1];
+ if(flipped){files.reverse();ranks.reverse();}
+ return ranks.flatMap(rank=>files.map(file=>file+rank));
+}
+
+function render(){
+ board.innerHTML="";
+
+ squares().forEach((square,index)=>{
+  const piece=game.get(square);
+  const cell=document.createElement("button");
+
+  cell.className="sq "+(
+   (Math.floor(index/8)+index%8)%2===0?"light":"dark"
+  );
+
+  cell.setAttribute("aria-label",square);
+
+  if(selected===square)cell.classList.add("selected");
+
+  if(legal.some(move=>move.to===square)){
+   cell.classList.add("legal");
+   if(game.get(square))cell.classList.add("capture");
+  }
+
+  if(piece){
+   const span=document.createElement("span");
+   span.className="piece "+(piece.color==="w"?"white":"black");
+   span.textContent=icons[piece.color][piece.type];
+   cell.appendChild(span);
+  }
+
+  cell.addEventListener("click",()=>choose(square));
+  board.appendChild(cell);
+ });
+
+ const turn=game.turn()==="w"?"White":"Black";
+
+ if(game.isCheckmate()){
+  status.textContent="Checkmate!";
+  message.textContent=(game.turn()==="w"?"Black":"White")+" wins!";
+ }else if(game.isDraw()){
+  status.textContent="Draw!";
+  message.textContent="The game has ended in a draw.";
+ }else{
+  status.textContent=turn+" to move";
+  message.textContent=game.isCheck()
+   ?"Check! Find a legal move."
+   :"Select a piece, then select a highlighted square.";
+ }
+
+ const moves=game.history();
+ historyBox.textContent=moves.length
+  ?moves.map((move,i)=>(i%2===0?(Math.floor(i/2)+1)+". ":"")+move).join(" ")
+  :"No moves yet.";
+}
+
+function choose(square){
+ if(game.game_over())return;
+
+ if(selected&&legal.some(move=>move.to===square)){
+  const move=game.move({
+   from:selected,
+   to:square,
+   promotion:"q"
+  });
+
+  if(move){
+   selected=null;
+   legal=[];
+   render();
+   return;
+  }
+ }
+
+ const piece=game.get(square);
+
+ if(piece&&piece.color===game.turn()){
+  selected=square;
+  legal=game.moves({square:square,verbose:true});
+ }else{
+  selected=null;
+  legal=[];
+ }
+
+ render();
+}
+
+document.getElementById("new").addEventListener("click",startGame);
+
+document.getElementById("undo").addEventListener("click",()=>{
+ if(game.history().length)game.undo();
+ selected=null;
+ legal=[];
+ render();
+});
+
+document.getElementById("flip").addEventListener("click",()=>{
+ flipped=!flipped;
+ render();
+});
+
+if(typeof Chess==="undefined"){
+ status.textContent="Chess library failed to load";
+ message.textContent="Check your internet connection and reload.";
+}else{
+ startGame();
+}
+</script>
+</body>
+</html>
