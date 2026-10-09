@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050c17">
+<title>Bot Arena | Chess Universe</title>
+
+<style>
+:root {
+  --bg: #050c17;
+  --panel: #0a192a;
+  --border: #17405d;
+  --cyan: #45c8ff;
+  --green: #35e5b0;
+  --text: #eff7ff;
+  --muted: #9ab2c9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at top, #123657, transparent 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+  padding: 17px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-weight: 900;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+.brand span {
+  color: var(--cyan);
+}
+
+a {
+  color: #80caff;
+  text-decoration: none;
+}
+
+main {
+  width: min(1100px, 94%);
+  margin: 25px auto;
+}
+
+.top {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 7px 13px;
+  border-radius: 30px;
+  background: #22d3ee15;
+  border: 1px solid #22d3ee55;
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+h1 {
+  font-size: clamp(27px, 5vw, 43px);
+  margin: 14px 0 8px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.panel {
+  background: linear-gradient(145deg, #0a1a2b, #06111f);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #183b55;
+  border-radius: 12px;
+  background: #081522;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: #142b42;
+  border-radius: 12px;
+  font-size: 28px;
+}
+
+.player-name {
+  font-weight: bold;
+}
+
+.player-sub {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.turn {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: bold;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 2px solid #a87948;
+  border-radius: 5px;
+}
+
+.square {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.light {
+  background: #e5c18d;
+}
+
+.dark {
+  background: #805735;
+}
+
+.selected {
+  background: #d5ca54 !important;
+}
+
+.last {
+  box-shadow: inset 0 0 0 100px #d9df5645;
+}
+
+.square.legal::after {
+  content: "";
+  position: absolute;
+  width: 23%;
+  height: 23%;
+  border-radius: 50%;
+  background: #102c3480;
+}
+
+.square.capture::after {
+  content: "";
+  position: absolute;
+  inset: 3%;
+  border: 3px solid #e65c5ccc;
+  border-radius: 50%;
+}
+
+.piece {
+  font-family: "DejaVu Sans", "Segoe UI Symbol",
+    "Noto Sans Symbols 2", serif;
+  font-size: clamp(24px, 6.2vw, 59px);
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+.white-piece {
+  color: #fff8e8;
+  -webkit-text-stroke: 1px #735333;
+  text-shadow: 0 3px 3px #0008;
+}
+
+.black-piece {
+  color: #252a32;
+  -webkit-text-stroke: .6px #c4b7a2;
+  text-shadow: 0 3px 3px #0008;
+}
+
+.coordinates {
+  display: flex;
+  justify-content: space-around;
+  padding: 7px 0;
+  color: #f0d1a0;
+  font-size: 12px;
+}
+
+.status {
+  border: 1px solid #17608a;
+  background: #0b2741;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.status strong {
+  color: var(--green);
+  font-size: 17px;
+}
+
+.status p {
+  color: #b9cde0;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #28649a;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #12355a, #0b1d34);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 9px;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #48efba, #23cfa7);
+  border-color: var(--green);
+  color: #04251e;
+}
+
+.btn:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.info {
+  border-top: 1px solid #ffffff12;
+  margin-top: 15px;
+  padding-top: 13px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+#history {
+  max-height: 170px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  color: #c9def3;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 15px;
+}
+
+footer {
+  text-align: center;
+  color: #86a9c8;
+  padding: 25px;
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+}
+
+@media(max-width: 700px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    padding: 11px;
+  }
+
+  .piece {
+    font-size: clamp(27px, 9vw, 47px);
+  }
+
+  main {
+    margin-top: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">♟ CHESS <span>UNIVERSE</span></div>
+  <a href="bots.html">← Bot League</a>
+</header>
+
+<main>
+  <section class="top">
+    <div class="badge">BOT CHALLENGE ARENA</div>
+    <h1 id="botTitle">Pawn Rookie</h1>
+    <div class="subtitle" id="botRating">Rating: 200</div>
+  </section>
+
+  <div class="layout">
+
+    <section class="panel">
+
+      <div class="player">
+        <div class="avatar">🤖</div>
+        <div>
+          <div class="player-name" id="opponentName">Pawn Rookie</div>
+          <div class="player-sub">Computer · Black</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="turn" id="botTurn"></div>
+      </div>
+
+      <div id="board" aria-label="Chessboard"></div>
+      <div class="coordinates" id="coordinates">
+        a　 b　 c　 d　 e　 f　 g　 h
+      </div>
+
+      <div class="player">
+        <div class="avatar">♙</div>
+        <div>
+          <div class="player-name">You</div>
+          <div class="player-sub">Player · White</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="turn" id="yourTurn">YOUR MOVE</div>
+      </div>
+
+    </section>
+
+    <aside class="panel">
+      <h2 style="margin-top:0">⚔ Match Status</h2>
+
+      <div class="status">
+        <strong id="statusTitle">Loading chess...</strong>
+        <p id="statusMessage">Loading the chess rules and AI engine.</p>
+      </div>
+
+      <button class="btn primary" id="newGame">⟳ New Game</button>
+      <button class="btn" id="undo">↶ Undo Last Turn</button>
+      <button class="btn" id="flip">⇅ Flip Board</button>
+
+      <div class="info">
+        <div>♟ You play as White.</div>
+        <div>🤖 Computer plays as Black.</div>
+        <div>🏆 Defeat the bot to unlock the next level.</div>
+        <div id="engineStatus">AI engine: starting...</div>
+      </div>
+
+      <h3>☷ Move History</h3>
+      <div id="history">No moves yet.</div>
+
+      <p style="font-size:12px;color:var(--muted);line-height:1.6">
+        Bot strength depends on engine settings and device performance.
+        The displayed rating is a challenge level, not an official rating.
+      </p>
+    </aside>
+
+  </div>
+</main>
+
+<footer>CHESS UNIVERSE · THINK · MOVE · WIN</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  const BOT_KEY = "chessUniverseSelectedBot";
+  const PROGRESS_KEY = "chessUniverseBotProgress";
+
+  const bots = [
+    {name:"Pawn Rookie", rating:200},
+    {name:"Knight Scout", rating:400},
+    {name:"Bishop Brain", rating:600},
+    {name:"Rook Raider", rating:800},
+    {name:"Tactical Fox", rating:1000},
+    {name:"Dark Knight", rating:1200},
+    {name:"Mastermind", rating:1400},
+    {name:"Grandmaster", rating:1600},
+    {name:"Elite Engine", rating:1800},
+    {name:"Chess Overlord", rating:2000}
+  ];
+
+  let selectedBot = {level:1, name:bots[0].name, rating:200};
+
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(BOT_KEY) || "null");
+    if (saved && Number.isInteger(saved.level) &&
+        saved.level >= 1 && saved.level <= 10) {
+      selectedBot = bots[saved.level - 1];
+      selectedBot = {...selectedBot, level:saved.level};
+    }
+  } catch (e) {}
+
+  document.getElementById("botTitle").textContent = selectedBot.name;
+  document.getElementById("opponentName").textContent = selectedBot.name;
+  document.getElementById("botRating").textContent =
+    "Challenge Rating: " + selectedBot.rating;
+
+  const boardElement = document.getElementById("board");
+  const statusTitle = document.getElementById("statusTitle");
+  const statusMessage = document.getElementById("statusMessage");
+  const engineStatus = document.getElementById("engineStatus");
+  const historyElement = document.getElementById("history");
+
+  const symbols = {
+    w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},
+    b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}
+  };
+
+  let game = null;
+  let engine = null;
+  let engineReady = false;
+  let engineBusy = false;
+  let selectedSquare = null;
+  let legalMoves = [];
+  let flipped = false;
+  let lastMove = null;
+  let ended = false;
+  let searchTimeout = null;
+
+  function say(title, message) {
+    statusTitle.textContent = title;
+    statusMessage.textContent = message;
+  }
+
+  function getProgress() {
+    try {
+      const n = Number(localStorage.getItem(PROGRESS_KEY));
+      return Number.isFinite(n) ? Math.max(1, Math.min(10, Math.floor(n))) : 1;
+    } catch (e) {
+      return 1;
+    }
+  }
+
+  function saveWin() {
+    if (selectedBot.level >= 10) {
+      say("🏆 CHAMPION!", "You defeated the final bot! You have completed the Bot Challenge.");
+      return;
+    }
+
+    const nextLevel = selectedBot.level + 1;
+
+    try {
+      localStorage.setItem(PROGRESS_KEY, String(Math.max(getProgress(), nextLevel)));
+    } catch (e) {}
+
+    say(
+      "🏆 VICTORY!",
+      "You defeated " + selectedBot.name +
+      "! Bot " + nextLevel + " is now unlocked. Return to the Bot League to challenge them."
+    );
+  }
+
+  function renderCoordinates() {
+    const files = flipped
+      ? ["h","g","f","e","d","c","b","a"]
+      : ["a","b","c","d","e","f","g","h"];
+
+    document.getElementById("coordinates").textContent = files.join("　");
+  }
+
+  function getSquares() {
+    const files = ["a","b","c","d","e","f","g","h"];
+    const ranks = [8,7,6,5,4,3,2,1];
+
+    if (flipped) {
+      files.reverse();
+      ranks.reverse();
+    }
+
+    return ranks.flatMap(rank => files.map(file => file + rank));
+  }
+
+  function render() {
+    if (!game) return;
+
+    boardElement.innerHTML = "";
+    renderCoordinates();
+
+    getSquares().forEach(function (square, index) {
+      const piece = game.get(square);
+      const cell = document.createElement("button");
+
+      cell.type = "button";
+      cell.className = "square " +
+        ((Math.floor(index / 8) + index % 8) % 2 === 0 ? "light" : "dark");
+
+      cell.setAttribute("aria-label", square);
+
+      if (selectedSquare === square) cell.classList.add("selected");
+
+      if (lastMove && (lastMove.from === square || lastMove.to === square)) {
+        cell.classList.add("last");
+      }
+
+      if (legalMoves.some(m => m.to === square)) {
+        cell.classList.add(piece ? "capture" : "legal");
+      }
+
+      if (piece) {
+        const span = document.createElement("span");
+        span.className = "piece " +
+          (piece.color === "w" ? "white-piece" : "black-piece");
+        span.textContent = symbols[piece.color][piece.type];
+        cell.appendChild(span);
+      }
+
+      cell.addEventListener("click", () => chooseSquare(square));
+      boardElement.appendChild(cell);
+    });
+
+    updateHistory();
+  }
+
+  function updateHistory() {
+    const moves = game.history();
+
+    if (!moves.length) {
+      historyElement.textContent = "No moves yet.";
+      return;
+    }
+
+    historyElement.textContent = "";
+
+    for (let i = 0; i < moves.length; i += 2) {
+      const row = document.createElement("div");
+      row.textContent = (Math.floor(i / 2) + 1) + ". " +
+        moves[i] + (moves[i + 1] ? "   " + moves[i + 1] : "");
+      historyElement.appendChild(row);
+    }
+
+    historyElement.scrollTop = historyElement.scrollHeight;
+  }
+
+  function updateTurn() {
+    if (!game) return;
+
+    document.getElementById("yourTurn").textContent =
+      ended ? "GAME OVER" : game.turn() === "w" ? "YOUR MOVE" : "WAIT...";
+
+    document.getElementById("botTurn").textContent =
+      ended ? "" : game.turn() === "b" ? "THINKING..." : "";
+  }
+
+  function finishIfNeeded() {
+    if (!game.game_over()) return false;
+
+    ended = true;
+    engineBusy = false;
+    clearTimeout(searchTimeout);
+
+    if (game.in_checkmate()) {
+      if (game.turn() === "b") {
+        saveWin();
+      } else {
+        say("♟ CHECKMATE", selectedBot.name + " wins this game. Try again!");
+      }
+    } else if (game.in_draw()) {
+      say("DRAW", "The game ended in a draw. Start a new game to try again.");
+    } else {
+      say("GAME OVER", "The game has ended.");
+    }
+
+    updateTurn();
+    return true;
+  }
+
+  function chooseSquare(square) {
+    if (!game || ended || engineBusy || !engineReady || game.turn() !== "w") {
+      return;
+    }
+
+    if (selectedSquare && legalMoves.some(m => m.to === square)) {
+      let move = game.move({
+        from: selectedSquare,
+        to: square,
+        promotion: "q"
+      });
+
+      if (move) {
+        lastMove = {from:move.from, to:move.to};
+        selectedSquare = null;
+        legalMoves = [];
+        render();
+        if (!finishIfNeeded()) {
+          updateTurn();
+          makeBotMove();
+        } else {
+          render();
+        }
+        return;
+      }
+    }
+
+    const piece = game.get(square);
+
+    if (piece && piece.color === "w") {
+      selectedSquare = square;
+      legalMoves = game.moves({square:square, verbose:true});
+    } else {
+      selectedSquare = null;
+      legalMoves = [];
+    }
+
+    render();
+  }
+
+  function makeBotMove() {
+    if (!engineReady || !engine || !game || ended || game.game_over()) return;
+
+    engineBusy = true;
+    updateTurn();
+    say("🤖 " + selectedBot.name + " is thinking", "The computer is calculating its move...");
+
+    try {
+      engine.postMessage("position fen " + game.fen());
+
+      const level = selectedBot.level;
+      const depth = Math.min(12, Math.max(1, Math.ceil(level * 1.2)));
+      const skill = Math.max(0, Math.min(20, Math.round((level - 1) * 20 / 9)));
+
+      engine.postMessage("setoption name Skill Level value " + skill);
+      engine.postMessage("go depth " + depth);
+
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(function () {
+        if (engineBusy) {
+          engineBusy = false;
+          say("AI taking too long", "Please try again or reload the page.");
+          updateTurn();
+        }
+      }, 30000);
+    } catch (e) {
+      engineBusy = false;
+      say("AI error", "The engine could not calculate a move. Reload the page and try again.");
+      updateTurn();
+    }
+  }
+
+  function handleEngineMessage(event) {
+    const line = typeof event.data === "string" ? event.data : "";
+    if (!line) return;
+
+    if (line.includes("uciok")) {
+      engine.postMessage("isready");
+      return;
+    }
+
+    if (line.includes("readyok")) {
+      engineReady = true;
+      engineStatus.textContent = "AI engine: ready";
+      say("Ready to play", "You play White. Make your first move!");
+      updateTurn();
+      return;
+    }
+
+    if (line.startsWith("bestmove")) {
+      clearTimeout(searchTimeout);
+
+      if (!engineBusy || !game || ended) return;
+
+      engineBusy = false;
+
+      const parts = line.trim().split(/\s+/);
+      const bestMove = parts[1];
+
+      if (!bestMove || bestMove === "(none)") {
+        finishIfNeeded();
+        render();
+        return;
+      }
+
+      const move = game.move({
+        from: bestMove.slice(0,2),
+        to: bestMove.slice(2,4),
+        promotion: bestMove.length > 4 ? bestMove[4] : "q"
+      });
+
+      if (move) {
+        lastMove = {from:move.from, to:move.to};
+      }
+
+      render();
+
+      if (!finishIfNeeded()) {
+        say("Your turn", "Choose a piece and make your move.");
+      }
+
+      updateTurn();
+    }
+  }
+
+  function loadEngine() {
+    engineStatus.textContent = "AI engine: loading...";
+
+    try {
+      const workerCode =
+        "importScripts('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');";
+
+      const blob = new Blob([workerCode], {type:"application/javascript"});
+      const workerUrl = URL.createObjectURL(blob);
+
+      engine = new Worker(workerUrl);
+      engine.onmessage = handleEngineMessage;
+
+      engine.onerror = function () {
+        engineStatus.textContent = "AI engine: failed to load";
+        say("AI engine unavailable", "Check your internet connection and reload this page. If the engine CDN is blocked, the bot cannot move.");
+        engineReady = false;
+      };
+
+      engine.postMessage("uci");
+    } catch (e) {
+      engineStatus.textContent = "AI engine: unavailable";
+      say("AI engine unavailable", "This browser could not start the chess engine. Try opening the page in Chrome.");
+    }
+  }
+
+  function newGame() {
+    if (!game) return;
+
+    clearTimeout(searchTimeout);
+
+    game.reset();
+    selectedSquare = null;
+    legalMoves = [];
+    lastMove = null;
+    ended = false;
+    engineBusy = false;
+
+    render();
+    updateTurn();
+
+    if (engineReady) {
+      say("Ready to play", "You play White. Make your first move!");
+    } else {
+      say("Loading AI", "Wait for the chess engine to become ready.");
+    }
+  }
+
+  document.getElementById("newGame").addEventListener("click", newGame);
+
+  document.getElementById("undo").addEventListener("click", function () {
+    if (!game || engineBusy || ended) return;
+
+    const first = game.undo();
+    if (!first) return;
+
+    // Undo the computer's move too, so it is the player's turn again.
+    if (game.turn() === "w" && game.history().length) {
+      game.undo();
+    }
+
+    selectedSquare = null;
+    legalMoves = [];
+    lastMove = null;
+    render();
+    updateTurn();
+    say("Move undone", "Your last turn has been undone.");
+  });
+
+  document.getElementById("flip").addEventListener("click", function () {
+    flipped = !flipped;
+    render();
+  });
+
+  function loadChessRules(urls, index) {
+    if (typeof window.Chess === "function") {
+      game = new window.Chess();
+      render();
+      updateTurn();
+      loadEngine();
+      return;
+    }
+
+    if (index >= urls.length) {
+      say("Chess rules unavailable", "Connect to the internet and reload this page.");
+      engineStatus.textContent = "Chess library: failed to load";
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = urls[index];
+    script.onload = function () {
+      if (typeof window.Chess === "function") {
+        game = new window.Chess();
+        render();
+        updateTurn();
+        loadEngine();
+      } else {
+        script.remove();
+        loadChessRules(urls, index + 1);
+      }
+    };
+
+    script.onerror = function () {
+      script.remove();
+      loadChessRules(urls, index + 1);
+    };
+
+    document.head.appendChild(script);
+  }
+
+  loadChessRules([
+    "https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js",
+    "https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"
+  ], 0);
+})();
+</script>
+
+</body>
+</html>
