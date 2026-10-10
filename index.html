@@ -3,104 +3,151 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lobby | Chess Universe</title>
+  <title>Chess Universe | The Modern Chess Hub</title>
   
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
 
-  <!-- Top Navbar -->
+  <!-- Premium Top Navigation -->
   <header class="navbar">
     <div class="nav-brand">
-      <a href="index.html">
-        <span class="brand-icon">♞</span>
-        <span>CHESS UNIVERSE</span>
+      <a href="index.html" class="flex items-center gap-2">
+        <span class="brand-icon text-2xl">♞</span>
+        <span class="tracking-wider font-extrabold text-base bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent">CHESS UNIVERSE</span>
       </a>
     </div>
 
-    <div class="nav-links">
-      <a href="index.html" class="nav-item active text-emerald-400">Lobby</a>
-      <a href="bots.html" class="nav-item">Bots Lounge</a>
-      <a href="multiplayer.html" class="nav-item">Play Online</a>
+    <div class="nav-links hidden sm:flex">
+      <a href="index.html" class="nav-item active text-emerald-400 font-bold">Lobby</a>
+      <a href="bots.html" class="nav-item font-semibold hover:text-emerald-400 transition">Bots Championship</a>
+      <a href="multiplayer.html" class="nav-item font-semibold hover:text-emerald-400 transition">Play Online</a>
     </div>
 
-    <div class="user-badge" id="userBadgeNav">
-      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="user-avatar" alt="Avatar">
-      <div class="hidden sm:block text-left">
-        <div id="navName" class="user-name">Player</div>
+    <!-- User Pill (Click to Edit Username) -->
+    <button id="btnOpenProfileModal" class="user-badge hover:border-emerald-500/50 transition">
+      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Grandmaster" class="user-avatar" alt="Avatar">
+      <div class="text-left">
+        <div id="navName" class="user-name">Grandmaster</div>
       </div>
       <span id="navElo" class="elo-pill">?</span>
-    </div>
+    </button>
   </header>
 
-  <!-- Main Hero & Hub -->
-  <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-8 flex flex-col justify-center">
+  <!-- Main Hero Hub -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6">
 
-    <!-- Player Profile Summary Card -->
-    <div class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div class="flex items-center gap-5 text-center sm:text-left">
-        <img id="heroAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="w-20 h-20 rounded-2xl bg-slate-900 border-2 border-emerald-500 shadow-xl" alt="Player">
-        <div>
-          <div class="flex items-center justify-center sm:justify-start gap-2">
-            <h2 id="heroName" class="text-2xl font-black text-white">Grandmaster</h2>
-            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">VERIFIED</span>
+    <!-- Hero Player Card -->
+    <div class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800/80 bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-emerald-950/20 shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-8 -top-8 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+        
+        <!-- Profile Identity & Edit Option -->
+        <div class="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+          <div class="relative group cursor-pointer" onclick="document.getElementById('profileModal').classList.add('show')">
+            <img id="heroAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Grandmaster" class="w-20 h-20 rounded-2xl bg-slate-800 border-2 border-emerald-500/80 shadow-lg object-cover" alt="Profile">
+            <span class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-[11px] font-bold text-emerald-300 transition">Edit ✏️</span>
           </div>
-          <p id="heroContact" class="text-xs text-slate-400 font-mono mt-0.5">+91 ••••• •••••</p>
           
-          <div class="flex items-center gap-2 mt-3 justify-center sm:justify-start">
-            <span class="text-xs text-slate-400 font-bold">Rating:</span>
-            <span id="heroElo" class="text-sm font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/20">Calibrating (?)</span>
+          <div>
+            <div class="flex items-center justify-center sm:justify-start gap-2.5">
+              <h1 id="heroName" class="text-2xl font-black text-white tracking-tight">Grandmaster</h1>
+              <button onclick="document.getElementById('profileModal').classList.add('show')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded-lg border border-slate-700 transition" title="Change Username">
+                ✏️ Edit Handle
+              </button>
+            </div>
+            
+            <div class="flex items-center justify-center sm:justify-start gap-2 mt-1.5 font-mono text-xs text-slate-400">
+              <span>Player ID:</span>
+              <span id="playerTag" class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">#CHESS-8921</span>
+              <button id="btnCopyTag" class="hover:text-emerald-300" title="Copy Tag">📋</button>
+            </div>
+
+            <div class="flex items-center gap-3 mt-3 justify-center sm:justify-start">
+              <span class="text-xs font-bold text-slate-400">Ranked Status:</span>
+              <span id="heroElo" class="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/30">Calibrating (?)</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Quick Campaign Stats -->
-      <div class="flex gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 w-full sm:w-auto justify-around">
-        <div class="text-center px-3 border-r border-slate-800">
-          <span class="text-[10px] text-slate-400 uppercase font-bold block">Campaign</span>
-          <span id="heroTier" class="text-lg font-black text-amber-400">Level 1</span>
+        <!-- Career Metrics -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 bg-slate-950/70 p-4 rounded-2xl border border-slate-800/80 w-full md:w-auto">
+          <div class="text-center px-2">
+            <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Campaign</span>
+            <span id="heroTier" class="text-lg font-black text-amber-400">Tier 1</span>
+          </div>
+          <div class="text-center px-2 border-x border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Placement</span>
+            <span id="heroPlacement" class="text-lg font-black text-blue-400">0 / 5</span>
+          </div>
+          <div class="text-center px-2">
+            <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Fair Play</span>
+            <span class="text-lg font-black text-emerald-400">100%</span>
+          </div>
         </div>
-        <div class="text-center px-3 border-r border-slate-800">
-          <span class="text-[10px] text-slate-400 uppercase font-bold block">Placement</span>
-          <span id="heroPlacement" class="text-lg font-black text-blue-400">0 / 5</span>
-        </div>
-        <div class="text-center px-3">
-          <button id="btnLogout" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase block mt-1 transition">
-            Sign Out ⎋
-          </button>
-        </div>
+
       </div>
     </div>
 
-    <!-- Quick Play Action Modes -->
+    <!-- Instant Friend Duel Launcher Bar -->
+    <div class="glass-card p-5 sm:p-6 rounded-3xl border border-slate-800 bg-slate-900/50 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-2xl text-blue-400 shrink-0">
+          👥
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-white">Challenge A Friend Directly</h3>
+          <p class="text-xs text-slate-400">Enter your friend's Username or ID Tag to start a match</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 w-full md:w-auto">
+        <input 
+          type="text" 
+          id="friendInput" 
+          placeholder="e.g. Vishy_Anand or #CHESS-1024" 
+          class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition w-full md:w-64"
+        >
+        <button id="btnChallengeFriend" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition shrink-0 shadow-lg shadow-blue-600/20">
+          Duel ⚔️
+        </button>
+      </div>
+    </div>
+
+    <!-- Major Game Modes Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
       
-      <!-- Bots Campaign Card -->
-      <a href="bots.html" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 hover:border-emerald-500/40 transition group block">
+      <!-- Bots Campaign Arena -->
+      <a href="bots.html" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 hover:border-emerald-500/50 transition group block relative overflow-hidden">
         <div class="flex items-center justify-between mb-4">
-          <span class="text-4xl p-3 bg-emerald-500/10 rounded-2xl text-emerald-400 border border-emerald-500/20">🤖</span>
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-3xl text-emerald-400">
+            🤖
+          </div>
           <span class="text-xs font-bold text-slate-400 group-hover:text-emerald-400 transition flex items-center gap-1">
-            Explore Tiers <span>→</span>
+            Play Championship <span>→</span>
           </span>
         </div>
-        <h3 class="text-xl font-extrabold text-white mb-1 group-hover:text-emerald-400 transition">Bot Championship</h3>
+        <h2 class="text-xl font-extrabold text-white mb-1 group-hover:text-emerald-400 transition">10-Tier Bot Campaign</h2>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Defeat progressive AI challengers from Noobie Bob to the ultimate boss Supremo360 to unlock medals.
+          Level 1 Noobie Bob se lekar Grandmaster Supremo360 tak. Har bot ko harane par agla tier unlock hota hai!
         </p>
       </a>
 
-      <!-- Multiplayer Card -->
-      <a href="multiplayer.html" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 hover:border-blue-500/40 transition group block">
+      <!-- Online WhatsApp & Radar Arena -->
+      <a href="multiplayer.html" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 hover:border-teal-500/50 transition group block relative overflow-hidden">
         <div class="flex items-center justify-between mb-4">
-          <span class="text-4xl p-3 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">⚔️</span>
-          <span class="text-xs font-bold text-slate-400 group-hover:text-blue-400 transition flex items-center gap-1">
-            Create Arena <span>→</span>
+          <div class="w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-3xl text-teal-400">
+            💬
+          </div>
+          <span class="text-xs font-bold text-slate-400 group-hover:text-teal-400 transition flex items-center gap-1">
+            WhatsApp & Online <span>→</span>
           </span>
         </div>
-        <h3 class="text-xl font-extrabold text-white mb-1 group-hover:text-blue-400 transition">Online Multiplayer</h3>
+        <h2 class="text-xl font-extrabold text-white mb-1 group-hover:text-teal-400 transition">Multiplayer & WhatsApp Duel</h2>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Challenge friends via 1-tap WhatsApp invites in Friendly or Rated matches, or enter live radar matchmaking.
+          Friendly ya Rated match select karo aur 1-tap WhatsApp challenge link bhejo ya live radar par opponent dhundo.
         </p>
       </a>
 
@@ -108,35 +155,127 @@
 
   </main>
 
+  <!-- Edit Username & Profile Modal -->
+  <div id="profileModal" class="modal-backdrop">
+    <div class="modal-dialog max-w-sm">
+      <div class="text-3xl mb-2">⚙️</div>
+      <h3 class="text-xl font-black mb-1">Edit Player Profile</h3>
+      <p class="text-xs text-slate-400 mb-5">Set your permanent in-game handle and avatar</p>
+
+      <div class="space-y-4 text-left">
+        <div>
+          <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Custom Username</label>
+          <input 
+            type="text" 
+            id="modalUsernameInput" 
+            maxlength="16"
+            placeholder="Choose username" 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
+          >
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Avatar Seed / Style</label>
+          <input 
+            type="text" 
+            id="modalAvatarInput" 
+            placeholder="e.g. Phoenix, Knight, Tiger" 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
+          >
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-6">
+        <button onclick="document.getElementById('profileModal').classList.remove('show')" class="btn-secondary flex-1 py-2.5 rounded-xl text-xs font-bold">
+          Cancel
+        </button>
+        <button id="btnSaveProfile" class="btn-primary flex-1 py-2.5 rounded-xl text-xs font-extrabold">
+          Save Profile
+        </button>
+      </div>
+
+      <button id="btnLogout" class="mt-4 text-xs text-red-400 hover:text-red-300 font-semibold block w-full text-center">
+        Log Out of Account ⎋
+      </button>
+    </div>
+  </div>
+
   <script>
-    // 1. Auth Guard: If not verified via OTP, bounce immediately to login.html
+    // 1. Auth Guard
     if (!localStorage.getItem('chess_auth')) {
       window.location.href = 'login.html';
     }
 
-    // 2. Fetch User Profile Data
-    const userName = localStorage.getItem('chess_name') || 'Grandmaster';
-    const userAvatar = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Player';
-    const userContact = localStorage.getItem('chess_contact') || 'Verified User';
-    const userRating = localStorage.getItem('chess_rating') || 'Calibrating (?)';
-    const unlockedTier = localStorage.getItem('chess_max_bot_unlocked') || '1';
-    const calibCount = localStorage.getItem('chess_calibration_games') || '0';
+    // 2. Initialize Player Tag if not set
+    if (!localStorage.getItem('chess_player_tag')) {
+      const randomTag = '#CHESS-' + Math.floor(1000 + Math.random() * 9000);
+      localStorage.setItem('chess_player_tag', randomTag);
+    }
 
-    // 3. Render Profile
-    document.getElementById('navName').innerText = userName;
-    document.getElementById('navAvatar').src = userAvatar;
-    document.getElementById('navElo').innerText = userRating;
+    function renderProfile() {
+      const name = localStorage.getItem('chess_name') || 'Grandmaster';
+      const avatar = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`;
+      const rating = localStorage.getItem('chess_rating') || 'Calibrating (?)';
+      const tag = localStorage.getItem('chess_player_tag');
+      const tier = localStorage.getItem('chess_max_bot_unlocked') || '1';
+      const placement = localStorage.getItem('chess_calibration_games') || '0';
 
-    document.getElementById('heroName').innerText = userName;
-    document.getElementById('heroAvatar').src = userAvatar;
-    document.getElementById('heroContact').innerText = userContact;
-    document.getElementById('heroElo').innerText = userRating;
-    document.getElementById('heroTier').innerText = `Tier ${unlockedTier}`;
-    document.getElementById('heroPlacement').innerText = `${calibCount} / 5`;
+      document.getElementById('navName').innerText = name;
+      document.getElementById('navAvatar').src = avatar;
+      document.getElementById('navElo').innerText = rating;
 
-    // 4. Sign Out Handler
+      document.getElementById('heroName').innerText = name;
+      document.getElementById('heroAvatar').src = avatar;
+      document.getElementById('heroElo').innerText = rating;
+      document.getElementById('playerTag').innerText = tag;
+      document.getElementById('heroTier').innerText = `Tier ${tier}`;
+      document.getElementById('heroPlacement').innerText = `${placement} / 5`;
+
+      document.getElementById('modalUsernameInput').value = name;
+      document.getElementById('modalAvatarInput').value = name;
+    }
+
+    renderProfile();
+
+    // 3. Copy Tag Button
+    document.getElementById('btnCopyTag').onclick = () => {
+      const tag = localStorage.getItem('chess_player_tag');
+      navigator.clipboard.writeText(tag).then(() => {
+        alert(`Player Tag ${tag} copied to clipboard! Send this to your friend.`);
+      });
+    };
+
+    // 4. Save Custom Profile & Username
+    document.getElementById('btnSaveProfile').onclick = () => {
+      const newName = document.getElementById('modalUsernameInput').value.trim();
+      const seed = document.getElementById('modalAvatarInput').value.trim() || newName;
+
+      if (!newName || newName.length < 3) {
+        alert("Username kam se kam 3 characters ka hona chahiye!");
+        return;
+      }
+
+      localStorage.setItem('chess_name', newName);
+      localStorage.setItem('chess_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(seed)}`);
+
+      document.getElementById('profileModal').classList.remove('show');
+      renderProfile();
+    };
+
+    // 5. Direct Friend Challenge Launcher
+    document.getElementById('btnChallengeFriend').onclick = () => {
+      const friend = document.getElementById('friendInput').value.trim();
+      if (!friend) {
+        alert("Dost ka Username ya Player Tag enter karein!");
+        return;
+      }
+      // Redirect directly to multiplayer lobby with opponent tag preset
+      window.location.href = `multiplayer.html?opponent=${encodeURIComponent(friend)}`;
+    };
+
+    // 6. Sign Out Handler
     document.getElementById('btnLogout').onclick = () => {
-      if (confirm("Do you want to log out of your Chess Universe account?")) {
+      if (confirm("Log out karna chahte hain?")) {
         localStorage.removeItem('chess_auth');
         window.location.href = 'login.html';
       }
