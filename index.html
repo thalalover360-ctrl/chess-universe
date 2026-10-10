@@ -1,121 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090d0b">
-<title>Chess Universe — Rule Your Kingdom</title>
-<style>
-*{box-sizing:border-box}
-:root{--gold:#e8c477;--green:#183e30;--bg:#090d0b;--muted:#a6b2a7}
-body{margin:0;background:radial-gradient(ellipse at 75% 30%,#20392b 0,transparent 45%),var(--bg);color:#f8f2e5;font-family:Arial,sans-serif}
-nav{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 7%;border-bottom:1px solid #ffffff18}
-.brand{font-family:Georgia,serif;font-size:20px;letter-spacing:2px;color:var(--gold)}
-.brand span{font-size:28px;margin-right:8px}
-.navright{display:flex;gap:12px;align-items:center}
-a{color:inherit;text-decoration:none}
-.btn{display:inline-flex;justify-content:center;align-items:center;padding:13px 19px;border-radius:7px;border:1px solid #b79857;font-weight:bold;font-size:13px;cursor:pointer}
-.btn.gold{background:linear-gradient(130deg,#f2d99c,#bd8b3c);color:#17160f;border:0}
-.btn.ghost{background:#ffffff08}
-main{max-width:1160px;margin:auto;padding:45px 6% 70px}
-.hero{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;min-height:440px}
-.eyebrow{color:var(--gold);font-size:11px;letter-spacing:4px;font-weight:bold}
-h1{font:clamp(44px,6vw,76px)/1.04 Georgia,serif;margin:20px 0}
-h1 em{color:var(--gold);font-weight:normal}
-.intro{max-width:440px;line-height:1.8;color:#b7c1b8;font-size:15px}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
-.art{position:relative;min-height:330px;display:grid;place-items:center}
-.orbit{position:absolute;width:min(330px,80vw);aspect-ratio:1;border:1px solid #d6b46635;border-radius:50%;box-shadow:0 0 70px #c69d3720,inset 0 0 60px #c69d3710}
-.king{font-size:clamp(160px,28vw,260px);color:#f3e5bd;text-shadow:0 4px 0 #8c7444,0 12px 5px #000,0 0 45px #e6c16a55;z-index:1}
-.spark{position:absolute;color:var(--gold);font-size:28px}
-.s1{top:18%;left:15%}.s2{right:12%;top:27%}.s3{bottom:12%;left:20%}
-.sectionhead{text-align:center;margin:36px 0 24px}
-.sectionhead h2{font:32px Georgia,serif;margin:0 0 10px}
-.sectionhead p{color:var(--muted);font-size:13px}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.card{border:1px solid #ffffff1c;background:linear-gradient(145deg,#17241c,#0e1511);border-radius:12px;padding:23px;min-height:205px;transition:.2s}
-.card:hover{border-color:#d9b45e88;transform:translateY(-3px)}
-.ico{font-size:34px;margin-bottom:17px}
-.card h3{font:22px Georgia,serif;margin:0 0 10px;color:#f2dfb4}
-.card p{font-size:13px;color:#aab7ad;line-height:1.7;min-height:43px}
-.card a{display:inline-block;margin-top:7px;color:var(--gold);font-size:13px;font-weight:bold}
-.featurebar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
-.feature{border:1px solid #ffffff12;border-radius:8px;padding:17px;text-align:center;color:#d3d8cd;font-size:12px}
-.feature strong{display:block;color:var(--gold);font-size:21px;margin-bottom:5px}
-footer{text-align:center;border-top:1px solid #ffffff16;padding:24px;color:#78887c;font-size:11px;letter-spacing:1px}
-@media(max-width:720px){
- nav{padding:0 5%;height:66px}.brand{font-size:15px}.brand span{font-size:22px}
- .navright{gap:7px}.navright .btn{padding:10px;font-size:11px}
- main{padding:30px 5% 45px}.hero{grid-template-columns:1fr;gap:0;text-align:center}
- .intro{margin:auto}.actions{justify-content:center}.art{min-height:245px;grid-row:1}
- .king{font-size:190px}.orbit{width:240px}
- .cards{grid-template-columns:1fr}.card{min-height:0}
- .featurebar{gap:6px}.feature{padding:12px 5px;font-size:10px}
- .feature strong{font-size:17px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07110e">
+  <meta name="description" content="Chess Universe — play chess against AI or challenge your friends online.">
+  <title>Chess Universe | Rule Your Game</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .site-nav {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px max(20px, calc((100vw - 1180px)/2));
+      background: rgba(7,17,14,.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(231,189,105,.18);
+      z-index: 50;
+    }
+    .nav-links { display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+    .brand-mark { color:#e7bd69; font-size:1.25rem; font-weight:800; }
+    .nav-links a { color:#a5b5ad; font-size:.9rem; }
+    .nav-links a:hover { color:#00d69a; }
+    .hero { min-height:610px; }
+    .hero-kicker { color:#00d69a; font-weight:800; letter-spacing:2px; font-size:.78rem; }
+    .hero h1 { margin:16px 0; }
+    .hero p { line-height:1.9; }
+    .hero-art { position:relative; display:grid; place-items:center; min-height:360px; }
+    .chess-orb {
+      display:grid; place-items:center; width:min(300px,70vw); aspect-ratio:1;
+      border:1px solid rgba(231,189,105,.4); border-radius:50%;
+      background:radial-gradient(circle,rgba(0,214,154,.14),rgba(13,28,23,.8) 65%);
+      box-shadow:0 0 80px rgba(0,214,154,.08),inset 0 0 50px rgba(231,189,105,.06);
+      font-size:clamp(8rem,22vw,12rem); color:#e7bd69;
+    }
+    .hero-art::before,.hero-art::after {
+      content:""; position:absolute; width:min(340px,82vw); aspect-ratio:1;
+      border:1px solid rgba(0,214,154,.15); border-radius:50%;
+    }
+    .hero-art::after { width:min(390px,94vw); border-color:rgba(231,189,105,.1); }
+    .hero-stats { display:flex; gap:28px; flex-wrap:wrap; margin-top:35px; }
+    .hero-stats strong { display:block; color:#e7bd69; font-size:1.3rem; }
+    .hero-stats span { color:#9aaca3; font-size:.8rem; }
+    .mode-card { display:flex; flex-direction:column; align-items:flex-start; min-height:270px; }
+    .mode-icon { font-size:2.5rem; margin-bottom:12px; }
+    .mode-card .btn { margin-top:auto; }
+    .mode-card p { margin-bottom:22px; }
+    .feature-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+    .feature-row .card { text-align:center; }
+    .feature-row .feature-icon { margin:0 auto 15px; }
+    .cta-panel {
+      padding:clamp(25px,5vw,55px); border:1px solid rgba(231,189,105,.25);
+      border-radius:24px; text-align:center;
+      background:radial-gradient(ellipse at top,rgba(0,214,154,.1),transparent 65%),#0d1c17;
+    }
+    .cta-panel h2 { margin-top:0; }
+    .section-top { display:flex; justify-content:space-between; align-items:end; gap:15px; margin-bottom:25px; }
+    .section-top h2 { margin:0; }
+    .section-top p { margin-bottom:0; }
+    .site-footer { display:flex; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+    @media(max-width:700px) {
+      .site-nav { align-items:flex-start; flex-direction:column; padding:14px 18px; }
+      .nav-links { gap:15px; }
+      .nav-links a { font-size:.82rem; }
+      .hero { padding-top:40px; }
+      .hero-art { min-height:300px; }
+      .feature-row { grid-template-columns:1fr; }
+      .section-top { align-items:flex-start; flex-direction:column; }
+    }
+  </style>
 </head>
 <body>
-<nav>
- <a class="brand" href="index.html"><span>♛</span>CHESS UNIVERSE</a>
- <div class="navright">
-  <a class="btn ghost" href="login.html">Log In</a>
-  <a class="btn gold" href="login.html">Join Free ↗</a>
- </div>
-</nav>
+
+<header class="site-nav">
+  <a class="brand-mark" href="index.html">♟ CHESS UNIVERSE</a>
+  <nav class="nav-links" aria-label="Main navigation">
+    <a href="#modes">Play</a>
+    <a href="#features">Features</a>
+    <a href="bots.html">Bots</a>
+    <a href="login.html">Account</a>
+    <a class="btn btn-primary" href="bot-game.html">Play Now ↗</a>
+  </nav>
+</header>
 
 <main>
- <section class="hero">
-  <div>
-   <div class="eyebrow">STRATEGY · HONOUR · GLORY</div>
-   <h1>Every move.<br>Build your <em>legacy.</em></h1>
-   <p class="intro">Enter a world where every move matters. Challenge intelligent opponents, invite your friends, and write your own royal story.</p>
-   <div class="actions">
-    <a class="btn gold" href="bot-game.html">♟ Play vs Bot</a>
-    <a class="btn ghost" href="multiplayer.html">⚔ Play a Friend</a>
-   </div>
-  </div>
-  <div class="art">
-   <div class="orbit"></div>
-   <span class="spark s1">✦</span><span class="spark s2">✧</span><span class="spark s3">✦</span>
-   <div class="king">♚</div>
-  </div>
- </section>
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-kicker">♛ YOUR NEXT MOVE STARTS HERE</span>
+      <h1>Think Like a King.<br><span>Play Like a Legend.</span></h1>
+      <p>
+        Enter a world where every move matters. Sharpen your strategy against
+        chess bots or challenge your friends to a battle of minds.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="bot-game.html">♟ Play vs Bot</a>
+        <a class="btn btn-gold" href="multiplayer.html">⚔ Play with Friends</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>♟ 1v1</strong><span>Classic chess battles</span></div>
+        <div><strong>♜ AI</strong><span>Challenge your skills</span></div>
+        <div><strong>♛ FREE</strong><span>Start playing</span></div>
+      </div>
+    </div>
+    <div class="hero-art" aria-label="Chess king artwork">
+      <div class="chess-orb">♚</div>
+    </div>
+  </section>
 
- <div class="sectionhead">
-  <h2>Your kingdom. Your rules.</h2>
-  <p>Choose your battlefield and make your next move.</p>
- </div>
+  <section id="modes" class="container">
+    <div class="section-heading">
+      <span class="eyebrow">CHOOSE YOUR BATTLE</span>
+      <h2>Your Game. Your Rules.</h2>
+      <p>Pick a mode and make your next move count.</p>
+    </div>
+    <div class="features">
+      <article class="card mode-card">
+        <div class="mode-icon">♟</div>
+        <span class="badge">SOLO MODE</span>
+        <h3>Play vs Bot</h3>
+        <p>Practice your openings, improve your tactics and test your decisions against a computer opponent.</p>
+        <a class="btn btn-primary" href="bot-game.html">Start a Match →</a>
+      </article>
+      <article class="card mode-card">
+        <div class="mode-icon">⚔</div>
+        <span class="badge">FRIEND MODE</span>
+        <h3>Multiplayer</h3>
+        <p>Challenge a friend with a room code. Online play requires the multiplayer service to be configured.</p>
+        <a class="btn btn-gold" href="multiplayer.html">Play with a Friend →</a>
+      </article>
+      <article class="card mode-card">
+        <div class="mode-icon">♛</div>
+        <span class="badge">DISCOVER</span>
+        <h3>Meet the Bots</h3>
+        <p>Explore the bot section and choose the opponent you want to challenge.</p>
+        <a class="btn" href="bots.html">Explore Bots →</a>
+      </article>
+    </div>
+  </section>
 
- <section class="cards">
-  <article class="card">
-   <div class="ico">♟</div>
-   <h3>Play vs Bot</h3>
-   <p>Sharpen your strategy against a computer opponent. Every game is a new lesson.</p>
-   <a href="bot-game.html">Enter the arena →</a>
-  </article>
-  <article class="card">
-   <div class="ico">⚔</div>
-   <h3>Challenge a Friend</h3>
-   <p>Bring a friend into the battle. Room codes and online play are coming next.</p>
-   <a href="multiplayer.html">Open multiplayer →</a>
-  </article>
-  <article class="card">
-   <div class="ico">♛</div>
-   <h3>Your Royal Profile</h3>
-   <p>Prepare your player identity for stats, achievements, and your chess journey.</p>
-   <a href="login.html">Create your account →</a>
-  </article>
- </section>
+  <section id="features" class="container">
+    <div class="section-heading">
+      <span class="eyebrow">BUILT FOR CHESS LOVERS</span>
+      <h2>More Than Just a Board</h2>
+      <p>A focused chess experience with room to grow.</p>
+    </div>
+    <div class="feature-row">
+      <article class="card">
+        <div class="feature-icon">🧠</div>
+        <h3>Build Your Strategy</h3>
+        <p>Practice calculating moves and thinking ahead, one game at a time.</p>
+      </article>
+      <article class="card">
+        <div class="feature-icon">♜</div>
+        <h3>Classic Chess</h3>
+        <p>Enjoy the timeless game in a modern, dark royal interface.</p>
+      </article>
+      <article class="card">
+        <div class="feature-icon">🏆</div>
+        <h3>Your Chess Journey</h3>
+        <p>Account profiles and online rankings can be added with a connected backend.</p>
+      </article>
+    </div>
+  </section>
 
- <section class="featurebar">
-  <div class="feature"><strong>♜</strong>Classic chess rules</div>
-  <div class="feature"><strong>✦</strong>Royal visual style</div>
-  <div class="feature"><strong>♔</strong>Made for every player</div>
- </section>
+  <section class="container">
+    <div class="cta-panel">
+      <span class="eyebrow">THE BOARD IS WAITING</span>
+      <h2>Every Grandmaster Started Somewhere.</h2>
+      <p>Make your first move today.</p>
+      <div class="hero-actions" style="justify-content:center">
+        <a class="btn btn-primary" href="bot-game.html">Play Chess Now →</a>
+        <a class="btn" href="login.html">Create Account</a>
+      </div>
+    </div>
+  </section>
 </main>
 
-<footer>CHESS UNIVERSE · YOUR NEXT MOVE STARTS HERE</footer>
+<footer>
+  <div class="container site-footer">
+    <span>♟ <strong style="color:#e7bd69">Chess Universe</strong></span>
+    <span>Think deeply. Play boldly.</span>
+    <span>© <span id="year"></span> Chess Universe</span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
-
