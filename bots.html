@@ -4,267 +4,142 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bots Lounge | Chess Universe</title>
+  
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="script.js" defer></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
   <!-- Top Navbar -->
   <header class="navbar">
     <div class="nav-brand">
-      <a href="index.html" class="flex items-center gap-2">
+      <a href="index.html">
         <span class="brand-icon">♞</span>
-        <span class="tracking-wide">CHESS UNIVERSE</span>
+        <span>CHESS UNIVERSE</span>
       </a>
     </div>
+
     <div class="nav-links">
       <a href="index.html" class="nav-item">Lobby</a>
       <a href="bots.html" class="nav-item active text-emerald-400">Bots Lounge</a>
-      <a href="multiplayer.html" class="nav-item">Multiplayer</a>
+      <a href="multiplayer.html" class="nav-item">Play Online</a>
     </div>
-    <div class="user-badge" id="userBadge" onclick="window.location.href='login.html'">
-      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="user-avatar" alt="Avatar">
-      <span id="navName" class="text-sm font-semibold text-slate-200">Guest</span>
-      <span id="navElo" class="elo-pill">1200</span>
+
+    <div class="user-badge" onclick="window.location.href='index.html'">
+      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="user-avatar" alt="Avatar">
+      <div class="hidden sm:block text-left">
+        <div id="navName" class="user-name">Player</div>
+      </div>
+      <span id="navElo" class="elo-pill">?</span>
     </div>
   </header>
 
-  <!-- Main Bots Showcase Section -->
-  <main class="hub-main flex-1 max-w-7xl mx-auto w-full p-6 space-y-8">
+  <!-- Main Campaign Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
     
-    <!-- Hero Header -->
-    <div class="hero-banner flex flex-col md:flex-row items-center justify-between gap-6 p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/80 shadow-2xl relative overflow-hidden">
-      <div class="hero-content z-10 space-y-3">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wider uppercase">
-          <span>⚡</span> 10 Fierce AI Challengers
+    <!-- Campaign Header Banner -->
+    <div class="glass-card p-6 rounded-3xl border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase mb-2">
+          <span>⚔️</span> Bot Championship Campaign
         </div>
-        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Challenge The Titans</h1>
-        <p class="text-slate-400 max-w-xl text-sm md:text-base leading-relaxed">
-          Level 3 (750 Elo) se asli jung chalu hoti hai, aur end me khada hai unbeatable final boss <span class="text-amber-400 font-bold">Supremo360 (2000 Elo)</span>. Apna side chuno aur game start karo!
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Defeat Bots To Unlock Next Tier</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Defeat each challenger in official combat to unlock the next level and reach the Final Boss: <span class="text-amber-400 font-bold">Supremo360</span>.
         </p>
       </div>
 
-      <!-- Quick Play Setup Card -->
-      <div class="z-10 w-full md:w-auto bg-slate-900/90 border border-slate-700 p-5 rounded-2xl flex flex-col gap-3 min-w-[280px]">
-        <label class="text-xs uppercase font-bold text-slate-400">Choose Your Piece Color</label>
-        <div class="grid grid-cols-3 gap-2" id="colorSelector">
-          <button data-color="white" class="color-btn active bg-emerald-600 text-white font-bold py-2 rounded-xl text-sm border-2 border-emerald-400 flex items-center justify-center gap-1.5 transition">
-            <span>⚪</span> White
-          </button>
-          <button data-color="random" class="color-btn bg-slate-800 text-slate-300 font-semibold py-2 rounded-xl text-sm border-2 border-transparent hover:border-slate-600 flex items-center justify-center gap-1.5 transition">
-            <span>🎲</span> Random
-          </button>
-          <button data-color="black" class="color-btn bg-slate-800 text-slate-300 font-semibold py-2 rounded-xl text-sm border-2 border-transparent hover:border-slate-600 flex items-center justify-center gap-1.5 transition">
-            <span>⚫</span> Black
-          </button>
+      <div class="flex items-center gap-3 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+        <div class="text-center px-3 border-r border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Current Tier</span>
+          <span id="campaignTier" class="text-lg font-black text-emerald-400">Level 1</span>
         </div>
-        <div class="text-xs text-slate-500 text-center mt-1">Bot will automatically take the opposite side</div>
+        <div class="text-center px-3">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Defeated</span>
+          <span id="campaignProgress" class="text-lg font-black text-slate-200">0 / 10</span>
+        </div>
       </div>
     </div>
 
-    <!-- Bots Grid Container -->
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-slate-200 flex items-center gap-2">
-          <span>⚔️</span> Select Your Opponent
-        </h2>
-        <span class="text-xs text-slate-400 font-medium">Click any bot to start instant match</span>
-      </div>
+    <!-- Bots Grid List -->
+    <div class="bot-grid" id="botGrid"></div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5" id="botsGrid">
-        
-        <!-- Level 1 -->
-        <div class="bot-card glass-card hover:border-emerald-400 group" data-level="1" data-name="Noobie Bob" data-elo="250">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=NoobieBob&backgroundColor=b6e3f4" class="bot-avatar" alt="Noobie Bob">
-            <span class="bot-level-tag bg-emerald-600 text-white">LVL 1</span>
-          </div>
-          <h3 class="bot-name group-hover:text-emerald-400 transition">Noobie Bob</h3>
-          <p class="bot-elo text-emerald-400">250 ELO</p>
-          <p class="bot-desc">Rules seekh raha hai. Queen aur Rook aise de deta hai jaise prasad ho.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 font-bold py-2 rounded-xl text-xs transition">Play Bob</button>
-          </div>
-        </div>
-
-        <!-- Level 2 -->
-        <div class="bot-card glass-card hover:border-emerald-400 group" data-level="2" data-name="Gali Ka Chintu" data-elo="450">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=GaliChintu&backgroundColor=c0aede" class="bot-avatar" alt="Gali Ka Chintu">
-            <span class="bot-level-tag bg-emerald-600 text-white">LVL 2</span>
-          </div>
-          <h3 class="bot-name group-hover:text-emerald-400 transition">Gali Ka Chintu</h3>
-          <p class="bot-elo text-emerald-400">450 ELO</p>
-          <p class="bot-desc">Hawabaazi poori, moves ulti seedhi. Thoda attack karo toh surrender kar dega.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 font-bold py-2 rounded-xl text-xs transition">Play Chintu</button>
-          </div>
-        </div>
-
-        <!-- Level 3 -->
-        <div class="bot-card glass-card hover:border-amber-400 group border-amber-500/20" data-level="3" data-name="Desi Hustler" data-elo="750">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=DesiHustler&backgroundColor=ffd5dc" class="bot-avatar" alt="Desi Hustler">
-            <span class="bot-level-tag bg-amber-500 text-slate-950">LVL 3</span>
-          </div>
-          <h3 class="bot-name group-hover:text-amber-400 transition">Desi Hustler</h3>
-          <p class="bot-elo text-amber-400">750 ELO</p>
-          <p class="bot-desc">Khel yahan se serious! Free pieces chhodna band, seedha attack plan karta hai.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-amber-500 group-hover:text-slate-950 font-bold py-2 rounded-xl text-xs transition">Play Hustler</button>
-          </div>
-        </div>
-
-        <!-- Level 4 -->
-        <div class="bot-card glass-card hover:border-amber-400 group border-amber-500/20" data-level="4" data-name="Silent Killer" data-elo="950">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SilentKiller&backgroundColor=ffdfba" class="bot-avatar" alt="Silent Killer">
-            <span class="bot-level-tag bg-amber-500 text-slate-950">LVL 4</span>
-          </div>
-          <h3 class="bot-name group-hover:text-amber-400 transition">Silent Killer</h3>
-          <p class="bot-elo text-amber-400">950 ELO</p>
-          <p class="bot-desc">Chupke se Knight forks aur Bishop pins banata hai. Dhyan nahi diya toh game over.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-amber-500 group-hover:text-slate-950 font-bold py-2 rounded-xl text-xs transition">Play Killer</button>
-          </div>
-        </div>
-
-        <!-- Level 5 -->
-        <div class="bot-card glass-card hover:border-amber-400 group border-amber-500/20" data-level="5" data-name="The Tactician" data-elo="1150">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=TheTactician&backgroundColor=baffc9" class="bot-avatar" alt="The Tactician">
-            <span class="bot-level-tag bg-amber-500 text-slate-950">LVL 5</span>
-          </div>
-          <h3 class="bot-name group-hover:text-amber-400 transition">The Tactician</h3>
-          <p class="bot-elo text-amber-400">1150 ELO</p>
-          <p class="bot-desc">Solid development, early castling. Galti dhoondh ke turant punish karta hai.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-amber-500 group-hover:text-slate-950 font-bold py-2 rounded-xl text-xs transition">Play Tactician</button>
-          </div>
-        </div>
-
-        <!-- Level 6 -->
-        <div class="bot-card glass-card hover:border-blue-400 group border-blue-500/20" data-level="6" data-name="Sultan-e-Chess" data-elo="1350">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SultanChess&backgroundColor=bae1ff" class="bot-avatar" alt="Sultan-e-Chess">
-            <span class="bot-level-tag bg-blue-500 text-white">LVL 6</span>
-          </div>
-          <h3 class="bot-name group-hover:text-blue-400 transition">Sultan-e-Chess</h3>
-          <p class="bot-elo text-blue-400">1350 ELO</p>
-          <p class="bot-desc">Pure aggressive raja. Piece sacrifice karke King ko open karne me mahir.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-blue-500 group-hover:text-white font-bold py-2 rounded-xl text-xs transition">Play Sultan</button>
-          </div>
-        </div>
-
-        <!-- Level 7 -->
-        <div class="bot-card glass-card hover:border-blue-400 group border-blue-500/20" data-level="7" data-name="Grand Hustle" data-elo="1500">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=GrandHustle&backgroundColor=e8dff5" class="bot-avatar" alt="Grand Hustle">
-            <span class="bot-level-tag bg-blue-500 text-white">LVL 7</span>
-          </div>
-          <h3 class="bot-name group-hover:text-blue-400 transition">Grand Hustle</h3>
-          <p class="bot-elo text-blue-400">1500 ELO</p>
-          <p class="bot-desc">Rock-solid defense aur instant counter attacks. Ek bhi easy chance nahi milega.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-blue-500 group-hover:text-white font-bold py-2 rounded-xl text-xs transition">Play Hustle</button>
-          </div>
-        </div>
-
-        <!-- Level 8 -->
-        <div class="bot-card glass-card hover:border-purple-400 group border-purple-500/20" data-level="8" data-name="Shadow King" data-elo="1680">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ShadowKing&backgroundColor=fcf4dd" class="bot-avatar" alt="Shadow King">
-            <span class="bot-level-tag bg-purple-600 text-white">LVL 8</span>
-          </div>
-          <h3 class="bot-name group-hover:text-purple-400 transition">Shadow King</h3>
-          <p class="bot-elo text-purple-400">1680 ELO</p>
-          <p class="bot-desc">Master level positional play. Board ko slowly squeeze karke ghutne tekne pe majboor karega.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-purple-600 group-hover:text-white font-bold py-2 rounded-xl text-xs transition">Play Shadow</button>
-          </div>
-        </div>
-
-        <!-- Level 9 -->
-        <div class="bot-card glass-card hover:border-purple-400 group border-purple-500/30" data-level="9" data-name="Cyber Wazir" data-elo="1850">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=CyberWazir&backgroundColor=f8bbd0" class="bot-avatar border-purple-400" alt="Cyber Wazir">
-            <span class="bot-level-tag bg-purple-600 text-white">LVL 9</span>
-          </div>
-          <h3 class="bot-name group-hover:text-purple-400 transition">Cyber Wazir</h3>
-          <p class="bot-elo text-purple-400">1850 ELO</p>
-          <p class="bot-desc">High engine depth calculation. Flawless endgame conversion aur laser precision.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-slate-800 group-hover:bg-purple-600 group-hover:text-white font-bold py-2 rounded-xl text-xs transition">Play Wazir</button>
-          </div>
-        </div>
-
-        <!-- Level 10 (FINAL BOSS) -->
-        <div class="bot-card glass-card hover:border-red-500 group border-red-500/40 bg-gradient-to-b from-slate-900 to-red-950/20" data-level="10" data-name="Supremo360" data-elo="2000">
-          <div class="bot-avatar-wrapper">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Supremo360&backgroundColor=ff8a80" class="bot-avatar border-2 border-red-500 shadow-lg shadow-red-500/30" alt="Supremo360">
-            <span class="bot-level-tag bg-red-600 text-white font-black animate-pulse">BOSS</span>
-          </div>
-          <h3 class="bot-name text-red-400 group-hover:text-red-300 transition font-black text-lg">Supremo360</h3>
-          <p class="bot-elo text-red-400 font-bold">2000 ELO</p>
-          <p class="bot-desc text-red-200/70">The Final God Boss! Stockfish tuned killer instinct. Beat him if you dare.</p>
-          <div class="mt-4 w-full">
-            <button class="w-full bg-red-600/30 group-hover:bg-red-600 text-red-200 group-hover:text-white font-bold py-2 rounded-xl text-xs transition shadow-md shadow-red-900/40">Face Supremo</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
   </main>
 
   <script>
-    // Load User Profile Data from LocalStorage
-    const savedName = localStorage.getItem('chess_name') || 'Guest Player';
-    const savedAvatar = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Magnus';
-    const savedElo = localStorage.getItem('chess_rating') || '1200';
+    // Auth Check
+    if (!localStorage.getItem('chess_auth')) {
+      window.location.href = 'login.html';
+    }
 
-    document.getElementById('navName').innerText = savedName;
-    document.getElementById('navAvatar').src = savedAvatar;
-    document.getElementById('navElo').innerText = savedElo;
+    // Populate Nav
+    document.getElementById('navName').innerText = localStorage.getItem('chess_name') || 'Player';
+    document.getElementById('navAvatar').src = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Player';
+    document.getElementById('navElo').innerText = localStorage.getItem('chess_rating') || '?';
 
-    // Piece Side Color Selection Handler
-    let chosenColor = 'white';
-    const colorBtns = document.querySelectorAll('.color-btn');
+    // Campaign Progress from localStorage
+    const unlockedLevel = parseInt(localStorage.getItem('chess_max_bot_unlocked') || '1');
+    document.getElementById('campaignTier').innerText = `Level ${unlockedLevel}`;
+    document.getElementById('campaignProgress').innerText = `${unlockedLevel - 1} / 10`;
 
-    colorBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        colorBtns.forEach(b => {
-          b.classList.remove('active', 'bg-emerald-600', 'text-white', 'border-emerald-400');
-          b.classList.add('bg-slate-800', 'text-slate-300', 'border-transparent');
-        });
-        btn.classList.remove('bg-slate-800', 'text-slate-300', 'border-transparent');
-        btn.classList.add('active', 'bg-emerald-600', 'text-white', 'border-emerald-400');
-        
-        const side = btn.dataset.color;
-        if (side === 'random') {
-          chosenColor = Math.random() < 0.5 ? 'white' : 'black';
-        } else {
-          chosenColor = side;
-        }
-      });
-    });
+    // 10-Tier Bot Profiles
+    const botData = [
+      { level: 1, name: "Noobie Bob", elo: 400, desc: "Random mistakes, blunder-prone pawn pusher.", avatar: "Bob" },
+      { level: 2, name: "Gully Boy", elo: 550, desc: "Attacks without defending pieces.", avatar: "Gully" },
+      { level: 3, name: "Desi Hustler", elo: 750, desc: "Hunting aggressive early-queen moves.", avatar: "Hustler" },
+      { level: 4, name: "Tactician Raju", elo: 950, desc: "Spots simple forks and free captures.", avatar: "Raju" },
+      { level: 5, name: "Solid Suresh", elo: 1150, desc: "Plays principled pawn openings.", avatar: "Suresh" },
+      { level: 6, name: "Sharp Shweta", elo: 1350, desc: "Aggressive tactical pins and skewers.", avatar: "Shweta" },
+      { level: 7, name: "Master Sharma", elo: 1550, desc: "Deep positional maneuvering.", avatar: "Sharma" },
+      { level: 8, name: "Iron Fortress", elo: 1750, desc: "Unforgiving defensive fortress.", avatar: "Fortress" },
+      { level: 9, name: "Vishy 2.0", elo: 1950, desc: "Speed master with lightning counters.", avatar: "Vishy" },
+      { level: 10, name: "Supremo360", elo: 2200, desc: "The Ultimate Grandmaster Final Boss.", avatar: "Supremo360", boss: true }
+    ];
 
-    // Launch Game with Selected Bot Level
-    document.querySelectorAll('.bot-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const level = card.dataset.level;
-        const name = encodeURIComponent(card.dataset.name);
-        const elo = card.dataset.elo;
-        
-        let side = chosenColor;
-        if (side === 'random') {
-          side = Math.random() < 0.5 ? 'white' : 'black';
-        }
+    const grid = document.getElementById('botGrid');
 
-        window.location.href = `game.html?mode=bot&level=${level}&botName=${name}&botElo=${elo}&side=${side}`;
-      });
+    botData.forEach(bot => {
+      const isLocked = bot.level > unlockedLevel;
+      const card = document.createElement('div');
+      card.className = `bot-card ${isLocked ? 'locked-card' : ''} ${bot.boss ? 'border-amber-500/40' : ''}`;
+
+      let overlayHtml = '';
+      if (isLocked) {
+        overlayHtml = `
+          <div class="padlock-overlay">
+            <span class="padlock-icon">🔒</span>
+            <span class="padlock-text">Defeat Level ${bot.level - 1} to Unlock</span>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        ${overlayHtml}
+        <div class="flex items-center gap-3 mb-3">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${bot.avatar}" class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700" alt="${bot.name}">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-extrabold ${bot.boss ? 'text-amber-400' : 'text-slate-100'}">${bot.name}</h3>
+              ${bot.boss ? '<span class="text-[9px] bg-amber-500/20 text-amber-300 font-extrabold px-1.5 py-0.5 rounded">BOSS</span>' : ''}
+            </div>
+            <span class="text-xs text-slate-400 font-mono">Elo: ${bot.elo}</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 flex-1 mb-4 leading-relaxed">${bot.desc}</p>
+        <button class="w-full ${isLocked ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : (bot.boss ? 'btn-gold font-extrabold' : 'btn-primary text-xs')} py-2.5 rounded-xl transition">
+          ${isLocked ? 'Locked 🔒' : 'Challenge Bot ⚔️'}
+        </button>
+      `;
+
+      if (!isLocked) {
+        card.onclick = () => {
+          window.location.href = `game.html?mode=bot&level=${bot.level}&botName=${encodeURIComponent(bot.name)}&botElo=${bot.elo}&side=white`;
+        };
+      }
+
+      grid.appendChild(card);
     });
   </script>
 </body>
 </html>
-
