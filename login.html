@@ -10,6 +10,9 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
 
+  <!-- Invisible Recaptcha Container -->
+  <div id="recaptcha-container"></div>
+
   <!-- Main Login Card -->
   <div class="glass-card max-w-md w-full p-6 sm:p-8 space-y-6 border border-slate-800 shadow-2xl relative overflow-hidden">
     
@@ -19,78 +22,71 @@
         ♞
       </div>
       <h1 class="text-2xl font-black tracking-tight text-white">CHESS UNIVERSE</h1>
-      <p class="text-xs text-slate-400">Official Ranked Competitive Chess Arena</p>
+      <p class="text-xs text-slate-400">Official Mobile OTP Verification</p>
     </div>
 
-    <!-- Step 1: Input Identifier -->
+    <!-- Step 1: Mobile Number Input -->
     <div id="stepRequestOtp" class="space-y-4">
       <div>
         <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-          Mobile Number or Email
+          Mobile Number (with Country Code)
         </label>
         <div class="relative">
           <input 
-            type="text" 
-            id="userInput" 
-            placeholder="+91 98765 43210 or yourname@gmail.com" 
-            class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            type="tel" 
+            id="phoneInput" 
+            placeholder="+91 9876543210" 
+            class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition font-mono"
           >
         </div>
+        <span class="text-[11px] text-slate-500 mt-1 block">Example: +91 followed by 10 digit number</span>
       </div>
 
       <button 
         id="btnSendOtp" 
         class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
       >
-        <span>Get Verification Code</span>
+        <span id="sendBtnText">Send SMS OTP</span>
         <span>→</span>
       </button>
 
       <div class="pt-2 text-center">
         <p class="text-[11px] text-slate-500">
-          By signing in, your initial 5 matches will evaluate your starting Grandmaster Elo rating.
+          Standard SMS verification powered by Google Firebase.
         </p>
       </div>
     </div>
 
-    <!-- Step 2: OTP Entry & Profile Nickname -->
+    <!-- Step 2: Enter Real Received SMS OTP -->
     <div id="stepVerifyOtp" class="space-y-4 hidden">
-      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-slate-300">OTP Sent to:</span>
-          <span id="displayContact" class="text-xs font-mono text-emerald-400 truncate max-w-[160px]"></span>
-        </div>
-        
-        <!-- Quick Auto-Fill Display Badge -->
-        <div class="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
-          <span class="text-xs text-amber-300 font-semibold">Your Security Code:</span>
-          <span id="demoOtpBadge" class="text-xs font-mono font-black text-amber-400 tracking-wider"></span>
-        </div>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 text-center">
+        <span class="text-xs font-bold text-slate-400 block mb-1">SMS Sent To:</span>
+        <span id="displayContact" class="text-sm font-mono font-bold text-emerald-400"></span>
       </div>
 
-      <!-- 6-Digit Box -->
+      <!-- 6-Digit Code Input -->
       <div>
         <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2 text-center">
-          Enter 6-Digit OTP
+          Enter OTP from SMS
         </label>
         <input 
           type="text" 
           id="otpInput" 
           maxlength="6" 
-          placeholder="0 0 0 0 0 0" 
-          class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-xl tracking-[0.5em] font-mono font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition"
+          placeholder="• • • • • •" 
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-xl tracking-[0.4em] font-mono font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition"
         >
       </div>
 
       <!-- Username Handle -->
       <div>
         <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-          Choose Player Nickname
+          Player Nickname
         </label>
         <input 
           type="text" 
           id="nickInput" 
-          placeholder="e.g. DesiVishy, PawnSlayer" 
+          placeholder="Grandmaster" 
           maxlength="16"
           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
         >
@@ -101,89 +97,126 @@
         id="btnVerify" 
         class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20"
       >
-        Verify & Enter Arena
+        Verify SMS Code & Enter
       </button>
 
-      <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
-        <button id="btnBackToInput" class="hover:text-slate-200 transition">← Change number/email</button>
-        <button id="btnResendOtp" class="text-emerald-400 hover:underline">Resend OTP</button>
+      <div class="text-center pt-1">
+        <button id="btnBackToInput" class="text-xs text-slate-400 hover:text-slate-200 transition">← Change Phone Number</button>
       </div>
     </div>
 
   </div>
 
-  <script>
-    let generatedOtp = null;
-    let savedContact = "";
+  <!-- Firebase Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
-    // Step 1: Send OTP handler
-    document.getElementById('btnSendOtp').onclick = () => {
-      const inputVal = document.getElementById('userInput').value.trim();
-      
-      if (!inputVal || inputVal.length < 5) {
-        alert("Please enter a valid Mobile Number or Email address.");
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+      authDomain: "chess-universe-5a7cb.firebaseapp.com",
+      projectId: "chess-universe-5a7cb",
+      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+      messagingSenderId: "145519167856",
+      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    let confirmationResult = null;
+
+    // Invisible Recaptcha Setup
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'invisible',
+      'callback': () => {}
+    });
+
+    // Send Real SMS
+    document.getElementById('btnSendOtp').onclick = async () => {
+      let phone = document.getElementById('phoneInput').value.trim();
+      if (!phone) {
+        alert("Please enter your mobile number!");
         return;
       }
 
-      savedContact = inputVal;
-      document.getElementById('displayContact').innerText = savedContact;
+      // Auto prepend +91 if user only typed 10 digits
+      if (!phone.startsWith('+')) {
+        if (phone.length === 10) {
+          phone = '+91' + phone;
+        } else {
+          alert("Please enter complete number with country code (e.g. +91 9876543210)");
+          return;
+        }
+      }
 
-      // 6 Digit random code
-      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      const btn = document.getElementById('btnSendOtp');
+      const btnText = document.getElementById('sendBtnText');
+      btn.disabled = true;
+      btnText.innerText = "Sending Real SMS...";
 
-      document.getElementById('demoOtpBadge').innerText = generatedOtp;
-      document.getElementById('otpInput').value = generatedOtp; // Auto-fill for convenience
-
-      document.getElementById('stepRequestOtp').classList.add('hidden');
-      document.getElementById('stepVerifyOtp').classList.remove('hidden');
+      try {
+        const appVerifier = window.recaptchaVerifier;
+        confirmationResult = await signInWithPhoneNumber(auth, phone, appVerifier);
+        
+        document.getElementById('displayContact').innerText = phone;
+        document.getElementById('stepRequestOtp').classList.add('hidden');
+        document.getElementById('stepVerifyOtp').classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert("SMS bhejne me error: " + err.message + "\n\nMake sure Firebase console me Phone Auth enable kiya ho!");
+        btn.disabled = false;
+        btnText.innerText = "Send SMS OTP";
+      }
     };
 
-    // Step 2: Verify & Activate Profile
-    document.getElementById('btnVerify').onclick = () => {
-      const enteredOtp = document.getElementById('otpInput').value.trim();
+    // Verify Real Received SMS OTP
+    document.getElementById('btnVerify').onclick = async () => {
+      const code = document.getElementById('otpInput').value.trim();
       const nickname = document.getElementById('nickInput').value.trim() || `Player_${Math.floor(1000 + Math.random() * 9000)}`;
 
-      if (enteredOtp !== generatedOtp) {
-        alert("Invalid OTP! Please check the 6-digit code shown.");
+      if (!code || code.length < 6) {
+        alert("Mobile par aaya 6-digit SMS code enter karein.");
         return;
       }
 
-      // Save user session
-      localStorage.setItem('chess_auth', 'true');
-      localStorage.setItem('chess_contact', savedContact);
-      localStorage.setItem('chess_name', nickname);
-      localStorage.setItem('chess_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(nickname)}`);
-      
-      // Initialize 5-Game Calibration Engine
-      if (!localStorage.getItem('chess_calibration_games')) {
-        localStorage.setItem('chess_calibration_games', '0'); // Completed 0/5 matches
-        localStorage.setItem('chess_rating', 'Calibrating (?)');
-        localStorage.setItem('chess_calibration_score', '0'); // Internal tracker
-      }
+      const verifyBtn = document.getElementById('btnVerify');
+      verifyBtn.innerText = "Verifying...";
+      verifyBtn.disabled = true;
 
-      // Unlock only Bot 1 by default (Campaign Progression)
-      if (!localStorage.getItem('chess_max_bot_unlocked')) {
-        localStorage.setItem('chess_max_bot_unlocked', '1');
-      }
+      try {
+        const result = await confirmationResult.confirm(code);
+        const user = result.user;
 
-      // Redirect to Lobby
-      window.location.href = 'index.html';
+        // Session Save
+        localStorage.setItem('chess_auth', 'true');
+        localStorage.setItem('chess_contact', user.phoneNumber || 'Verified');
+        localStorage.setItem('chess_name', nickname);
+        localStorage.setItem('chess_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(nickname)}`);
+        
+        if (!localStorage.getItem('chess_calibration_games')) {
+          localStorage.setItem('chess_calibration_games', '0');
+          localStorage.setItem('chess_rating', 'Calibrating (?)');
+        }
+        if (!localStorage.getItem('chess_max_bot_unlocked')) {
+          localStorage.setItem('chess_max_bot_unlocked', '1');
+        }
+
+        window.location.href = 'index.html';
+      } catch (err) {
+        console.error(err);
+        alert("Galat OTP code! Apne SMS me check karke sahi 6-digit OTP daalein.");
+        verifyBtn.innerText = "Verify SMS Code & Enter";
+        verifyBtn.disabled = false;
+      }
     };
 
-    // Resend code trigger
-    document.getElementById('btnResendOtp').onclick = () => {
-      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      document.getElementById('demoOtpBadge').innerText = generatedOtp;
-      document.getElementById('otpInput').value = generatedOtp;
-      alert("New OTP generated!");
-    };
-
-    // Back to edit contact
     document.getElementById('btnBackToInput').onclick = () => {
       document.getElementById('stepVerifyOtp').classList.add('hidden');
       document.getElementById('stepRequestOtp').classList.remove('hidden');
+      document.getElementById('btnSendOtp').disabled = false;
+      document.getElementById('sendBtnText').innerText = "Send SMS OTP";
     };
   </script>
 </body>
 </html>
-
