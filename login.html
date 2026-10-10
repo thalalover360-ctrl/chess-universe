@@ -3,104 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login & Setup | Chess Universe</title>
-  
+  <title>Login & Verification | Chess Universe</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
 
-  <!-- Main Login Card -->
-  <div class="glass-card max-w-md w-full p-6 sm:p-8 space-y-6 border border-slate-800 shadow-2xl relative overflow-hidden">
+  <div class="glass-card max-w-md w-full p-6 sm:p-8 space-y-6 border border-slate-800 shadow-2xl">
     
-    <!-- Brand Header -->
     <div class="text-center space-y-2">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 text-3xl border border-emerald-500/20 mb-1">
         ♞
       </div>
-      <h1 class="text-2xl font-black tracking-tight text-white">CHESS UNIVERSE</h1>
-      <p class="text-xs text-slate-400">Join Ranked Battles & Bot Championships</p>
+      <h1 class="text-2xl font-black text-white">CHESS UNIVERSE</h1>
+      <p class="text-xs text-slate-400">Compulsory Mobile OTP Verification</p>
     </div>
 
-    <!-- Quick Player Identity Setup -->
-    <div class="space-y-4">
+    <!-- Step 1: Mobile & Username -->
+    <div id="step1" class="space-y-4">
       <div>
-        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-          Your Player Handle (Username)
-        </label>
-        <div class="relative">
-          <input 
-            type="text" 
-            id="nickInput" 
-            placeholder="e.g. Grandmaster_Raju" 
-            maxlength="16"
-            class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition font-mono font-bold"
-          >
-        </div>
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Player Username *</label>
+        <input type="text" id="nickInput" placeholder="Choose your handle" maxlength="15" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-bold">
       </div>
 
       <div>
-        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
-          Mobile Number or Email (Optional)
-        </label>
-        <input 
-          type="text" 
-          id="contactInput" 
-          placeholder="+91 98765 43210 or name@mail.com" 
-          class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition font-mono"
-        >
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Mobile Number *</label>
+        <input type="tel" id="phoneInput" placeholder="9876543210" maxlength="10" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono">
       </div>
 
-      <!-- Action Button: Direct Access -->
-      <button 
-        id="btnEnter" 
-        class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
-      >
-        <span>Enter Chess Arena ⚡</span>
+      <button id="btnSendOtp" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition">
+        Send 6-Digit OTP →
+      </button>
+    </div>
+
+    <!-- Step 2: OTP Verification -->
+    <div id="step2" class="space-y-4 hidden">
+      <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center text-xs">
+        OTP sent to <span id="displayPhone" class="font-mono text-emerald-400 font-bold"></span>
+      </div>
+
+      <div class="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-center">
+        <span class="text-[11px] text-slate-400 block">Verification Passcode:</span>
+        <span id="demoOtpBadge" class="text-lg font-mono font-black text-emerald-400 tracking-widest"></span>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2 text-center">Enter 6-Digit OTP</label>
+        <input type="text" id="otpInput" maxlength="6" placeholder="••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-2xl tracking-[0.4em] font-mono font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <button id="btnVerifyOtp" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition">
+        Verify & Enter Arena ⚡
       </button>
 
-      <div class="text-center pt-2">
-        <p class="text-[11px] text-slate-500">
-          Instant guest authentication. Starts with 5-game rating calibration.
-        </p>
-      </div>
+      <button id="btnBack" class="w-full text-xs text-slate-500 hover:text-slate-300 py-1">← Change Number</button>
     </div>
 
   </div>
 
   <script>
-    document.getElementById('btnEnter').onclick = () => {
-      let nickname = document.getElementById('nickInput').value.trim();
-      const contact = document.getElementById('contactInput').value.trim() || 'Guest Player';
+    let generatedOtp = '';
 
-      if (!nickname || nickname.length < 2) {
-        nickname = 'Player_' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('btnSendOtp').onclick = () => {
+      const nick = document.getElementById('nickInput').value.trim();
+      const phone = document.getElementById('phoneInput').value.trim();
+
+      if (!nick || nick.length < 3) {
+        alert("Bhai kam se kam 3 letter ka Username dalo!");
+        return;
+      }
+      if (!phone || phone.length !== 10 || isNaN(phone)) {
+        alert("Sahi 10-digit mobile number dalo!");
+        return;
       }
 
-      const playerTag = '#CHESS-' + Math.floor(1000 + Math.random() * 9000);
+      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      document.getElementById('demoOtpBadge').innerText = generatedOtp;
+      document.getElementById('displayPhone').innerText = '+91 ' + phone;
 
-      // Save complete session locally
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+    };
+
+    document.getElementById('btnVerifyOtp').onclick = () => {
+      const enteredOtp = document.getElementById('otpInput').value.trim();
+
+      if (enteredOtp !== generatedOtp) {
+        alert("Galat OTP! Sahi 6-digit OTP code enter karo.");
+        return;
+      }
+
+      const nick = document.getElementById('nickInput').value.trim();
+      const phone = document.getElementById('phoneInput').value.trim();
+      const tag = '#CHESS-' + Math.floor(1000 + Math.random() * 9000);
+
       localStorage.setItem('chess_auth', 'true');
-      localStorage.setItem('chess_name', nickname);
-      localStorage.setItem('chess_contact', contact);
-      localStorage.setItem('chess_player_tag', playerTag);
-      localStorage.setItem('chess_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(nickname)}`);
-      
-      // 5-Game Calibration init
+      localStorage.setItem('chess_name', nick);
+      localStorage.setItem('chess_contact', '+91 ' + phone);
+      localStorage.setItem('chess_player_tag', tag);
+      localStorage.setItem('chess_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(nick)}`);
+
       if (!localStorage.getItem('chess_calibration_games')) {
         localStorage.setItem('chess_calibration_games', '0');
         localStorage.setItem('chess_rating', 'Calibrating (?)');
         localStorage.setItem('chess_calibration_score', '0');
       }
-
-      // Campaign mode init
       if (!localStorage.getItem('chess_max_bot_unlocked')) {
         localStorage.setItem('chess_max_bot_unlocked', '1');
       }
 
       window.location.href = 'index.html';
     };
+
+    document.getElementById('btnBack').onclick = () => {
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step1').classList.remove('hidden');
+    };
   </script>
 </body>
 </html>
-
