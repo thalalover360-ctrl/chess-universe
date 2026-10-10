@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arena | Chess Universe</title>
   
-  <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -27,8 +26,11 @@
         <span class="tracking-wide">CHESS UNIVERSE</span>
       </a>
     </div>
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="nav-item text-xs md:text-sm bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-700">Leave Match</a>
+    <div class="flex items-center gap-2">
+      <button id="btnCopyGameLink" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
+        <span>📋</span> Copy Game Link
+      </button>
+      <a href="index.html" class="nav-item text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-700">Leave Match</a>
     </div>
   </header>
 
@@ -121,7 +123,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    // Firebase Credentials Setup
+    // Firebase Setup
     const firebaseConfig = {
       apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
       authDomain: "chess-universe-5a7cb.firebaseapp.com",
@@ -134,7 +136,20 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Audio Engine via Web Audio API (Guaranteed offline & instant sound feedback)
+    // Copy Current Game Link Handler
+    const copyBtn = document.getElementById('btnCopyGameLink');
+    if (copyBtn) {
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          copyBtn.innerHTML = "<span>✅</span> Copied!";
+          setTimeout(() => {
+            copyBtn.innerHTML = "<span>📋</span> Copy Game Link";
+          }, 2000);
+        });
+      };
+    }
+
+    // Audio Engine via Web Audio API (100% reliable across all browsers)
     const AudioEngine = {
       ctx: null,
       init() {
@@ -186,9 +201,9 @@
       }
     };
 
-    // Extract Parameters & Game State
+    // Extract Game Query Params
     const urlParams = new URLSearchParams(window.location.search);
-    const gameMode = urlParams.get('mode') || 'bot'; // 'bot' or 'pvp'
+    const gameMode = urlParams.get('mode') || 'bot';
     const userSide = (urlParams.get('side') === 'b' || urlParams.get('side') === 'black') ? 'black' : 'white';
     const roomId = urlParams.get('room');
     const botLevel = parseInt(urlParams.get('level') || '3');
@@ -202,7 +217,7 @@
     let timerInterval = null;
     let userEloNum = parseInt(localStorage.getItem('chess_rating') || '1200');
 
-    // Populate UI Info
+    // Populate Player Profile Tags
     document.getElementById('userName').innerText = localStorage.getItem('chess_name') || 'You';
     document.getElementById('userAvatar').src = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Magnus';
     document.getElementById('userElo').innerText = `Elo: ${userEloNum}`;
@@ -251,12 +266,31 @@
       board.position(game.fen());
     }
 
-    // Initialize UI Board
+    // HD Pieces Theme Function (Using Wikimedia Commons High-Res SVGs - Never breaks)
+    function customPieceTheme(piece) {
+      const pieceMap = {
+        'wP': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+        'wN': 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+        'wB': 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+        'wR': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+        'wQ': 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+        'wK': 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+        'bP': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
+        'bN': 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+        'bB': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+        'bR': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+        'bQ': 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+        'bK': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg'
+      };
+      return pieceMap[piece] || `https://chessboardjs.com/img/chesspieces/wikipedia/${piece}.png`;
+    }
+
+    // Initialize Chessboard with HD SVGs
     const boardConfig = {
       draggable: true,
       position: 'start',
       orientation: userSide,
-      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+      pieceTheme: customPieceTheme,
       onDragStart: onDragStart,
       onDrop: onDrop,
       onSnapEnd: onSnapEnd
@@ -265,7 +299,7 @@
     board = Chessboard('board', boardConfig);
     startClocks();
     $(window).resize(board.resize);
-        // Move Notation History Updater
+          // Move Notation History Updater
     function updateNotation(move) {
       const movesList = document.getElementById('movesList');
       const moveCount = Math.ceil(game.history().length / 2);
@@ -326,10 +360,8 @@
       let selectedMove = null;
 
       if (botLevel <= 2) {
-        // Levels 1-2: Random blunders
         selectedMove = moves[Math.floor(Math.random() * moves.length)];
       } else if (botLevel <= 5) {
-        // Levels 3-5: Basic captures & opportunistic play
         const captures = moves.filter(m => m.captured);
         if (captures.length > 0 && Math.random() < 0.65) {
           selectedMove = captures[Math.floor(Math.random() * captures.length)];
@@ -337,7 +369,6 @@
           selectedMove = moves[Math.floor(Math.random() * moves.length)];
         }
       } else if (botLevel <= 8) {
-        // Levels 6-8: Material value tactician
         const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
         moves.sort((a, b) => {
           const valA = a.captured ? pieceValues[a.captured] : 0;
@@ -346,7 +377,7 @@
         });
         selectedMove = moves[0];
       } else {
-        // Levels 9-10 (Supremo360): Deep evaluation of material, checks, and center control
+        // Level 9-10 (Supremo360): Deep evaluation
         const pieceValues = { p: 10, n: 30, b: 35, r: 50, q: 90, k: 1000 };
         let bestScore = -99999;
         
@@ -467,7 +498,7 @@
       }
     };
 
-    // Game Over & Elo Rating Calculations
+    // Game Over & Elo Calculations
     function handleGameOver(timeout = false, flag = null) {
       const modal = document.getElementById('gameModal');
       const modalTitle = document.getElementById('modalTitle');
@@ -517,10 +548,11 @@
       window.location.reload();
     };
 
-    // Initial move trigger if playing black against bot
+    // If bot plays White, bot moves first
     if (gameMode === 'bot' && userSide === 'black') {
       setTimeout(triggerBotMove, 600);
     }
   </script>
 </body>
 </html>
+
