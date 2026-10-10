@@ -1,390 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Royal Chess | Bot Arena</title>
-<style>
-:root{
-  --gold:#e6bd67;
-  --gold2:#fff0b0;
-  --bg:#080d0d;
-  --panel:#121b19;
-  --green:#174a3c;
-  --light:#d8cba9;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;background:radial-gradient(ellipse at top,#20352c,#080d0d 65%);
-  color:#f5ead1;font-family:Georgia,"Times New Roman",serif;
-  min-height:100vh;
-}
-header{text-align:center;padding:20px 10px 12px}
-.crown{font-size:30px;filter:drop-shadow(0 0 12px #e6bd67)}
-h1{margin:4px 0;color:var(--gold2);letter-spacing:5px;font-size:clamp(23px,5vw,36px);text-shadow:0 3px 20px #ad782e}
-.sub{font:11px Arial,sans-serif;letter-spacing:4px;color:#a9b7a9}
-main{width:min(1100px,96%);margin:auto;display:grid;grid-template-columns:minmax(0,650px) minmax(230px,1fr);gap:20px;align-items:start}
-.arena,.side{background:linear-gradient(145deg,#19231f,#0d1312);border:1px solid #94783e;border-radius:13px;box-shadow:0 15px 50px #0009,inset 0 0 25px #d4aa3510}
-.arena{padding:clamp(8px,2vw,18px)}
-.player{display:flex;align-items:center;gap:10px;padding:8px 4px;font:12px Arial,sans-serif;letter-spacing:1px}
-.avatar{width:32px;height:32px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;background:#242b26;font-size:19px}
-.player strong{display:block;color:var(--gold2);font-size:13px}
-.player small{color:#92a198}
-.push{margin-left:auto;color:#b4c3b7}
-#board{
- display:grid;grid-template-columns:repeat(8,1fr);width:100%;
- aspect-ratio:1;border:3px solid #ad8544;border-radius:3px;overflow:hidden;
- box-shadow:0 8px 24px #000b,0 0 0 3px #372719;
-}
-.sq{position:relative;display:grid;place-items:center;min-width:0;aspect-ratio:1;cursor:pointer;user-select:none}
-.sq.light{background:linear-gradient(135deg,#e4d8b9,#b7a27a)}
-.sq.dark{background:linear-gradient(135deg,#23604a,#103b2d)}
-.sq.selected{background:#bca13e!important;box-shadow:inset 0 0 0 4px #ffec88}
-.sq.last{background-image:linear-gradient(#dfc85b50,#dfc85b50)}
-.sq.target:after{content:"";position:absolute;width:23%;height:23%;border-radius:50%;background:#111b1a80;box-shadow:0 0 3px #fff6}
-.sq.capture:after{content:"";position:absolute;inset:3px;border:4px solid #d4a646aa;border-radius:50%}
-.piece{
- position:relative;z-index:1;font-family:"DejaVu Sans","Arial Unicode MS",serif;
- font-size:clamp(25px,6.5vw,57px);line-height:1;
- transform:translateY(-2px);
- transition:transform .12s,filter .12s;
-}
-.sq:hover .piece{transform:translateY(-4px) scale(1.07)}
-.white-piece{
- color:#fff9e9;
- -webkit-text-stroke:.65px #887a5b;
- text-shadow:0 1px 0 #c8bda0,0 2px 0 #aaa084,0 3px 0 #81765e,0 5px 2px #0008,0 8px 7px #0009;
- filter:drop-shadow(0 1px 1px #fff6);
-}
-.black-piece{
- color:#202622;
- -webkit-text-stroke:.65px #8f9b7b;
- text-shadow:0 -1px 0 #a4ad92,0 1px 0 #090c0a,0 3px 0 #050706,0 5px 3px #000c,0 8px 7px #000b;
- filter:drop-shadow(0 1px 1px #e5c15c44);
-}
-.coord{position:absolute;bottom:2px;left:3px;font:10px Arial,sans-serif;opacity:.8;pointer-events:none}
-.light .coord{color:#234536}.dark .coord{color:#e0cfa5}
-#status{margin:12px 0 5px;text-align:center;font:13px Arial,sans-serif;color:var(--gold2);min-height:18px}
-.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-button,select{
- background:linear-gradient(180deg,#283b31,#14221c);color:#f4e5bd;border:1px solid #8d743f;
- padding:11px 8px;border-radius:7px;font:12px Arial,sans-serif;cursor:pointer
-}
-button:hover{border-color:#ffe49a;filter:brightness(1.15)}
-button:disabled{opacity:.4;cursor:default}
-button.primary{background:linear-gradient(180deg,#b98a37,#705020);color:#fff5d6;font-weight:bold}
-.side{padding:17px}
-.side h2{font-size:16px;color:var(--gold2);letter-spacing:2px;margin:2px 0 15px}
-.field{margin:13px 0}
-.field label{display:block;font:11px Arial,sans-serif;color:#b8c5b8;margin-bottom:7px}
-select{width:100%}
-#moves{height:230px;overflow:auto;background:#090f0d;border:1px solid #33463a;border-radius:7px;padding:9px;font:12px/1.8 monospace;color:#d6d0b6}
-.move-row{display:grid;grid-template-columns:30px 1fr 1fr;gap:8px}
-.move-row span:first-child{color:#788b7e}
-#thinking{font:11px Arial,sans-serif;color:#9eae9f;min-height:16px;margin-top:10px}
-.tip{font:12px/1.7 Arial,sans-serif;color:#aab8aa;margin-top:15px}
-footer{text-align:center;padding:20px 8px;color:#77877b;font:10px Arial,sans-serif;letter-spacing:2px}
-@media(max-width:760px){
- main{grid-template-columns:1fr;width:min(620px,96%);gap:12px}
- .side{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
- .side h2,.field:first-of-type,.tip{grid-column:1/-1}
- #moves{height:155px}
- .player{padding:5px 2px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Practice Sandbox | Chess Universe</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+  <script src="script.js" defer></script>
 </head>
-<body>
-<header>
- <div class="crown">♛</div>
- <h1>ROYAL CHESS</h1>
- <div class="sub">THE KINGDOM AWAITS</div>
-</header>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-between p-4">
 
-<main>
-<section class="arena">
- <div class="player">
-  <div class="avatar" id="topAvatar">♚</div>
-  <div><strong id="topName">ROYAL BOT</strong><small id="topDesc">Your rival awaits</small></div>
-  <div class="push" id="topSide">BLACK</div>
- </div>
- <div id="board" aria-label="Chess board"></div>
- <div class="player">
-  <div class="avatar" id="bottomAvatar">♔</div>
-  <div><strong id="bottomName">YOU</strong><small id="bottomDesc">The royal player</small></div>
-  <div class="push" id="bottomSide">WHITE</div>
- </div>
- <div id="status">Loading chess engine...</div>
- <div class="controls">
-  <button id="undo">↶ Undo</button>
-  <button id="hint">✧ Hint</button>
-  <button id="flip">⇅ Flip</button>
-  <button id="restart">⟳ Restart</button>
-  <button id="newGame" class="primary">New Game</button>
-  <button id="pass">⚔ Pass & Play</button>
- </div>
-</section>
+  <!-- Top Simple Nav -->
+  <header class="w-full max-w-4xl flex items-center justify-between py-3 border-b border-slate-800">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl text-emerald-400">♞</span>
+      <h1 class="text-xl font-extrabold text-amber-400">AI PRACTICE SANDBOX</h1>
+    </div>
+    <div class="flex gap-2">
+      <a href="bots.html" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Bots Lounge</a>
+      <a href="index.html" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-950">Lobby</a>
+    </div>
+  </header>
 
-<aside class="side">
- <h2>♜ ROYAL COMMAND</h2>
- <div class="field">
-  <label for="mode">GAME MODE</label>
-  <select id="mode">
-   <option value="bot">Play vs Bot</option>
-   <option value="local">Pass & Play</option>
-  </select>
- </div>
- <div class="field">
-  <label for="color">YOUR PIECES</label>
-  <select id="color">
-   <option value="w">White — First move</option>
-   <option value="b">Black — Second move</option>
-   <option value="random">Random side</option>
-  </select>
- </div>
- <div class="field">
-  <label for="difficulty">BOT DIFFICULTY</label>
-  <select id="difficulty">
-   <option value="1">Squire — Easy</option>
-   <option value="2" selected>Knight — Medium</option>
-   <option value="3">King — Harder</option>
-  </select>
- </div>
- <div>
-  <h2>♟ BATTLE LOG</h2>
-  <div id="moves">Awaiting first move...</div>
-  <div id="thinking"></div>
- </div>
- <p class="tip">Choose a piece to reveal its legal moves. Tap a highlighted square to move. Castling, en passant and pawn promotion are supported by the chess rules engine.</p>
-</aside>
-</main>
-<footer>ROYAL CHESS • STRATEGY • HONOUR • GLORY</footer>
+  <!-- Sandbox Main Arena -->
+  <main class="w-full max-w-md my-auto flex flex-col items-center gap-4">
+    <!-- Status & Selector -->
+    <div class="w-full flex justify-between items-center bg-slate-900 border border-slate-800 p-3 rounded-xl">
+      <span id="sandboxStatus" class="text-xs font-bold text-emerald-400">Your Turn (White)</span>
+      <select id="sandboxDifficulty" class="bg-slate-800 text-xs px-2 py-1 rounded border border-slate-700 focus:outline-none">
+        <option value="easy">Easy (Bob)</option>
+        <option value="medium" selected>Medium (Tactician)</option>
+        <option value="hard">Hard (Supremo360)</option>
+      </select>
+    </div>
 
-<script>
-const boardEl=document.getElementById('board');
-const statusEl=document.getElementById('status');
-const movesEl=document.getElementById('moves');
-const thinkingEl=document.getElementById('thinking');
-const modeEl=document.getElementById('mode');
-const colorEl=document.getElementById('color');
-const difficultyEl=document.getElementById('difficulty');
+    <!-- Board -->
+    <div id="sandboxBoard" class="chessboard-box"></div>
 
-let game=null,selected=null,legal=[],humanColor='w',orientation='w';
-let lastMove=null,passPlay=false,thinking=false;
-let history=[],positionScores=[];
-const glyph={
- w:{k:'♔',q:'♕',r:'♖',b:'♗',n:'♘',p:'♙'},
- b:{k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'}
-};
-const value={p:100,n:320,b:335,r:500,q:900,k:20000};
-const files='abcdefgh';
+    <!-- Quick Tools -->
+    <div class="w-full grid grid-cols-2 gap-3">
+      <button id="btnUndo" class="btn-secondary py-2.5 rounded-xl text-xs font-bold">↺ Undo Move</button>
+      <button id="btnReset" class="btn-primary py-2.5 rounded-xl text-xs font-bold">↻ New Board</button>
+    </div>
+  </main>
 
-function loadEngine(urls,index=0){
- if(index>=urls.length){
-  statusEl.textContent='Could not load chess rules. Check internet and refresh.';
-  return;
- }
- const script=document.createElement('script');
- script.src=urls[index];
- script.onload=()=>{
-  try{
-   game=new Chess();
-   history=[];
-   startGame();
-  }catch(e){loadEngine(urls,index+1)}
- };
- script.onerror=()=>loadEngine(urls,index+1);
- document.head.appendChild(script);
-}
-loadEngine([
- 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js',
- 'https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js'
-]);
+  <footer class="text-xs text-slate-500 py-2">
+    Chess Universe • Instant Offline Sandbox
+  </footer>
 
-function startGame(){
- thinking=false;selected=null;legal=[];lastMove=null;
- humanColor=colorEl.value==='random'?(Math.random()<.5?'w':'b'):colorEl.value;
- orientation=humanColor;
- passPlay=modeEl.value==='local';
- history=[];
- render();
- updateStatus();
- if(!passPlay&&game.turn()!==humanColor)botMove();
-}
-function pieceAt(sq){return game.get(sq)}
-function render(){
- if(!game)return;
- boardEl.innerHTML='';
- const grid=game.board();
- const ranks=orientation==='w'?[7,6,5,4,3,2,1,0]:[0,1,2,3,4,5,6,7];
- const cols=orientation==='w'?[0,1,2,3,4,5,6,7]:[7,6,5,4,3,2,1,0];
- for(let ri=0;ri<8;ri++){
-  for(let ci=0;ci<8;ci++){
-   const r=ranks[ri],c=cols[ci],sq=files[c]+(8-r);
-   const p=grid[r][c],el=document.createElement('div');
-   el.className='sq '+((r+c)%2===0?'light':'dark');
-   el.dataset.sq=sq;
-   if(selected===sq)el.classList.add('selected');
-   if(lastMove&&(lastMove.from===sq||lastMove.to===sq))el.classList.add('last');
-   const move=legal.find(m=>m.to===sq);
-   if(move)el.classList.add(p?'capture':'target');
-   if(p){
-    const span=document.createElement('span');
-    span.className='piece '+(p.color==='w'?'white-piece':'black-piece');
-    span.textContent=glyph[p.color][p.type];
-    el.appendChild(span);
-   }
-   if(ci===0||ri===7){
-    const coord=document.createElement('span');
-    coord.className='coord';
-    coord.textContent=ri===7?files[c]:(8-r);
-    el.appendChild(coord);
-   }
-   el.addEventListener('click',()=>clickSquare(sq));
-   boardEl.appendChild(el);
-  }
- }
- renderPlayers();
- renderMoves();
- document.getElementById('undo').disabled=!game.history().length||thinking;
- document.getElementById('hint').disabled=thinking||game.game_over();
-}
-function renderPlayers(){
- const top=orientation==='w'?'b':'w',bottom=orientation==='w'?'w':'b';
- document.getElementById('topAvatar').textContent=glyph[top].k;
- document.getElementById('bottomAvatar').textContent=glyph[bottom].k;
- document.getElementById('topSide').textContent=top==='w'?'WHITE':'BLACK';
- document.getElementById('bottomSide').textContent=bottom==='w'?'WHITE':'BLACK';
- document.getElementById('topName').textContent=(!passPlay&&top===humanColor)?'YOU':(!passPlay?'ROYAL BOT':'PLAYER '+(top==='w'?'1':'2'));
- document.getElementById('bottomName').textContent=(!passPlay&&bottom===humanColor)?'YOU':(!passPlay?'ROYAL BOT':'PLAYER '+(bottom==='w'?'1':'2'));
- document.getElementById('topDesc').textContent=top===game.turn()?'To move':'Ready for battle';
- document.getElementById('bottomDesc').textContent=bottom===game.turn()?'To move':'Ready for battle';
-}
-function clickSquare(sq){
- if(!game||thinking||game.game_over())return;
- if(!passPlay&&game.turn()!==humanColor)return;
- const p=game.get(sq);
- if(selected&&legal.some(m=>m.to===sq)){
-  makeMove(selected,sq);
-  return;
- }
- if(p&&p.color===game.turn()){
-  selected=sq;
-  legal=game.moves({square:sq,verbose:true});
- }else{selected=null;legal=[]}
- render();
-}
-function makeMove(from,to,promotion){
- let result;
- try{
-  result=game.move({from,to,promotion:promotion||'q'});
- }catch(e){result=null}
- if(!result)return;
- lastMove={from:result.from,to:result.to};
- selected=null;legal=[];
- history.push(result);
- render();
- updateStatus();
- if(!game.game_over()&&!passPlay&&game.turn()!==humanColor)botMove();
-}
-function updateStatus(){
- if(!game)return;
- let s='';
- if(game.in_checkmate())s='♚ CHECKMATE — '+(game.turn()==='w'?'BLACK':'WHITE')+' WINS!';
- else if(game.in_stalemate())s='STALEMATE — THE KINGDOM IS DRAWN';
- else if(game.in_draw())s='DRAW — A NOBLE BATTLE';
- else if(game.in_check())s='⚠ CHECK! Protect your king.';
- else s=(game.turn()==='w'?'WHITE':'BLACK')+' TO MOVE';
- statusEl.textContent=s;
- thinkingEl.textContent='';
-}
-function renderMoves(){
- const hist=game.history();
- if(!hist.length){movesEl.textContent='Awaiting first move...';return}
- movesEl.innerHTML='';
- for(let i=0;i<hist.length;i+=2){
-  const row=document.createElement('div');
-  row.className='move-row';
-  const n=document.createElement('span'),w=document.createElement('span'),b=document.createElement('span');
-  n.textContent=(i/2+1)+'.';w.textContent=hist[i]||'';b.textContent=hist[i+1]||'';
-  row.append(n,w,b);movesEl.appendChild(row);
- }
- movesEl.scrollTop=movesEl.scrollHeight;
-}
-function evaluate(){
- const b=game.board();let score=0;
- for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-  const p=b[r][c];if(!p)continue;
-  let v=value[p.type];
-  const center=3.5-(Math.abs(3.5-r)+Math.abs(3.5-c))/2;
-  if(p.type==='p')v+=(p.color==='w'?6-r:r-1)*5+center*3;
-  if(['n','b'].includes(p.type))v+=center*9;
-  if(p.type==='k'&&game.history().length>25)v+=center*4;
-  score+=p.color==='w'?v:-v;
- }
- return score;
-}
-function botMove(){
- if(!game||game.game_over()||thinking)return;
- thinking=true;
- render();
- thinkingEl.textContent='Royal Bot is thinking...';
- setTimeout(()=>{
-  if(!game||game.game_over()){thinking=false;return}
-  const moves=game.moves({verbose:true});
-  if(!moves.length){thinking=false;updateStatus();return}
-  let depth=Number(difficultyEl.value);
-  let ranked=moves.map(m=>{
-   let score=(Math.random()-.5)*(depth===1?160:depth===2?45:12);
-   const captured=m.captured?value[m.captured]:0;
-   score+=captured*0.8;
-   if(m.san.includes('#'))score+=50000;
-   if(m.san.includes('+'))score+=depth*12;
-   if(m.promotion)score+=700;
-   return {m,score};
-  });
-  ranked.sort((a,b)=>b.score-a.score);
-  let choices=depth===1?ranked.slice(0,Math.min(8,ranked.length)):depth===2?ranked.slice(0,Math.min(4,ranked.length)):ranked.slice(0,Math.min(2,ranked.length));
-  const pick=choices[Math.floor(Math.random()*choices.length)].m;
-  const result=game.move({from:pick.from,to:pick.to,promotion:'q'});
-  if(result){lastMove={from:result.from,to:result.to};history.push(result)}
-  thinking=false;selected=null;legal=[];render();updateStatus();
- },350);
-}
-function hint(){
- if(!game||game.game_over()||thinking)return;
- const moves=game.moves({verbose:true});
- if(!moves.length)return;
- const captures=moves.filter(m=>m.captured);
- const chosen=(captures.length?captures:moves)[Math.floor(Math.random()*(captures.length?captures.length:moves.length))];
- selected=chosen.from;legal=game.moves({square:selected,verbose:true});
- render();
- statusEl.textContent='✧ Consider moving '+chosen.from.toUpperCase()+' → '+chosen.to.toUpperCase();
-}
-function undo(){
- if(!game||thinking||!game.history().length)return;
- game.undo();
- if(!passPlay&&game.turn()!==humanColor&&game.history().length)game.undo();
- const h=game.history({verbose:true}).slice(-1)[0];
- lastMove=h?{from:h.from,to:h.to}:null;
- selected=null;legal=[];render();updateStatus();
-}
-function restart(){
- if(!game)return;
- game.reset();startGame();
-}
-document.getElementById('undo').onclick=undo;
-document.getElementById('hint').onclick=hint;
-document.getElementById('flip').onclick=()=>{orientation=orientation==='w'?'b':'w';render()};
-document.getElementById('restart').onclick=restart;
-document.getElementById('newGame').onclick=startGame;
-document.getElementById('pass').onclick=()=>{
- modeEl.value=modeEl.value==='local'?'bot':'local';
- startGame();
-};
-modeEl.onchange=startGame;
-colorEl.onchange=startGame;
-difficultyEl.onchange=()=>{thinkingEl.textContent='Difficulty updated.'};
-</script>
+  <script>
+    const game = new Chess();
+    const boardEl = $('#sandboxBoard');
+
+    function onDragStart(source, piece) {
+      if (game.game_over()) return false;
+      if (piece.search(/^b/) !== -1) return false; // Player is white
+    }
+
+    function makeAIMove() {
+      if (game.game_over()) return;
+      const moves = game.moves({ verbose: true });
+      if (moves.length === 0) return;
+
+      const diff = document.getElementById('sandboxDifficulty').value;
+      let move = null;
+
+      if (diff === 'easy') {
+        move = moves[Math.floor(Math.random() * moves.length)];
+      } else if (diff === 'medium') {
+        const captures = moves.filter(m => m.captured);
+        move = captures.length ? captures[0] : moves[Math.floor(Math.random() * moves.length)];
+      } else {
+        // Hard
+        moves.sort((a, b) => (b.captured ? 10 : 0) - (a.captured ? 10 : 0));
+        move = moves[0];
+      }
+
+      game.move(move);
+      board.position(game.fen());
+      updateStatus();
+    }
+
+    function onDrop(source, target) {
+      const move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q'
+      });
+      if (move === null) return 'snapback';
+
+      updateStatus();
+      setTimeout(makeAIMove, 300);
+    }
+
+    function updateStatus() {
+      const st = document.getElementById('sandboxStatus');
+      if (game.in_checkmate()) st.innerText = "Checkmate!";
+      else if (game.in_draw()) st.innerText = "Draw!";
+      else if (game.in_check()) st.innerText = "Check!";
+      else st.innerText = game.turn() === 'w' ? "Your Turn (White)" : "Bot Thinking...";
+    }
+
+    const board = Chessboard('sandboxBoard', {
+      draggable: true,
+      position: 'start',
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: () => board.position(game.fen())
+    });
+
+    $(window).resize(board.resize);
+
+    document.getElementById('btnUndo').onclick = () => {
+      game.undo(); // Undo AI
+      game.undo(); // Undo User
+      board.position(game.fen());
+      updateStatus();
+    };
+
+    document.getElementById('btnReset').onclick = () => {
+      game.reset();
+      board.start();
+      updateStatus();
+    };
+  </script>
 </body>
 </html>
-
