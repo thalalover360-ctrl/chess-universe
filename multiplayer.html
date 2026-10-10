@@ -3,153 +3,213 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07110e">
-  <title>Multiplayer | Chess Universe</title>
+  <title>Multiplayer Arena | Chess Universe</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .page { width:min(1050px,calc(100% - 28px)); margin:auto; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; padding:20px 0; border-bottom:1px solid var(--border); }
-    .brand { color:var(--gold); font-weight:800; }
-    .intro { text-align:center; padding:50px 0 32px; }
-    .intro h1 { margin:12px 0; }
-    .intro p { max-width:600px; margin:auto; }
-    .duel-art { margin:22px 0; color:var(--gold); font-size:3rem; letter-spacing:15px; }
-    .room-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
-    .room-panel { padding:clamp(22px,4vw,34px); }
-    .room-icon { font-size:2.2rem; }
-    .room-panel h2 { margin:12px 0; font-size:1.65rem; }
-    .room-panel p { min-height:50px; }
-    .room-panel form { margin-top:20px; }
-    .room-panel .btn { width:100%; }
-    .room-code { display:none; margin-top:18px; padding:17px; border:1px dashed var(--gold); border-radius:13px; text-align:center; background:rgba(231,189,105,.06); }
-    .room-code strong { display:block; margin:8px 0; color:var(--gold); font-size:1.8rem; letter-spacing:5px; overflow-wrap:anywhere; }
-    .notice { margin-top:24px; padding:16px; border:1px solid var(--border); border-radius:12px; color:var(--muted); background:var(--panel); }
-    .notice strong { color:var(--gold); }
-    .status { margin-top:14px; }
-    @media(max-width:650px) {
-      .room-grid { grid-template-columns:1fr; }
-      .intro { padding-top:35px; }
-      .room-panel p { min-height:0; }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header class="page topbar">
-    <a class="brand" href="index.html">♟ CHESS UNIVERSE</a>
-    <a class="btn" href="index.html">← Home</a>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <a href="index.html" class="flex items-center gap-2">
+        <span class="brand-icon">♞</span>
+        <span class="tracking-wide">CHESS UNIVERSE</span>
+      </a>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-item">Lobby</a>
+      <a href="bots.html" class="nav-item">Bots Lounge</a>
+      <a href="multiplayer.html" class="nav-item active text-emerald-400">Multiplayer</a>
+    </div>
+    <div class="user-badge" onclick="window.location.href='login.html'">
+      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="user-avatar" alt="Avatar">
+      <span id="navName" class="text-sm font-semibold text-slate-200">Guest</span>
+      <span id="navElo" class="elo-pill">1200</span>
+    </div>
   </header>
 
-  <main class="page">
-    <section class="intro">
-      <span class="eyebrow">FRIENDS. STRATEGY. GLORY.</span>
-      <h1>Challenge Your <span class="gradient-text">Rival.</span></h1>
-      <p>Create a room for your friend or enter a room code to join their chess match.</p>
-      <div class="duel-art" aria-hidden="true">♔ ⚔ ♚</div>
-    </section>
+  <!-- Main Container -->
+  <main class="hub-main flex-1 max-w-5xl mx-auto w-full p-6 space-y-8 flex flex-col justify-center">
 
-    <section class="room-grid">
-      <article class="card room-panel">
-        <div class="room-icon">♔</div>
-        <span class="badge">HOST A MATCH</span>
-        <h2>Create Room</h2>
-        <p>Generate a room code to share with your friend.</p>
-        <form id="createForm">
-          <div>
-            <label for="hostName">Your display name</label>
-            <input id="hostName" maxlength="20" placeholder="Enter your name" required>
+    <!-- Header Card -->
+    <div class="text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+        <span>⚡</span> Real-Time PvP Battles
+      </div>
+      <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Multiplayer Matchmaker</h1>
+      <p class="text-slate-400 max-w-xl mx-auto text-sm md:text-base">
+        Invite your friend directly over WhatsApp with an instant join link or hop into the radar to battle random players globally.
+      </p>
+    </div>
+
+    <!-- Matchmaking Options Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- 1. Play with Friend via WhatsApp -->
+      <div class="glass-card flex flex-col justify-between p-8 border border-slate-700/80 hover:border-emerald-500/60 rounded-3xl relative overflow-hidden group">
+        <div class="space-y-4">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-3xl">
+            <span>💬</span>
           </div>
-          <button class="btn btn-primary" type="submit">Create Room →</button>
-        </form>
-        <div class="room-code" id="roomResult">
-          <span style="color:var(--muted)">YOUR ROOM CODE</span>
-          <strong id="roomCode"></strong>
-          <button class="btn btn-gold" id="copyCode" type="button">Copy Code</button>
-          <p id="hostMessage"></p>
+          <h2 class="text-2xl font-bold">Play With a Friend</h2>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Create an exclusive 1v1 private game room. Send the invite directly to WhatsApp in one tap — your opponent clicks and the match begins!
+          </p>
         </div>
-      </article>
 
-      <article class="card room-panel">
-        <div class="room-icon">♚</div>
-        <span class="badge">JOIN A MATCH</span>
-        <h2>Join Room</h2>
-        <p>Have a room code? Enter it here to get ready to play.</p>
-        <form id="joinForm">
-          <div>
-            <label for="guestName">Your display name</label>
-            <input id="guestName" maxlength="20" placeholder="Enter your name" required>
-          </div>
-          <div>
-            <label for="joinCode">Room code</label>
-            <input id="joinCode" maxlength="6" minlength="6" placeholder="6-character code" autocomplete="off" required>
-          </div>
-          <button class="btn btn-gold" type="submit">Join Room →</button>
-        </form>
-        <div class="status" id="joinMessage" role="status" hidden></div>
-      </article>
-    </section>
+        <div class="pt-6 space-y-3">
+          <button id="btnCreateWhatsApp" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-extrabold py-4 px-6 rounded-2xl shadow-lg shadow-emerald-950/40 transition flex items-center justify-center gap-3 text-base">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+              <path d="M17.507 14.307l-.009.075c-.236-.12-1.391-.687-1.606-.767-.217-.079-.374-.12-.532.12-.157.239-.611.767-.749.925-.137.158-.276.177-.512.06-.237-.12-1-.368-1.906-1.176-.704-.627-1.18-1.401-1.318-1.639-.138-.238-.015-.366.104-.485.108-.106.237-.277.355-.415.119-.139.158-.238.237-.396.079-.158.04-.297-.02-.416-.06-.119-.533-1.285-.731-1.761-.192-.464-.388-.401-.533-.408-.138-.007-.297-.009-.455-.009-.158 0-.415.06-.632.297-.218.238-.83 0.812-.83 1.98s.85 2.296.969 2.455c.119.158 1.672 2.553 4.051 3.578.566.244 1.008.39 1.353.5.568.181 1.085.155 1.493.094.455-.068 1.391-.569 1.588-1.119.198-.55.198-1.021.139-1.12-.06-.098-.218-.157-.455-.276zM12.04 2C6.54 2 2.08 6.46 2.08 11.96c0 1.99.59 3.84 1.61 5.39L2 22l4.82-1.63c1.49.93 3.25 1.47 5.14 1.47 5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm0 18.22c-1.64 0-3.17-.49-4.47-1.33l-.32-.21-3.21 1.08 1.07-3.13-.23-.34c-.95-1.38-1.5-3.03-1.5-4.81 0-4.66 3.79-8.45 8.45-8.45s8.45 3.79 8.45 8.45-3.79 8.45-8.45 8.45z"/>
+            </svg>
+            Invite via WhatsApp
+          </button>
+          <div id="roomCreatingStatus" class="text-xs text-center text-emerald-400 hidden font-semibold">Creating private battle arena...</div>
+        </div>
+      </div>
 
-    <aside class="notice">
-      <strong>Important:</strong> This page currently generates a local demo code only. It does not create a real online room or connect two players. Realtime database and synchronized chess moves must be added for working multiplayer.
-    </aside>
+      <!-- 2. Random Quick Matchmaking -->
+      <div class="glass-card flex flex-col justify-between p-8 border border-slate-700/80 hover:border-blue-500/60 rounded-3xl relative overflow-hidden group">
+        <div class="space-y-4">
+          <div class="w-14 h-14 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center text-3xl">
+            <span>⚡</span>
+          </div>
+          <h2 class="text-2xl font-bold">Quick Match</h2>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Auto-match with an available player waiting in the matchmaking pool. High stakes Elo battles with standard 10-minute clocks.
+          </p>
+        </div>
+
+        <div class="pt-6 space-y-3">
+          <button id="btnQuickMatch" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-4 px-6 rounded-2xl shadow-lg shadow-blue-950/40 transition flex items-center justify-center gap-3 text-base">
+            <span>🔍</span> Find Opponent
+          </button>
+          <div class="text-xs text-center text-slate-400">Matchmaking time: ~5-15 seconds</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Matchmaking Radar Modal Overlay -->
+    <div id="radarModal" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="radar-scanner">
+          <div class="radar-ping"></div>
+          <span class="text-3xl">♞</span>
+        </div>
+        <h3 class="modal-title">Searching Opponent...</h3>
+        <p class="modal-subtitle">Scanning live players in Asia-South1 pool</p>
+        <button id="btnCancelMatch" class="btn-secondary w-full py-3 rounded-xl mt-4">Cancel Search</button>
+      </div>
+    </div>
+
   </main>
 
-  <footer>
-    <div class="page">♟ Chess Universe · <a href="bot-game.html">Play vs Bot</a></div>
-  </footer>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, updateDoc, collection, query, where, getDocs, limit, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-  <script>
-    const createForm = document.getElementById("createForm");
-    const roomResult = document.getElementById("roomResult");
-    const roomCode = document.getElementById("roomCode");
-    const hostMessage = document.getElementById("hostMessage");
-    const joinForm = document.getElementById("joinForm");
-    const joinCode = document.getElementById("joinCode");
-    const joinMessage = document.getElementById("joinMessage");
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+      authDomain: "chess-universe-5a7cb.firebaseapp.com",
+      projectId: "chess-universe-5a7cb",
+      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+      messagingSenderId: "145519167856",
+      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    };
 
-    function makeCode() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let result = "";
-      for (let i = 0; i < 6; i++) {
-        result += chars[Math.floor(Math.random() * chars.length)];
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Profile details
+    const myName = localStorage.getItem('chess_name') || 'Player_' + Math.floor(1000 + Math.random() * 9000);
+    const myAvatar = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Magnus';
+    const myElo = localStorage.getItem('chess_rating') || '1200';
+
+    document.getElementById('navName').innerText = myName;
+    document.getElementById('navAvatar').src = myAvatar;
+    document.getElementById('navElo').innerText = myElo;
+
+    // 1. WhatsApp Invite Flow
+    document.getElementById('btnCreateWhatsApp').onclick = async () => {
+      const status = document.getElementById('roomCreatingStatus');
+      status.classList.remove('hidden');
+
+      const roomId = 'room_' + Math.random().toString(36).substring(2, 9);
+      
+      await setDoc(doc(db, "matches", roomId), {
+        fen: "start",
+        turn: "w",
+        white: myName,
+        whiteElo: myElo,
+        black: null,
+        blackElo: null,
+        history: [],
+        createdAt: Date.now()
+      });
+
+      const currentPath = window.location.pathname.replace('multiplayer.html', '');
+      const gameHostUrl = `${window.location.origin}${currentPath}game.html?mode=pvp&room=${roomId}&side=w`;
+      const friendJoinUrl = `${window.location.origin}${currentPath}game.html?mode=pvp&room=${roomId}&side=b`;
+
+      const msg = encodeURIComponent(`⚔️ Bro, I challenge you to a Chess match on Chess Universe!\n\nTap to accept & join immediately:\n${friendJoinUrl}`);
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+
+      window.location.href = gameHostUrl;
+    };
+
+    // 2. Radar Matchmaking Flow
+    const radarModal = document.getElementById('radarModal');
+    let unsubMatch = null;
+    let pendingRoomId = null;
+
+    document.getElementById('btnQuickMatch').onclick = async () => {
+      radarModal.classList.add('show');
+
+      // Check if an existing open match room is waiting for opponent
+      const q = query(collection(db, "matches"), where("black", "==", null), limit(1));
+      const snap = await getDocs(q);
+
+      if (!snap.empty) {
+        const found = snap.docs[0];
+        // Join as Black
+        await updateDoc(doc(db, "matches", found.id), {
+          black: myName,
+          blackElo: myElo
+        });
+        window.location.href = `game.html?mode=pvp&room=${found.id}&side=b`;
+      } else {
+        // Create new room and wait as White
+        pendingRoomId = 'match_' + Math.random().toString(36).substring(2, 9);
+        await setDoc(doc(db, "matches", pendingRoomId), {
+          fen: "start",
+          turn: "w",
+          white: myName,
+          whiteElo: myElo,
+          black: null,
+          blackElo: null,
+          history: [],
+          createdAt: Date.now()
+        });
+
+        // Listen for an opponent to join
+        unsubMatch = onSnapshot(doc(db, "matches", pendingRoomId), (docSnap) => {
+          if (docSnap.exists() && docSnap.data().black) {
+            window.location.href = `game.html?mode=pvp&room=${pendingRoomId}&side=w`;
+          }
+        });
       }
-      return result;
-    }
+    };
 
-    createForm.addEventListener("submit", function(event) {
-      event.preventDefault();
-      roomCode.textContent = makeCode();
-      roomResult.style.display = "block";
-      hostMessage.textContent =
-        "Demo code generated. Connect a realtime backend to invite an actual online opponent.";
-    });
-
-    document.getElementById("copyCode").addEventListener("click", async function() {
-      const code = roomCode.textContent;
-      try {
-        await navigator.clipboard.writeText(code);
-        this.textContent = "Copied!";
-      } catch {
-        const temporary = document.createElement("textarea");
-        temporary.value = code;
-        document.body.appendChild(temporary);
-        temporary.select();
-        document.execCommand("copy");
-        temporary.remove();
-        this.textContent = "Copied!";
+    // Cancel Radar
+    document.getElementById('btnCancelMatch').onclick = async () => {
+      if (unsubMatch) unsubMatch();
+      if (pendingRoomId) {
+        await deleteDoc(doc(db, "matches", pendingRoomId)).catch(() => {});
       }
-      setTimeout(() => this.textContent = "Copy Code", 1500);
-    });
-
-    joinCode.addEventListener("input", function() {
-      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
-    });
-
-    joinForm.addEventListener("submit", function(event) {
-      event.preventDefault();
-      joinMessage.hidden = false;
-      joinMessage.textContent =
-        "Room lookup is not connected yet. A realtime backend is needed to find this room and join its match.";
-    });
+      radarModal.classList.remove('show');
+    };
   </script>
 </body>
 </html>
