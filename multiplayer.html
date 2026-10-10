@@ -1,113 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090d0b">
-<title>Play a Friend | Chess Universe</title>
-<style>
-*{box-sizing:border-box}
-:root{--gold:#e8c477;--muted:#aab7aa}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 80% 15%,#1c4230,transparent 42%),#090d0b;color:#f8f1e2;font-family:Arial,sans-serif}
-nav{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 6%;border-bottom:1px solid #ffffff18}
-.brand{font:20px Georgia,serif;letter-spacing:2px;color:var(--gold);text-decoration:none}
-nav a:last-child{font-size:13px;color:#e9d8a8;text-decoration:none}
-main{width:min(950px,92%);margin:45px auto}
-.hero{text-align:center;margin-bottom:35px}
-.crown{font-size:38px;color:var(--gold);text-shadow:0 0 25px #e8c47755}
-.eyebrow{font-size:10px;letter-spacing:4px;color:var(--gold);margin-top:12px}
-h1{font:clamp(35px,6vw,54px) Georgia,serif;margin:12px 0}
-.hero p{font-size:14px;line-height:1.8;color:var(--muted);max-width:520px;margin:auto}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.card{padding:26px;border:1px solid #a1844a80;border-radius:13px;background:linear-gradient(145deg,#1a271f,#101612);box-shadow:0 15px 45px #0005}
-.icon{font-size:35px;color:var(--gold)}
-h2{font:25px Georgia,serif;color:#f3dfb0;margin:15px 0 8px}
-.desc{font-size:13px;color:var(--muted);line-height:1.7;min-height:44px}
-label{display:block;font-size:11px;color:#d6d8ca;margin:17px 0 7px;letter-spacing:1px}
-input{width:100%;padding:13px;border-radius:7px;background:#0a100c;color:white;border:1px solid #405044;outline:none}
-input:focus{border-color:var(--gold)}
-button,.button{display:block;width:100%;padding:13px;border:0;border-radius:7px;background:linear-gradient(120deg,#f1d99b,#bd8c3e);color:#19160e;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none;font-size:13px;margin-top:17px}
-button.secondary{background:#142019;border:1px solid #8b7545;color:#f1dfb4}
-.status{font-size:12px;line-height:1.6;color:var(--gold);margin-top:14px;overflow-wrap:anywhere}
-.steps{margin-top:25px;padding:19px;border:1px solid #ffffff17;border-radius:10px;background:#ffffff05}
-.steps h3{font:18px Georgia,serif;color:#f0d9a5;margin:0 0 12px}
-.steps p{font-size:12px;line-height:1.8;color:var(--muted);margin:5px 0}
-footer{text-align:center;padding:25px;color:#718175;font-size:10px;letter-spacing:2px}
-@media(max-width:650px){main{margin:30px auto}.cards{grid-template-columns:1fr}.card{padding:22px}.desc{min-height:0}nav{padding:0 4%}.brand{font-size:15px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07110e">
+  <title>Multiplayer | Chess Universe</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page { width:min(1050px,calc(100% - 28px)); margin:auto; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; padding:20px 0; border-bottom:1px solid var(--border); }
+    .brand { color:var(--gold); font-weight:800; }
+    .intro { text-align:center; padding:50px 0 32px; }
+    .intro h1 { margin:12px 0; }
+    .intro p { max-width:600px; margin:auto; }
+    .duel-art { margin:22px 0; color:var(--gold); font-size:3rem; letter-spacing:15px; }
+    .room-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+    .room-panel { padding:clamp(22px,4vw,34px); }
+    .room-icon { font-size:2.2rem; }
+    .room-panel h2 { margin:12px 0; font-size:1.65rem; }
+    .room-panel p { min-height:50px; }
+    .room-panel form { margin-top:20px; }
+    .room-panel .btn { width:100%; }
+    .room-code { display:none; margin-top:18px; padding:17px; border:1px dashed var(--gold); border-radius:13px; text-align:center; background:rgba(231,189,105,.06); }
+    .room-code strong { display:block; margin:8px 0; color:var(--gold); font-size:1.8rem; letter-spacing:5px; overflow-wrap:anywhere; }
+    .notice { margin-top:24px; padding:16px; border:1px solid var(--border); border-radius:12px; color:var(--muted); background:var(--panel); }
+    .notice strong { color:var(--gold); }
+    .status { margin-top:14px; }
+    @media(max-width:650px) {
+      .room-grid { grid-template-columns:1fr; }
+      .intro { padding-top:35px; }
+      .room-panel p { min-height:0; }
+    }
+  </style>
 </head>
 <body>
-<nav>
- <a class="brand" href="index.html">♛ CHESS UNIVERSE</a>
- <a href="index.html">← Home</a>
-</nav>
+  <header class="page topbar">
+    <a class="brand" href="index.html">♟ CHESS UNIVERSE</a>
+    <a class="btn" href="index.html">← Home</a>
+  </header>
 
-<main>
- <section class="hero">
-  <div class="crown">♜</div>
-  <div class="eyebrow">TWO PLAYERS · ONE BATTLE</div>
-  <h1>Challenge a Friend</h1>
-  <p>Every friendship deserves a royal rivalry. Create a private room or join your friend's match.</p>
- </section>
+  <main class="page">
+    <section class="intro">
+      <span class="eyebrow">FRIENDS. STRATEGY. GLORY.</span>
+      <h1>Challenge Your <span class="gradient-text">Rival.</span></h1>
+      <p>Create a room for your friend or enter a room code to join their chess match.</p>
+      <div class="duel-art" aria-hidden="true">♔ ⚔ ♚</div>
+    </section>
 
- <section class="cards">
-  <article class="card">
-   <div class="icon">♔</div>
-   <h2>Create a Room</h2>
-   <p class="desc">Prepare a private chess room and invite your rival to the board.</p>
-   <label for="playerName">YOUR PLAYER NAME</label>
-   <input id="playerName" maxlength="24" placeholder="Enter your name" autocomplete="nickname">
-   <button id="createBtn">CREATE PRIVATE ROOM →</button>
-   <div class="status" id="createStatus" role="status"></div>
-  </article>
+    <section class="room-grid">
+      <article class="card room-panel">
+        <div class="room-icon">♔</div>
+        <span class="badge">HOST A MATCH</span>
+        <h2>Create Room</h2>
+        <p>Generate a room code to share with your friend.</p>
+        <form id="createForm">
+          <div>
+            <label for="hostName">Your display name</label>
+            <input id="hostName" maxlength="20" placeholder="Enter your name" required>
+          </div>
+          <button class="btn btn-primary" type="submit">Create Room →</button>
+        </form>
+        <div class="room-code" id="roomResult">
+          <span style="color:var(--muted)">YOUR ROOM CODE</span>
+          <strong id="roomCode"></strong>
+          <button class="btn btn-gold" id="copyCode" type="button">Copy Code</button>
+          <p id="hostMessage"></p>
+        </div>
+      </article>
 
-  <article class="card">
-   <div class="icon">⚔</div>
-   <h2>Join a Room</h2>
-   <p class="desc">Got an invitation? Enter the room code your friend shared with you.</p>
-   <label for="roomCode">ROOM CODE</label>
-   <input id="roomCode" maxlength="12" placeholder="Enter room code" autocomplete="off">
-   <label for="joinName">YOUR PLAYER NAME</label>
-   <input id="joinName" maxlength="24" placeholder="Enter your name" autocomplete="nickname">
-   <button id="joinBtn">JOIN FRIEND'S ROOM →</button>
-   <div class="status" id="joinStatus" role="status"></div>
-  </article>
- </section>
+      <article class="card room-panel">
+        <div class="room-icon">♚</div>
+        <span class="badge">JOIN A MATCH</span>
+        <h2>Join Room</h2>
+        <p>Have a room code? Enter it here to get ready to play.</p>
+        <form id="joinForm">
+          <div>
+            <label for="guestName">Your display name</label>
+            <input id="guestName" maxlength="20" placeholder="Enter your name" required>
+          </div>
+          <div>
+            <label for="joinCode">Room code</label>
+            <input id="joinCode" maxlength="6" minlength="6" placeholder="6-character code" autocomplete="off" required>
+          </div>
+          <button class="btn btn-gold" type="submit">Join Room →</button>
+        </form>
+        <div class="status" id="joinMessage" role="status" hidden></div>
+      </article>
+    </section>
 
- <section class="steps">
-  <h3>How it will work</h3>
-  <p>01 — One player creates a room.</p>
-  <p>02 — Share the room code with your friend.</p>
-  <p>03 — Your friend joins, and both players see the same live chessboard.</p>
-  <p style="color:#e8c477">Online rooms require a connected real-time backend. These controls are a preview until that setup is complete.</p>
- </section>
-</main>
+    <aside class="notice">
+      <strong>Important:</strong> This page currently generates a local demo code only. It does not create a real online room or connect two players. Realtime database and synchronized chess moves must be added for working multiplayer.
+    </aside>
+  </main>
 
-<footer>CHESS UNIVERSE · MAY THE BEST STRATEGY WIN</footer>
+  <footer>
+    <div class="page">♟ Chess Universe · <a href="bot-game.html">Play vs Bot</a></div>
+  </footer>
 
-<script>
-const createStatus=document.getElementById("createStatus");
-const joinStatus=document.getElementById("joinStatus");
+  <script>
+    const createForm = document.getElementById("createForm");
+    const roomResult = document.getElementById("roomResult");
+    const roomCode = document.getElementById("roomCode");
+    const hostMessage = document.getElementById("hostMessage");
+    const joinForm = document.getElementById("joinForm");
+    const joinCode = document.getElementById("joinCode");
+    const joinMessage = document.getElementById("joinMessage");
 
-document.getElementById("createBtn").onclick=()=>{
- const name=document.getElementById("playerName").value.trim();
- if(!name){
-  createStatus.textContent="Enter your player name first.";
-  return;
- }
- createStatus.textContent="Room creation is not connected yet. A real-time backend must be configured before room codes can work.";
-};
+    function makeCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let result = "";
+      for (let i = 0; i < 6; i++) {
+        result += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return result;
+    }
 
-document.getElementById("joinBtn").onclick=()=>{
- const name=document.getElementById("joinName").value.trim();
- const code=document.getElementById("roomCode").value.trim();
- if(!name||!code){
-  joinStatus.textContent="Enter your name and the room code.";
-  return;
- }
- joinStatus.textContent="Room joining is not connected yet. Online multiplayer setup is required.";
-};
-</script>
+    createForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      roomCode.textContent = makeCode();
+      roomResult.style.display = "block";
+      hostMessage.textContent =
+        "Demo code generated. Connect a realtime backend to invite an actual online opponent.";
+    });
+
+    document.getElementById("copyCode").addEventListener("click", async function() {
+      const code = roomCode.textContent;
+      try {
+        await navigator.clipboard.writeText(code);
+        this.textContent = "Copied!";
+      } catch {
+        const temporary = document.createElement("textarea");
+        temporary.value = code;
+        document.body.appendChild(temporary);
+        temporary.select();
+        document.execCommand("copy");
+        temporary.remove();
+        this.textContent = "Copied!";
+      }
+      setTimeout(() => this.textContent = "Copy Code", 1500);
+    });
+
+    joinCode.addEventListener("input", function() {
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+    });
+
+    joinForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      joinMessage.hidden = false;
+      joinMessage.textContent =
+        "Room lookup is not connected yet. A realtime backend is needed to find this room and join its match.";
+    });
+  </script>
 </body>
 </html>
-
