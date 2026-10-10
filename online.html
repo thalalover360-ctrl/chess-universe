@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Online PvP | Chess Universe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <style>
+    body { background-color: #0b0f17; }
+    :root {
+      --board-light: #ebecd0;
+      --board-dark: #739552;
+      --board-highlight: rgba(245, 246, 130, 0.85);
+    }
+    .chess-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
+      user-select: none;
+      touch-action: none;
+    }
+    .tile-light { background-color: var(--board-light); }
+    .tile-dark { background-color: var(--board-dark); }
+    .tile-selected { background-color: var(--board-highlight) !important; }
+    .tile-dot::after {
+      content: '';
+      width: 32%;
+      height: 32%;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .tile-capture {
+      box-shadow: inset 0 0 0 5px rgba(239, 68, 68, 0.85) !important;
+    }
+    .chess-tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+    .piece-img {
+      width: 86%;
+      height: 86%;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45));
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
+      <span class="font-bold text-sm tracking-wide text-white">ONLINE PVP</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 text-xs font-mono">
+        <span class="text-slate-400">Room:</span>
+        <span id="roomDisplay" class="text-emerald-400 font-bold">------</span>
+      </div>
+      <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">Exit</a>
+    </div>
+  </header>
+
+  <!-- Stage Container -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-between space-y-3">
+
+    <!-- Opponent Card -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-3">
+        <img id="opponentAvatar" src="https://api.dicebear.com/7.x/identicon/svg?seed=opponent" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="Opponent">
+        <div>
+          <h4 id="opponentName" class="text-sm font-bold text-white">Waiting for player...</h4>
+          <span id="opponentUID" class="text-xs text-slate-400 font-mono">UID: ----------</span>
+        </div>
+      </div>
+      <div id="opponentClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
+    </div>
+
+    <!-- Chess Board Grid -->
+    <div class="w-full flex items-center justify-center">
+      <div id="board" class="chess-grid"></div>
+    </div>
+
+    <!-- My Profile Card -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-3">
+        <img id="myAvatar" src="" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="You">
+        <div>
+          <div class="flex items-center gap-2">
+            <h4 id="myName" class="text-sm font-bold text-white">Player</h4>
+            <span id="mySideBadge" class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 rounded font-bold">WHITE</span>
+          </div>
+          <span id="myUID" class="text-xs text-slate-400 font-mono">UID: ----------</span>
+        </div>
+      </div>
+      <div id="myClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
+    </div>
+
+    <!-- Turn Info & Action Controls -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+      <span id="matchStatusText" class="text-xs font-bold text-emerald-400">Connecting to room...</span>
+      <button id="btnResign" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/30 transition">
+        🏳️ Resign
+      </button>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+      authDomain: "chess-universe-5a7cb.firebaseapp.com",
+      projectId: "chess-universe-5a7cb",
+      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+      messagingSenderId: "145519167856",
+      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    if (!localStorage.getItem('chess_auth')) {
+      window.location.href = 'login.html';
+    }
+
+    const PIECE_SVGS = {
+      wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
+      wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
+      wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
+      wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
+      wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
+      wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
+      bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
+      bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
+      bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
+      bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
+      bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
+      bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png'
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomId = urlParams.get('room') || '100100';
+    let assignedSide = urlParams.get('side') || 'white'; // white or black
+
+    document.getElementById('roomDisplay').innerText = roomId;
+
+    const myName = localStorage.getItem('chess_name') || 'Player';
+    const myUID = localStorage.getItem('chess_game_uid') || '1029384756';
+    const myAvatar = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/identicon/svg?seed=${myUID}`;
+
+    document.getElementById('myName').innerText = myName;
+    document.getElementById('myUID').innerText = 'UID: ' + myUID;
+    document.getElementById('myAvatar').src = myAvatar;
+    document.getElementById('mySideBadge').innerText = assignedSide.toUpperCase();
+
+    const game = new Chess();
+    let selectedSquare = null;
+    let roomRef = doc(db, "matches", roomId);
+
+    function renderBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+
+      const isFlipped = assignedSide === 'black';
+      const ranks = isFlipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
+      const files = isFlipped ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'] : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+      ranks.forEach((rank, rIdx) => {
+        files.forEach((file, fIdx) => {
+          const sq = `${file}${rank}`;
+          const isDark = (rIdx + fIdx) % 2 === 1;
+          const tile = document.createElement('div');
+          tile.className = `chess-tile ${isDark ? 'tile-dark' : 'tile-light'}`;
+          tile.dataset.square = sq;
+
+          const piece = game.get(sq);
+          if (piece) {
+            const img = document.createElement('img');
+            img.src = PIECE_SVGS[piece.color + piece.type.toUpperCase()];
+            img.className = 'piece-img';
+            tile.appendChild(img);
+          }
+
+          if (selectedSquare === sq) tile.classList.add('tile-selected');
+          tile.onclick = () => onTileClick(sq);
+          boardEl.appendChild(tile);
+        });
+      });
+
+      highlightLegalMoves();
+    }
+
+    function highlightLegalMoves() {
+      if (!selectedSquare) return;
+      const moves = game.moves({ square: selectedSquare, verbose: true });
+      moves.forEach(m => {
+        const el = document.querySelector(`[data-square="${m.to}"]`);
+        if (el) {
+          if (m.captured) el.classList.add('tile-capture');
+          else el.classList.add('tile-dot');
+        }
+      });
+    }
+
+    async function onTileClick(sq) {
+      if (game.game_over()) return;
+
+      const myTurnChar = assignedSide === 'white' ? 'w' : 'b';
+      if (game.turn() !== myTurnChar) return;
+
+      const piece = game.get(sq);
+
+      if (selectedSquare) {
+        if (selectedSquare === sq) {
+          selectedSquare = null;
+          renderBoard();
+          return;
+        }
+
+        const move = game.move({ from: selectedSquare, to: sq, promotion: 'q' });
+        if (move) {
+          selectedSquare = null;
+          renderBoard();
+          await syncMoveToFirestore(move);
+          return;
+        }
+      }
+
+      if (piece && piece.color === myTurnChar) {
+        selectedSquare = sq;
+      } else {
+        selectedSquare = null;
+      }
+      renderBoard();
+    }
+
+    async function syncMoveToFirestore(move) {
+      await updateDoc(roomRef, {
+        fen: game.fen(),
+        lastMove: move,
+        turn: game.turn(),
+        updatedAt: Date.now()
+      });
+    }
+
+    // Join or Initialize Room in Firestore
+    async function initRoomSync() {
+      const snap = await getDoc(roomRef);
+
+      if (!snap.exists()) {
+        // Room creator (White)
+        await setDoc(roomRef, {
+          roomId: roomId,
+          fen: game.fen(),
+          white: { name: myName, uid: myUID, avatar: myAvatar },
+          black: null,
+          turn: 'w',
+          status: 'waiting',
+          createdAt: Date.now()
+        });
+      } else {
+        const data = snap.data();
+        if (!data.black && data.white.uid !== myUID) {
+          // Second player joining as Black
+          assignedSide = 'black';
+          document.getElementById('mySideBadge').innerText = 'BLACK';
+          await updateDoc(roomRef, {
+            black: { name: myName, uid: myUID, avatar: myAvatar },
+            status: 'playing'
+          });
+        }
+      }
+
+      // Realtime listener for game state
+      onSnapshot(roomRef, (docSnap) => {
+        if (!docSnap.exists()) return;
+        const state = docSnap.data();
+
+        // Update opponent card
+        const opp = assignedSide === 'white' ? state.black : state.white;
+        if (opp) {
+          document.getElementById('opponentName').innerText = opp.name;
+          document.getElementById('opponentUID').innerText = 'UID: ' + opp.uid;
+          document.getElementById('opponentAvatar').src = opp.avatar;
+        }
+
+        // Update board position
+        if (state.fen && state.fen !== game.fen()) {
+          game.load(state.fen);
+          renderBoard();
+        }
+
+        // Update status pill
+        const statusEl = document.getElementById('matchStatusText');
+        if (state.status === 'waiting') {
+          statusEl.innerText = "Waiting for friend to join...";
+        } else if (game.game_over()) {
+          statusEl.innerText = game.in_checkmate() ? "Checkmate!" : "Draw!";
+        } else {
+          const isMyTurn = (game.turn() === 'w' && assignedSide === 'white') || (game.turn() === 'b' && assignedSide === 'black');
+          statusEl.innerText = isMyTurn ? "Your turn to move!" : "Opponent's turn...";
+        }
+      });
+
+      renderBoard();
+    }
+
+    document.getElementById('btnResign').onclick = async () => {
+      if (confirm("Resign match?")) {
+        await updateDoc(roomRef, { status: 'resigned', resignedBy: myUID });
+        alert("You resigned!");
+        window.location.href = "index.html";
+      }
+    };
+
+    initRoomSync();
+  </script>
+</body>
+</html>
