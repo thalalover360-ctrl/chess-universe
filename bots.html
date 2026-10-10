@@ -3,115 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Play vs Bot | Chess Universe</title>
+  <title>Bot Arena | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body { background-color: #0b0f17; }
-    :root {
-      --board-light: #ebecd0;
-      --board-dark: #739552;
-      --board-highlight: rgba(245, 246, 130, 0.85);
-      --board-hint: rgba(56, 189, 248, 0.85);
+    body { 
+      background-color: #07090e; 
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     }
-    .chess-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
-      user-select: none;
-      touch-action: none;
+    .tile-hint-from {
+      background-color: #0284c7 !important;
+      box-shadow: inset 0 0 0 3px #38bdf8 !important;
     }
-    .tile-light { background-color: var(--board-light); }
-    .tile-dark { background-color: var(--board-dark); }
-    .tile-selected { background-color: var(--board-highlight) !important; }
-    .tile-hint-from { background-color: var(--board-hint) !important; }
-    .tile-hint-to { box-shadow: inset 0 0 0 4px #0284c7 !important; }
-    .tile-dot::after {
-      content: '';
-      width: 32%;
-      height: 32%;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .tile-capture {
-      box-shadow: inset 0 0 0 5px rgba(239, 68, 68, 0.85) !important;
-    }
-    .chess-tile {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .tile-hint-to {
+      background-color: #0369a1 !important;
+      box-shadow: inset 0 0 0 4px #7dd3fc !important;
       position: relative;
-      cursor: pointer;
     }
-    .piece-img {
-      width: 86%;
-      height: 86%;
+    .tile-hint-to::after {
+      content: '★';
+      position: absolute;
+      font-size: 22px;
+      color: #fde047;
       pointer-events: none;
-      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45));
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
     }
-    .badge-star { background: #059669; color: #fff; }
-    .badge-good { background: #0284c7; color: #fff; }
-    .badge-mistake { background: #d97706; color: #fff; }
-    .badge-blunder { background: #dc2626; color: #fff; }
+    .badge-star {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #ffffff;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    }
+    .badge-good {
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .badge-mistake {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+      color: #ffffff;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .badge-blunder {
+      background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+      color: #ffffff;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+    }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
+<body class="min-h-screen flex flex-col select-none antialiased">
 
-  <!-- Top Navbar -->
-  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
-    <div class="flex items-center gap-2">
-      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
-      <span class="font-bold text-sm tracking-wide text-white">BOT ARENA</span>
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
+    <div class="flex items-center gap-2.5">
+      <a href="index.html" class="text-slate-400 hover:text-white text-xl font-bold transition">←</a>
+      <div>
+        <h1 class="font-extrabold text-sm tracking-wide text-white leading-tight">CHESS UNIVERSE</h1>
+        <p class="text-[10px] text-emerald-400 font-mono font-bold tracking-wider">PRO BOT ARENA</p>
+      </div>
     </div>
-
-    <!-- Difficulty Selector Dropdown -->
     <div class="flex items-center gap-2">
-      <select id="botLevelSelect" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 font-medium outline-none">
-        <option value="1">Level 1 (Casual 600)</option>
-        <option value="2">Level 2 (Club 1000)</option>
-        <option value="3" selected>Level 3 (Intermediate 1300)</option>
-        <option value="4">Level 4 (Advanced 1600)</option>
-        <option value="5">Level 5 (Master 1900)</option>
-        <option value="6">Level 6 (Grandmaster 2200)</option>
-      </select>
-      <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">Exit</a>
+      <button id="btnOpenBotSelector" class="bg-slate-800 hover:bg-slate-700 text-xs text-emerald-400 border border-slate-700/80 rounded-xl px-3 py-1.5 font-bold transition flex items-center gap-1.5 shadow-sm">
+        <span>🤖</span> Choose Bot
+      </button>
+      <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-xl border border-slate-700 transition">Exit</a>
     </div>
   </header>
 
-  <!-- Live Eval Bar -->
-  <div class="w-full max-w-md mx-auto px-4 pt-2.5">
-    <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
-      <span id="evalScoreText">+0.0</span>
-      <span id="engineStatusText" class="text-emerald-400">Stockfish Ready</span>
+  <!-- Live Eval Bar Header -->
+  <div class="w-full max-w-md mx-auto px-4 pt-3">
+    <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-1.5">
+      <span id="evalScoreText" class="font-bold text-emerald-400 bg-slate-900/80 px-2 py-0.5 rounded-md border border-slate-800">+0.0</span>
+      <span id="engineStatusText" class="text-slate-400 font-sans text-[11px] font-semibold">Position Equal</span>
     </div>
-    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex">
-      <div id="evalBarWhite" class="h-full bg-white transition-all duration-300" style="width: 50%;"></div>
-      <div id="evalBarBlack" class="h-full bg-slate-700 transition-all duration-300" style="width: 50%;"></div>
+    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden flex border border-slate-700/50 shadow-inner">
+      <div id="evalBarWhite" class="h-full bg-white transition-all duration-300 ease-out" style="width: 50%;"></div>
+      <div id="evalBarBlack" class="h-full bg-slate-700 transition-all duration-300 ease-out" style="width: 50%;"></div>
     </div>
   </div>
 
-  <!-- Stage Container -->
-  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-between space-y-3">
+  <!-- Main Playing Stage -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-between space-y-3 pb-8">
 
-    <!-- Bot Profile Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+    <!-- Active Bot Profile Card -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-xl">
       <div class="flex items-center gap-3">
-        <img id="botAvatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" class="w-11 h-11 rounded-xl object-cover border border-slate-700" alt="Bot">
+        <img id="botAvatar" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-800 shadow-md" alt="Bot">
         <div>
           <div class="flex items-center gap-2">
-            <h4 id="botName" class="text-sm font-bold text-white">Elena (Stockfish AI)</h4>
-            <span class="text-[10px] bg-slate-800 text-emerald-400 border border-slate-700 px-1.5 py-0.2 rounded font-mono font-bold">AI</span>
+            <h4 id="botName" class="text-sm font-extrabold text-white">Bot</h4>
+            <span id="botStyleBadge" class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Aggressive</span>
           </div>
-          <span id="botElo" class="text-xs text-slate-400 font-mono">Elo: 1300</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span id="botElo" class="text-xs text-emerald-400 font-mono font-bold">1250 Elo</span>
+            <span id="botDepthText" class="text-[10px] text-slate-400 font-mono">Depth: 3</span>
+          </div>
         </div>
       </div>
-      <div id="botClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
+      <div id="botClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-200 shadow-inner">10:00</div>
     </div>
 
     <!-- Chess Board Grid -->
@@ -120,28 +112,28 @@
     </div>
 
     <!-- User Profile Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-xl">
       <div class="flex items-center gap-3">
-        <img id="userAvatar" src="" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="You">
+        <img id="userAvatar" src="" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800 shadow-md" alt="You">
         <div>
-          <h4 id="userName" class="text-sm font-bold text-white">Player</h4>
-          <span id="userUID" class="text-xs text-slate-400 font-mono">UID: ----------</span>
+          <h4 id="userName" class="text-sm font-extrabold text-white">Player</h4>
+          <span id="userUID" class="text-xs text-slate-400 font-mono font-semibold">UID: ----------</span>
         </div>
       </div>
-      <div id="userClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
+      <div id="userClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-200 shadow-inner">10:00</div>
     </div>
 
-    <!-- Move Badge & Hint Bar -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+    <!-- Live Move Badges & Action Bar -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
       <div class="flex items-center gap-2">
-        <span id="moveBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg badge-good">👍 Match Started</span>
-        <span id="turnIndicator" class="text-xs text-slate-400">White to move</span>
+        <span id="moveBadge" class="text-xs font-black px-2.5 py-1 rounded-lg badge-good transition-all duration-200">👍 Match Ready</span>
+        <span id="turnIndicator" class="text-xs text-slate-400 font-medium">White to move</span>
       </div>
       <div class="flex gap-2">
-        <button id="btnHint" class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-bold rounded-xl border border-sky-500/30 transition">
+        <button id="btnHint" class="px-3 py-1.5 bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-xs font-black rounded-xl border border-sky-500/30 transition flex items-center gap-1 active:scale-95 shadow-sm">
           💡 Best Move
         </button>
-        <button id="btnResign" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/30 transition">
+        <button id="btnResign" class="px-3 py-1.5 bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-bold rounded-xl border border-red-500/30 transition active:scale-95 shadow-sm">
           🏳️ Resign
         </button>
       </div>
@@ -149,7 +141,20 @@
 
   </main>
 
-  <script>
+  <!-- 10 Bots Modal Picker Container -->
+  <div id="botSelectorModal" class="fixed inset-0 bg-black/85 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 backdrop-blur-md hidden">
+    <div class="bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-black text-white">Select Your Opponent</h3>
+          <p class="text-xs text-slate-400">10 Battle Bots (400 Elo to 2800 God Tier)</p>
+        </div>
+        <button id="btnCloseBotSelector" class="text-slate-400 hover:text-white text-xl p-1 font-bold">✕</button>
+      </div>
+      <div id="botsListGrid" class="flex-1 overflow-y-auto p-4 space-y-2.5"></div>
+    </div>
+  </div>
+    <script>
     if (!localStorage.getItem('chess_auth')) {
       window.location.href = 'login.html';
     }
@@ -169,8 +174,21 @@
       bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png'
     };
 
-    const PIECE_VALS = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+    // 10 Full Battle Bots Profiles (Elo 400 to 2800 Apex God)
+    const BOTS = [
+      { id: 1, name: "Chintu", title: "Novice", elo: 400, depth: 1, blunderRate: 0.60, style: "Free Blunder King", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Chintu" },
+      { id: 2, name: "Rookie Veer", title: "Beginner", elo: 750, depth: 1, blunderRate: 0.40, style: "Casual Explorer", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Veer" },
+      { id: 3, name: "Kabir Hawk", title: "Street Hustler", elo: 1000, depth: 2, blunderRate: 0.25, style: "Early Queen Attacker", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Kabir" },
+      { id: 4, name: "Rani The Fox", title: "Tactician", elo: 1250, depth: 2, blunderRate: 0.12, style: "Sneaky Forks & Pins", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Rani" },
+      { id: 5, name: "Vikram The Wall", title: "Club Grinder", elo: 1500, depth: 3, blunderRate: 0.05, style: "Rock Solid Defense", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Vikram" },
+      { id: 6, name: "Viper Shadow", title: "Candidate Master", elo: 1750, depth: 3, blunderRate: 0.02, style: "Aggressive Counter-strikes", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Viper" },
+      { id: 7, name: "Sub-Zero", title: "Ice Master", elo: 2000, depth: 4, blunderRate: 0.00, style: "Positional Suffocation", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=SubZero" },
+      { id: 8, name: "Dracula", title: "International Master", elo: 2250, depth: 4, blunderRate: 0.00, style: "Wild Sacrifices", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Dracula" },
+      { id: 9, name: "Chanakya GM", title: "Grandmaster", elo: 2500, depth: 5, blunderRate: 0.00, style: "Flawless Strategy", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Chanakya" },
+      { id: 10, name: "Kalki AI", title: "Apex Immortal", elo: 2800, depth: 6, blunderRate: 0.00, style: "Deep Tactical Annihilation", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Kalki" }
+    ];
 
+    let currentBot = BOTS[3]; // Default: Rani The Fox
     const game = new Chess();
     let selectedSquare = null;
     let hintMove = null;
@@ -178,29 +196,131 @@
     let userTime = 600;
     let botTime = 600;
 
-    // Load User
+    const VALS = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+
+    // Bot Loader & Profile Updater
+    function loadBot(bot) {
+      currentBot = bot;
+      document.getElementById('botName').innerText = `${bot.name} (${bot.title})`;
+      document.getElementById('botElo').innerText = `${bot.elo} Elo`;
+      document.getElementById('botDepthText').innerText = `Depth: ${bot.depth}`;
+      document.getElementById('botStyleBadge').innerText = bot.style;
+      document.getElementById('botAvatar').src = bot.avatar;
+    }
+
+    // Modal List Renderer
+    function renderBotSelectorList() {
+      const container = document.getElementById('botsListGrid');
+      container.innerHTML = '';
+
+      BOTS.forEach(b => {
+        const item = document.createElement('div');
+        const isActive = currentBot.id === b.id;
+        item.className = `p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${isActive ? 'bg-emerald-500/10 border-emerald-500/50 shadow-md' : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'}`;
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <img src="${b.avatar}" class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 object-cover shadow" alt="">
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-black text-white">${b.name}</h4>
+                <span class="text-[10px] text-emerald-400 font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">${b.elo} Elo</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5 font-medium">${b.title} • ${b.style}</p>
+            </div>
+          </div>
+          <button class="text-xs font-black px-3.5 py-1.5 rounded-xl border transition ${isActive ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'}">
+            ${isActive ? 'Active' : 'Fight ⚔️'}
+          </button>
+        `;
+        item.onclick = () => {
+          loadBot(b);
+          document.getElementById('botSelectorModal').classList.add('hidden');
+          game.reset();
+          selectedSquare = null;
+          hintMove = null;
+          previousEval = 0;
+          userTime = 600;
+          botTime = 600;
+          updateEvalBar(0);
+          renderBoard();
+        };
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('btnOpenBotSelector').onclick = () => {
+      renderBotSelectorList();
+      document.getElementById('botSelectorModal').classList.remove('hidden');
+    };
+    document.getElementById('btnCloseBotSelector').onclick = () => {
+      document.getElementById('botSelectorModal').classList.add('hidden');
+    };
+
+    // User Profile Binder
     document.getElementById('userName').innerText = localStorage.getItem('chess_name') || 'Player';
     document.getElementById('userUID').innerText = 'UID: ' + (localStorage.getItem('chess_game_uid') || '1029384756');
     document.getElementById('userAvatar').src = localStorage.getItem('chess_avatar') || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces';
+          function loadBot(bot) {
+      currentBot = bot;
+      document.getElementById('botName').innerText = `${bot.name} (${bot.title})`;
+      document.getElementById('botElo').innerText = `${bot.elo} Elo`;
+      document.getElementById('botStyleBadge').innerText = bot.style;
+      document.getElementById('botAvatar').src = bot.avatar;
+      document.getElementById('botDepthText').innerText = `Depth: ${bot.depth}`;
+    }
 
-    // Difficulty Profiles
-    const BOTS = {
-      1: { name: 'Aryan (Casual)', elo: 600, depth: 1, blunderRate: 0.45, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces' },
-      2: { name: 'Dev (Club)', elo: 1000, depth: 2, blunderRate: 0.25, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
-      3: { name: 'Elena (Intermediate)', elo: 1300, depth: 3, blunderRate: 0.12, img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces' },
-      4: { name: 'Rohan (Advanced)', elo: 1600, depth: 4, blunderRate: 0.05, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
-      5: { name: 'Alexander (Master)', elo: 1900, depth: 5, blunderRate: 0.00, img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces' },
-      6: { name: 'Magnus (Grandmaster)', elo: 2200, depth: 6, blunderRate: 0.00, img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces' },
+    function renderBotSelectorList() {
+      const container = document.getElementById('botsListGrid');
+      container.innerHTML = '';
+
+      BOTS.forEach(b => {
+        const item = document.createElement('div');
+        const isActive = currentBot.id === b.id;
+        item.className = `p-3 rounded-2xl border transition cursor-pointer flex items-center justify-between ${isActive ? 'bg-emerald-500/15 border-emerald-500/50' : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'}`;
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <img src="${b.avatar}" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700 shadow" alt="">
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-black text-white">${b.name}</h4>
+                <span class="text-[10px] text-emerald-400 font-mono font-bold">${b.elo} Elo</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-medium">${b.title} • ${b.style}</p>
+            </div>
+          </div>
+          <button class="text-xs font-bold px-3 py-1.5 rounded-xl border transition ${isActive ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700'}">
+            ${isActive ? 'Active' : 'Fight'}
+          </button>
+        `;
+        item.onclick = () => {
+          loadBot(b);
+          document.getElementById('botSelectorModal').classList.add('hidden');
+          game.reset();
+          selectedSquare = null;
+          hintMove = null;
+          previousEval = 0;
+          userTime = 600;
+          botTime = 600;
+          updateEvalBar(0);
+          renderBoard();
+        };
+        container.appendChild(item);
+      });
+    }
+
+    // Modal Events
+    document.getElementById('btnOpenBotSelector').onclick = () => {
+      renderBotSelectorList();
+      document.getElementById('botSelectorModal').classList.remove('hidden');
+    };
+    document.getElementById('btnCloseBotSelector').onclick = () => {
+      document.getElementById('botSelectorModal').classList.add('hidden');
     };
 
-    let currentBot = BOTS[3];
-
-    document.getElementById('botLevelSelect').onchange = (e) => {
-      currentBot = BOTS[e.target.value] || BOTS[3];
-      document.getElementById('botName').innerText = `${currentBot.name} (Stockfish AI)`;
-      document.getElementById('botElo').innerText = `Elo: ${currentBot.elo}`;
-      document.getElementById('botAvatar').src = currentBot.img;
-    };
+    // User Profile Load
+    document.getElementById('userName').innerText = localStorage.getItem('chess_name') || 'Player';
+    document.getElementById('userUID').innerText = 'UID: ' + (localStorage.getItem('chess_game_uid') || '1029384756');
+    document.getElementById('userAvatar').src = localStorage.getItem('chess_avatar') || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces';
 
     function renderBoard() {
       const boardEl = document.getElementById('board');
@@ -226,6 +346,7 @@
           }
 
           if (selectedSquare === sq) tile.classList.add('tile-selected');
+          
           if (hintMove) {
             if (hintMove.from === sq) tile.classList.add('tile-hint-from');
             if (hintMove.to === sq) tile.classList.add('tile-hint-to');
@@ -279,25 +400,28 @@
         selectedSquare = null;
       }
       renderBoard();
-    }
-
-    // Static Position Evaluator (Centipawns)
+      }
+          // High Precision Static Board Evaluator (Material + PST Tables)
     function evaluateBoard() {
       let score = 0;
       const b = game.board();
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
           const p = b[r][c];
-          if (p) {
-            const v = PIECE_VALS[p.type] || 0;
-            score += p.color === 'w' ? v : -v;
+          if (!p) continue;
+          let val = VALS[p.type] || 0;
+          const idx = r * 8 + c;
+          const table = PST[p.type];
+          if (table) {
+            val += (p.color === 'w' ? table[idx] : table[63 - idx]);
           }
+          score += p.color === 'w' ? val : -val;
         }
       }
       return score;
     }
 
-    // Move Classification: Star Move / Good / Blunder
+    // Live Move Classification Badges
     function analyzeMoveQuality(userMove) {
       const newEval = evaluateBoard();
       const evalDiff = newEval - previousEval;
@@ -305,17 +429,17 @@
 
       const badge = document.getElementById('moveBadge');
 
-      if (evalDiff >= 200 || userMove.san.includes('#')) {
-        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-star";
+      if (evalDiff >= 150 || userMove.san.includes('#')) {
+        badge.className = "text-xs font-black px-2.5 py-1 rounded-lg badge-star";
         badge.innerText = "⭐ Star Move!";
-      } else if (evalDiff >= -40) {
-        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-good";
+      } else if (evalDiff >= -35) {
+        badge.className = "text-xs font-black px-2.5 py-1 rounded-lg badge-good";
         badge.innerText = "👍 Good Move";
-      } else if (evalDiff >= -180) {
-        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-mistake";
+      } else if (evalDiff >= -150) {
+        badge.className = "text-xs font-black px-2.5 py-1 rounded-lg badge-mistake";
         badge.innerText = "⚠️ Inaccuracy";
       } else {
-        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-blunder";
+        badge.className = "text-xs font-black px-2.5 py-1 rounded-lg badge-blunder";
         badge.innerText = "🔴 Blunder!";
       }
 
@@ -327,12 +451,12 @@
       const scoreEl = document.getElementById('evalScoreText');
       scoreEl.innerText = score > 0 ? `+${score}` : `${score}`;
 
-      const whitePct = Math.max(8, Math.min(92, 50 + centipawns / 30));
+      const whitePct = Math.max(10, Math.min(90, 50 + centipawns / 30));
       document.getElementById('evalBarWhite').style.width = `${whitePct}%`;
       document.getElementById('evalBarBlack').style.width = `${100 - whitePct}%`;
     }
 
-    // Minimax Engine Move with Blunder Calculation
+    // Alpha-Beta Minimax Engine with Pruning
     function minimax(depth, isMaximizing, alpha, beta) {
       if (depth === 0 || game.game_over()) return evaluateBoard();
 
@@ -361,9 +485,9 @@
         return minEval;
       }
     }
-
+          // Bot Execution Engine Loop
     function handleBotTurn() {
-      document.getElementById('turnIndicator').innerText = "Bot is calculating...";
+      document.getElementById('turnIndicator').innerText = `${currentBot.name} calculating...`;
       if (game.game_over()) return checkGameOver();
 
       setTimeout(() => {
@@ -372,17 +496,17 @@
 
         let chosenMove = null;
 
-        // Blunder injection according to difficulty level
+        // Controlled Blunder injection for beginner bots
         if (Math.random() < currentBot.blunderRate) {
           chosenMove = moves[Math.floor(Math.random() * moves.length)];
         } else {
-          let bestValue = Infinity;
+          let bestVal = Infinity;
           for (const m of moves) {
             game.move(m);
             const val = minimax(currentBot.depth - 1, true, -Infinity, Infinity);
             game.undo();
-            if (val < bestValue) {
-              bestValue = val;
+            if (val < bestVal) {
+              bestVal = val;
               chosenMove = m;
             }
           }
@@ -395,51 +519,64 @@
 
         document.getElementById('turnIndicator').innerText = "White to move";
         if (game.game_over()) checkGameOver();
-      }, 350 + Math.random() * 300);
+      }, 350);
     }
 
-    // Hint: Suggests Top Tactical or Engine Move
+    // 💡 High-Accuracy Best Move Engine (2-ply Minimax Analysis)
     document.getElementById('btnHint').onclick = () => {
       if (game.game_over() || game.turn() !== 'w') return;
       const moves = game.moves({ verbose: true });
       if (moves.length === 0) return;
 
       let bestMove = null;
-      let bestScore = -Infinity;
+      let maxScore = -Infinity;
 
       for (const m of moves) {
         game.move(m);
-        const sc = evaluateBoard();
+        const score = minimax(2, false, -Infinity, Infinity);
         game.undo();
-        if (sc > bestScore) {
-          bestScore = sc;
+        if (score > maxScore) {
+          maxScore = score;
           bestMove = m;
         }
       }
 
-      hintMove = bestMove;
+      hintMove = bestMove || moves[0];
+      selectedSquare = hintMove.from;
       renderBoard();
     };
 
+    // Game Over & Stats Sync
     function checkGameOver() {
       clearInterval(timerInterval);
       if (game.in_checkmate()) {
-        const winner = game.turn() === 'b' ? 'You Won!' : 'Bot Won!';
-        alert(`🏆 Checkmate: ${winner}`);
+        const won = game.turn() === 'b';
+        if (won) {
+          const w = parseInt(localStorage.getItem('chess_stats_won') || '0') + 1;
+          localStorage.setItem('chess_stats_won', w);
+          alert(`🏆 Checkmate: You defeated ${currentBot.name}!`);
+        } else {
+          const l = parseInt(localStorage.getItem('chess_stats_lost') || '0') + 1;
+          localStorage.setItem('chess_stats_lost', l);
+          alert(`💀 Checkmate: ${currentBot.name} won!`);
+        }
       } else if (game.in_draw()) {
-        alert("🤝 Game Drawn!");
+        alert('🤝 Match Drawn!');
       }
     }
 
+    // Resign Match
     document.getElementById('btnResign').onclick = () => {
-      if (confirm("Are you sure you want to resign?")) {
+      if (confirm('Resign match?')) {
         clearInterval(timerInterval);
-        alert("🏳️ You Resigned!");
-        window.location.href = "index.html";
+        const l = parseInt(localStorage.getItem('chess_stats_lost') || '0') + 1;
+        localStorage.setItem('chess_stats_lost', l);
+        alert('🏳️ You Resigned!');
+        window.location.href = 'index.html';
       }
     };
 
-    // Clock
+    // Dual Countdown Clocks
     const timerInterval = setInterval(() => {
       if (game.game_over()) return;
       if (game.turn() === 'w') {
@@ -455,8 +592,9 @@
       }
     }, 1000);
 
+    // Initial Setup
+    loadBot(currentBot);
     renderBoard();
   </script>
 </body>
 </html>
-
