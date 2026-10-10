@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe | Hub</title>
+  <title>Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
   <style>
     body { background-color: #0b0f17; }
   </style>
@@ -12,92 +13,139 @@
 <body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
 
   <!-- Header -->
-  <header class="border-b border-slate-800/80 bg-slate-900/50 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
+  <header class="border-b border-slate-800/80 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
     <div class="flex items-center gap-2">
       <span class="text-emerald-400 font-black text-xl">♞</span>
-      <span class="font-bold text-sm tracking-wide text-white">CHESS UNIVERSE</span>
+      <span class="font-extrabold text-sm tracking-wide text-white">CHESS UNIVERSE</span>
     </div>
-    <button id="btnLogout" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">
+    <button id="btnLogout" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-3 py-1.5 rounded-xl border border-slate-700 transition">
       Logout
     </button>
   </header>
 
-  <!-- Main Hub -->
+  <!-- Main Container -->
   <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4">
 
-    <!-- Profile & Permanent 10-Digit UID Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-lg">
-      <div class="flex items-center gap-3">
-        <img id="userAvatar" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="Avatar">
-        <div>
-          <h2 id="userName" class="text-sm font-bold text-white">Player</h2>
-          <div class="flex items-center gap-1.5 mt-0.5">
-            <span class="text-[11px] text-slate-400">UID:</span>
-            <span id="userUID" class="text-xs font-mono font-bold text-emerald-400 tracking-wider">----------</span>
-            <button id="btnCopyUID" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">Copy</button>
+    <!-- 1. Profile & ID Card -->
+    <div class="glass-card p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img id="userAvatar" src="" class="w-12 h-12 rounded-2xl object-cover border border-slate-700 bg-slate-800" alt="Avatar">
+          <div>
+            <h2 id="userName" class="text-base font-black text-white">Player</h2>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class="text-xs font-mono font-bold text-emerald-400" id="userUID">UID: ----------</span>
+              <button id="btnCopyUID" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700">Copy</button>
+            </div>
           </div>
         </div>
+        <div class="text-right">
+          <span class="text-[10px] uppercase text-slate-400 font-bold block">Rating</span>
+          <span id="userRating" class="text-base font-black font-mono text-emerald-400">1200</span>
+        </div>
       </div>
-      <div class="text-right">
-        <span class="text-[10px] uppercase text-slate-500 font-bold block">Rating</span>
-        <span id="userRating" class="text-sm font-bold font-mono text-emerald-400">1200</span>
+
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-center font-mono">
+        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+          <span class="text-[10px] text-slate-400 block font-sans font-bold">WON</span>
+          <span id="statWon" class="text-xs font-bold text-emerald-400">0</span>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+          <span class="text-[10px] text-slate-400 block font-sans font-bold">LOST</span>
+          <span id="statLost" class="text-xs font-bold text-red-400">0</span>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+          <span class="text-[10px] text-slate-400 block font-sans font-bold">WIN RATE</span>
+          <span id="statWinRate" class="text-xs font-bold text-sky-400">0%</span>
+        </div>
       </div>
     </div>
 
-    <!-- 3 Dedicated Mode Cards -->
-    <div class="space-y-3 pt-2">
+    <!-- 2. Big Play Button -->
+    <button id="btnOpenPlayModal" class="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-slate-950 font-black py-4 rounded-2xl text-base shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2.5 transition">
+      <span class="text-xl">⚔️</span> PLAY CHESS
+    </button>
 
-      <!-- 1. Bot Match (Stockfish AI) -->
-      <a href="bot.html" class="block bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 p-4 rounded-2xl transition group">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xl text-emerald-400">
-              🤖
-            </div>
-            <div>
-              <h3 class="text-sm font-bold text-white group-hover:text-emerald-400 transition">Play vs Bot</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Stockfish Engine • 8 Difficulty Levels</p>
-            </div>
+    <!-- 3. Friends & Social Section -->
+    <div class="glass-card p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Friends & Community</h3>
+        <a href="friend.html" class="text-xs text-emerald-400 font-bold hover:underline">+ Add Friend</a>
+      </div>
+
+      <!-- Quick Friend Duel Trigger -->
+      <a href="friend.html" class="flex items-center justify-between p-3 bg-slate-950/60 hover:bg-slate-800/50 rounded-xl border border-slate-800 transition">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">👥</span>
+          <div>
+            <h4 class="text-xs font-bold text-white">Friend Duel & Search</h4>
+            <p class="text-[11px] text-slate-400">Search 10-Digit UID, Manage Friends</p>
           </div>
-          <span class="text-slate-500 text-lg group-hover:translate-x-0.5 transition">→</span>
         </div>
+        <span class="text-slate-500 text-sm">→</span>
       </a>
-
-      <!-- 2. Online Match (Random PvP) -->
-      <a href="online.html" class="block bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 p-4 rounded-2xl transition group">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-xl text-sky-400">
-              ⚡
-            </div>
-            <div>
-              <h3 class="text-sm font-bold text-white group-hover:text-sky-400 transition">Play Online</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Quick Matchmaking • Bullet, Blitz & Rapid</p>
-            </div>
-          </div>
-          <span class="text-slate-500 text-lg group-hover:translate-x-0.5 transition">→</span>
-        </div>
-      </a>
-
-      <!-- 3. Play with Friend (10-Digit UID Duel) -->
-      <a href="friend.html" class="block bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 p-4 rounded-2xl transition group">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl text-amber-400">
-              👥
-            </div>
-            <div>
-              <h3 class="text-sm font-bold text-white group-hover:text-amber-400 transition">Play with Friend</h3>
-              <p class="text-xs text-slate-400 mt-0.5">UID Search, Friends List & Private Room</p>
-            </div>
-          </div>
-          <span class="text-slate-500 text-lg group-hover:translate-x-0.5 transition">→</span>
-        </div>
-      </a>
-
     </div>
 
   </main>
+
+  <!-- PLAY MODAL DIALOG (Opens on clicking PLAY) -->
+  <div id="playModal" class="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 hidden backdrop-blur-sm">
+    <div class="bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      
+      <div class="flex items-center justify-between pb-1">
+        <h3 class="text-base font-black text-white">Choose Game Mode</h3>
+        <button id="btnClosePlayModal" class="text-slate-400 hover:text-white text-xl p-1">✕</button>
+      </div>
+
+      <div class="space-y-2.5">
+        
+        <!-- Mode 1: Bot (Fixed bots.html link) -->
+        <a href="bots.html" class="flex items-center justify-between p-3.5 bg-slate-950 hover:bg-slate-800/80 rounded-2xl border border-slate-800 transition group">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xl text-emerald-400">
+              🤖
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white group-hover:text-emerald-400 transition">Play vs Bot</h4>
+              <p class="text-xs text-slate-400">Stockfish AI • 6 Difficulty Levels</p>
+            </div>
+          </div>
+          <span class="text-slate-500 text-sm group-hover:translate-x-0.5 transition">→</span>
+        </a>
+
+        <!-- Mode 2: Online Random PvP -->
+        <a href="online.html" class="flex items-center justify-between p-3.5 bg-slate-950 hover:bg-slate-800/80 rounded-2xl border border-slate-800 transition group">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-xl text-sky-400">
+              ⚡
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white group-hover:text-sky-400 transition">Play Online</h4>
+              <p class="text-xs text-slate-400">Random PvP Matchmaking</p>
+            </div>
+          </div>
+          <span class="text-slate-500 text-sm group-hover:translate-x-0.5 transition">→</span>
+        </a>
+
+        <!-- Mode 3: Friend Duel -->
+        <a href="friend.html" class="flex items-center justify-between p-3.5 bg-slate-950 hover:bg-slate-800/80 rounded-2xl border border-slate-800 transition group">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl text-amber-400">
+              👥
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white group-hover:text-amber-400 transition">Duel Friend</h4>
+              <p class="text-xs text-slate-400">Custom Room Code or Direct Invite</p>
+            </div>
+          </div>
+          <span class="text-slate-500 text-sm group-hover:translate-x-0.5 transition">→</span>
+        </a>
+
+      </div>
+
+    </div>
+  </div>
 
   <script>
     if (!localStorage.getItem('chess_auth')) {
@@ -110,9 +158,24 @@
     const avatar = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/identicon/svg?seed=${uid}`;
 
     document.getElementById('userName').innerText = name;
-    document.getElementById('userUID').innerText = uid;
+    document.getElementById('userUID').innerText = 'UID: ' + uid;
     document.getElementById('userRating').innerText = rating;
     document.getElementById('userAvatar').src = avatar;
+
+    // Load Stats
+    const won = parseInt(localStorage.getItem('chess_stats_won') || '0');
+    const lost = parseInt(localStorage.getItem('chess_stats_lost') || '0');
+    const total = won + lost;
+    const winRate = total > 0 ? Math.round((won / total) * 100) : 0;
+
+    document.getElementById('statWon').innerText = won;
+    document.getElementById('statLost').innerText = lost;
+    document.getElementById('statWinRate').innerText = `${winRate}%`;
+
+    // Modal Control
+    const modal = document.getElementById('playModal');
+    document.getElementById('btnOpenPlayModal').onclick = () => modal.classList.remove('hidden');
+    document.getElementById('btnClosePlayModal').onclick = () => modal.classList.add('hidden');
 
     document.getElementById('btnCopyUID').onclick = () => {
       navigator.clipboard.writeText(uid);
