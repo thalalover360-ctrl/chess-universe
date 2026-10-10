@@ -2,144 +2,461 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bots Lounge | Chess Universe</title>
-  
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Play vs Bot | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="script.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <style>
+    body { background-color: #0b0f17; }
+    :root {
+      --board-light: #ebecd0;
+      --board-dark: #739552;
+      --board-highlight: rgba(245, 246, 130, 0.85);
+      --board-hint: rgba(56, 189, 248, 0.85);
+    }
+    .chess-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
+      user-select: none;
+      touch-action: none;
+    }
+    .tile-light { background-color: var(--board-light); }
+    .tile-dark { background-color: var(--board-dark); }
+    .tile-selected { background-color: var(--board-highlight) !important; }
+    .tile-hint-from { background-color: var(--board-hint) !important; }
+    .tile-hint-to { box-shadow: inset 0 0 0 4px #0284c7 !important; }
+    .tile-dot::after {
+      content: '';
+      width: 32%;
+      height: 32%;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .tile-capture {
+      box-shadow: inset 0 0 0 5px rgba(239, 68, 68, 0.85) !important;
+    }
+    .chess-tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+    .piece-img {
+      width: 86%;
+      height: 86%;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45));
+    }
+    .badge-star { background: #059669; color: #fff; }
+    .badge-good { background: #0284c7; color: #fff; }
+    .badge-mistake { background: #d97706; color: #fff; }
+    .badge-blunder { background: #dc2626; color: #fff; }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
 
   <!-- Top Navbar -->
-  <header class="navbar">
-    <div class="nav-brand">
-      <a href="index.html">
-        <span class="brand-icon">♞</span>
-        <span>CHESS UNIVERSE</span>
-      </a>
+  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
+      <span class="font-bold text-sm tracking-wide text-white">BOT ARENA</span>
     </div>
 
-    <div class="nav-links">
-      <a href="index.html" class="nav-item">Lobby</a>
-      <a href="bots.html" class="nav-item active text-emerald-400">Bots Lounge</a>
-      <a href="multiplayer.html" class="nav-item">Play Online</a>
-    </div>
-
-    <div class="user-badge" onclick="window.location.href='index.html'">
-      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="user-avatar" alt="Avatar">
-      <div class="hidden sm:block text-left">
-        <div id="navName" class="user-name">Player</div>
-      </div>
-      <span id="navElo" class="elo-pill">?</span>
+    <!-- Difficulty Selector Dropdown -->
+    <div class="flex items-center gap-2">
+      <select id="botLevelSelect" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 font-medium outline-none">
+        <option value="1">Level 1 (Casual 600)</option>
+        <option value="2">Level 2 (Club 1000)</option>
+        <option value="3" selected>Level 3 (Intermediate 1300)</option>
+        <option value="4">Level 4 (Advanced 1600)</option>
+        <option value="5">Level 5 (Master 1900)</option>
+        <option value="6">Level 6 (Grandmaster 2200)</option>
+      </select>
+      <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">Exit</a>
     </div>
   </header>
 
-  <!-- Main Campaign Container -->
-  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
-    
-    <!-- Campaign Header Banner -->
-    <div class="glass-card p-6 rounded-3xl border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-      <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase mb-2">
-          <span>⚔️</span> Bot Championship Campaign
-        </div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Defeat Bots To Unlock Next Tier</h1>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1">
-          Defeat each challenger in official combat to unlock the next level and reach the Final Boss: <span class="text-amber-400 font-bold">Supremo360</span>.
-        </p>
-      </div>
+  <!-- Live Eval Bar -->
+  <div class="w-full max-w-md mx-auto px-4 pt-2.5">
+    <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
+      <span id="evalScoreText">+0.0</span>
+      <span id="engineStatusText" class="text-emerald-400">Stockfish Ready</span>
+    </div>
+    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex">
+      <div id="evalBarWhite" class="h-full bg-white transition-all duration-300" style="width: 50%;"></div>
+      <div id="evalBarBlack" class="h-full bg-slate-700 transition-all duration-300" style="width: 50%;"></div>
+    </div>
+  </div>
 
-      <div class="flex items-center gap-3 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
-        <div class="text-center px-3 border-r border-slate-800">
-          <span class="text-[10px] text-slate-400 uppercase font-bold block">Current Tier</span>
-          <span id="campaignTier" class="text-lg font-black text-emerald-400">Level 1</span>
-        </div>
-        <div class="text-center px-3">
-          <span class="text-[10px] text-slate-400 uppercase font-bold block">Defeated</span>
-          <span id="campaignProgress" class="text-lg font-black text-slate-200">0 / 10</span>
+  <!-- Stage Container -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-between space-y-3">
+
+    <!-- Bot Profile Card -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-3">
+        <img id="botAvatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces" class="w-11 h-11 rounded-xl object-cover border border-slate-700" alt="Bot">
+        <div>
+          <div class="flex items-center gap-2">
+            <h4 id="botName" class="text-sm font-bold text-white">Elena (Stockfish AI)</h4>
+            <span class="text-[10px] bg-slate-800 text-emerald-400 border border-slate-700 px-1.5 py-0.2 rounded font-mono font-bold">AI</span>
+          </div>
+          <span id="botElo" class="text-xs text-slate-400 font-mono">Elo: 1300</span>
         </div>
       </div>
+      <div id="botClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
     </div>
 
-    <!-- Bots Grid List -->
-    <div class="bot-grid" id="botGrid"></div>
+    <!-- Chess Board Grid -->
+    <div class="w-full flex items-center justify-center">
+      <div id="board" class="chess-grid"></div>
+    </div>
+
+    <!-- User Profile Card -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-3">
+        <img id="userAvatar" src="" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="You">
+        <div>
+          <h4 id="userName" class="text-sm font-bold text-white">Player</h4>
+          <span id="userUID" class="text-xs text-slate-400 font-mono">UID: ----------</span>
+        </div>
+      </div>
+      <div id="userClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
+    </div>
+
+    <!-- Move Badge & Hint Bar -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span id="moveBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg badge-good">👍 Match Started</span>
+        <span id="turnIndicator" class="text-xs text-slate-400">White to move</span>
+      </div>
+      <div class="flex gap-2">
+        <button id="btnHint" class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-bold rounded-xl border border-sky-500/30 transition">
+          💡 Best Move
+        </button>
+        <button id="btnResign" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/30 transition">
+          🏳️ Resign
+        </button>
+      </div>
+    </div>
 
   </main>
 
   <script>
-    // Auth Check
     if (!localStorage.getItem('chess_auth')) {
       window.location.href = 'login.html';
     }
 
-    // Populate Nav
-    document.getElementById('navName').innerText = localStorage.getItem('chess_name') || 'Player';
-    document.getElementById('navAvatar').src = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Player';
-    document.getElementById('navElo').innerText = localStorage.getItem('chess_rating') || '?';
+    const PIECE_SVGS = {
+      wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
+      wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
+      wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
+      wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
+      wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
+      wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
+      bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
+      bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
+      bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
+      bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
+      bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
+      bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png'
+    };
 
-    // Campaign Progress from localStorage
-    const unlockedLevel = parseInt(localStorage.getItem('chess_max_bot_unlocked') || '1');
-    document.getElementById('campaignTier').innerText = `Level ${unlockedLevel}`;
-    document.getElementById('campaignProgress').innerText = `${unlockedLevel - 1} / 10`;
+    const PIECE_VALS = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
-    // 10-Tier Bot Profiles
-    const botData = [
-      { level: 1, name: "Noobie Bob", elo: 400, desc: "Random mistakes, blunder-prone pawn pusher.", avatar: "Bob" },
-      { level: 2, name: "Gully Boy", elo: 550, desc: "Attacks without defending pieces.", avatar: "Gully" },
-      { level: 3, name: "Desi Hustler", elo: 750, desc: "Hunting aggressive early-queen moves.", avatar: "Hustler" },
-      { level: 4, name: "Tactician Raju", elo: 950, desc: "Spots simple forks and free captures.", avatar: "Raju" },
-      { level: 5, name: "Solid Suresh", elo: 1150, desc: "Plays principled pawn openings.", avatar: "Suresh" },
-      { level: 6, name: "Sharp Shweta", elo: 1350, desc: "Aggressive tactical pins and skewers.", avatar: "Shweta" },
-      { level: 7, name: "Master Sharma", elo: 1550, desc: "Deep positional maneuvering.", avatar: "Sharma" },
-      { level: 8, name: "Iron Fortress", elo: 1750, desc: "Unforgiving defensive fortress.", avatar: "Fortress" },
-      { level: 9, name: "Vishy 2.0", elo: 1950, desc: "Speed master with lightning counters.", avatar: "Vishy" },
-      { level: 10, name: "Supremo360", elo: 2200, desc: "The Ultimate Grandmaster Final Boss.", avatar: "Supremo360", boss: true }
-    ];
+    const game = new Chess();
+    let selectedSquare = null;
+    let hintMove = null;
+    let previousEval = 0;
+    let userTime = 600;
+    let botTime = 600;
 
-    const grid = document.getElementById('botGrid');
+    // Load User
+    document.getElementById('userName').innerText = localStorage.getItem('chess_name') || 'Player';
+    document.getElementById('userUID').innerText = 'UID: ' + (localStorage.getItem('chess_game_uid') || '1029384756');
+    document.getElementById('userAvatar').src = localStorage.getItem('chess_avatar') || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces';
 
-    botData.forEach(bot => {
-      const isLocked = bot.level > unlockedLevel;
-      const card = document.createElement('div');
-      card.className = `bot-card ${isLocked ? 'locked-card' : ''} ${bot.boss ? 'border-amber-500/40' : ''}`;
+    // Difficulty Profiles
+    const BOTS = {
+      1: { name: 'Aryan (Casual)', elo: 600, depth: 1, blunderRate: 0.45, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces' },
+      2: { name: 'Dev (Club)', elo: 1000, depth: 2, blunderRate: 0.25, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
+      3: { name: 'Elena (Intermediate)', elo: 1300, depth: 3, blunderRate: 0.12, img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces' },
+      4: { name: 'Rohan (Advanced)', elo: 1600, depth: 4, blunderRate: 0.05, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
+      5: { name: 'Alexander (Master)', elo: 1900, depth: 5, blunderRate: 0.00, img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces' },
+      6: { name: 'Magnus (Grandmaster)', elo: 2200, depth: 6, blunderRate: 0.00, img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces' },
+    };
 
-      let overlayHtml = '';
-      if (isLocked) {
-        overlayHtml = `
-          <div class="padlock-overlay">
-            <span class="padlock-icon">🔒</span>
-            <span class="padlock-text">Defeat Level ${bot.level - 1} to Unlock</span>
-          </div>
-        `;
+    let currentBot = BOTS[3];
+
+    document.getElementById('botLevelSelect').onchange = (e) => {
+      currentBot = BOTS[e.target.value] || BOTS[3];
+      document.getElementById('botName').innerText = `${currentBot.name} (Stockfish AI)`;
+      document.getElementById('botElo').innerText = `Elo: ${currentBot.elo}`;
+      document.getElementById('botAvatar').src = currentBot.img;
+    };
+
+    function renderBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+
+      const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
+      const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+      ranks.forEach((rank, rIdx) => {
+        files.forEach((file, fIdx) => {
+          const sq = `${file}${rank}`;
+          const isDark = (rIdx + fIdx) % 2 === 1;
+          const tile = document.createElement('div');
+          tile.className = `chess-tile ${isDark ? 'tile-dark' : 'tile-light'}`;
+          tile.dataset.square = sq;
+
+          const piece = game.get(sq);
+          if (piece) {
+            const img = document.createElement('img');
+            img.src = PIECE_SVGS[piece.color + piece.type.toUpperCase()];
+            img.className = 'piece-img';
+            tile.appendChild(img);
+          }
+
+          if (selectedSquare === sq) tile.classList.add('tile-selected');
+          if (hintMove) {
+            if (hintMove.from === sq) tile.classList.add('tile-hint-from');
+            if (hintMove.to === sq) tile.classList.add('tile-hint-to');
+          }
+
+          tile.onclick = () => onTileClick(sq);
+          boardEl.appendChild(tile);
+        });
+      });
+
+      highlightLegalMoves();
+    }
+
+    function highlightLegalMoves() {
+      if (!selectedSquare) return;
+      const moves = game.moves({ square: selectedSquare, verbose: true });
+      moves.forEach(m => {
+        const el = document.querySelector(`[data-square="${m.to}"]`);
+        if (el) {
+          if (m.captured) el.classList.add('tile-capture');
+          else el.classList.add('tile-dot');
+        }
+      });
+    }
+
+    function onTileClick(sq) {
+      if (game.game_over() || game.turn() !== 'w') return;
+      hintMove = null;
+      const piece = game.get(sq);
+
+      if (selectedSquare) {
+        if (selectedSquare === sq) {
+          selectedSquare = null;
+          renderBoard();
+          return;
+        }
+
+        const move = game.move({ from: selectedSquare, to: sq, promotion: 'q' });
+        if (move) {
+          selectedSquare = null;
+          renderBoard();
+          analyzeMoveQuality(move);
+          handleBotTurn();
+          return;
+        }
       }
 
-      card.innerHTML = `
-        ${overlayHtml}
-        <div class="flex items-center gap-3 mb-3">
-          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${bot.avatar}" class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700" alt="${bot.name}">
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm font-extrabold ${bot.boss ? 'text-amber-400' : 'text-slate-100'}">${bot.name}</h3>
-              ${bot.boss ? '<span class="text-[9px] bg-amber-500/20 text-amber-300 font-extrabold px-1.5 py-0.5 rounded">BOSS</span>' : ''}
-            </div>
-            <span class="text-xs text-slate-400 font-mono">Elo: ${bot.elo}</span>
-          </div>
-        </div>
-        <p class="text-xs text-slate-400 flex-1 mb-4 leading-relaxed">${bot.desc}</p>
-        <button class="w-full ${isLocked ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : (bot.boss ? 'btn-gold font-extrabold' : 'btn-primary text-xs')} py-2.5 rounded-xl transition">
-          ${isLocked ? 'Locked 🔒' : 'Challenge Bot ⚔️'}
-        </button>
-      `;
+      if (piece && piece.color === 'w') {
+        selectedSquare = sq;
+      } else {
+        selectedSquare = null;
+      }
+      renderBoard();
+    }
 
-      if (!isLocked) {
-        card.onclick = () => {
-          window.location.href = `game.html?mode=bot&level=${bot.level}&botName=${encodeURIComponent(bot.name)}&botElo=${bot.elo}&side=white`;
-        };
+    // Static Position Evaluator (Centipawns)
+    function evaluateBoard() {
+      let score = 0;
+      const b = game.board();
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = b[r][c];
+          if (p) {
+            const v = PIECE_VALS[p.type] || 0;
+            score += p.color === 'w' ? v : -v;
+          }
+        }
+      }
+      return score;
+    }
+
+    // Move Classification: Star Move / Good / Blunder
+    function analyzeMoveQuality(userMove) {
+      const newEval = evaluateBoard();
+      const evalDiff = newEval - previousEval;
+      previousEval = newEval;
+
+      const badge = document.getElementById('moveBadge');
+
+      if (evalDiff >= 200 || userMove.san.includes('#')) {
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-star";
+        badge.innerText = "⭐ Star Move!";
+      } else if (evalDiff >= -40) {
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-good";
+        badge.innerText = "👍 Good Move";
+      } else if (evalDiff >= -180) {
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-mistake";
+        badge.innerText = "⚠️ Inaccuracy";
+      } else {
+        badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg badge-blunder";
+        badge.innerText = "🔴 Blunder!";
       }
 
-      grid.appendChild(card);
-    });
+      updateEvalBar(newEval);
+    }
+
+    function updateEvalBar(centipawns) {
+      const score = (centipawns / 100).toFixed(1);
+      const scoreEl = document.getElementById('evalScoreText');
+      scoreEl.innerText = score > 0 ? `+${score}` : `${score}`;
+
+      const whitePct = Math.max(8, Math.min(92, 50 + centipawns / 30));
+      document.getElementById('evalBarWhite').style.width = `${whitePct}%`;
+      document.getElementById('evalBarBlack').style.width = `${100 - whitePct}%`;
+    }
+
+    // Minimax Engine Move with Blunder Calculation
+    function minimax(depth, isMaximizing, alpha, beta) {
+      if (depth === 0 || game.game_over()) return evaluateBoard();
+
+      const moves = game.moves({ verbose: true });
+      if (isMaximizing) {
+        let maxEval = -Infinity;
+        for (const m of moves) {
+          game.move(m);
+          const ev = minimax(depth - 1, false, alpha, beta);
+          game.undo();
+          maxEval = Math.max(maxEval, ev);
+          alpha = Math.max(alpha, ev);
+          if (beta <= alpha) break;
+        }
+        return maxEval;
+      } else {
+        let minEval = Infinity;
+        for (const m of moves) {
+          game.move(m);
+          const ev = minimax(depth - 1, true, alpha, beta);
+          game.undo();
+          minEval = Math.min(minEval, ev);
+          beta = Math.min(beta, ev);
+          if (beta <= alpha) break;
+        }
+        return minEval;
+      }
+    }
+
+    function handleBotTurn() {
+      document.getElementById('turnIndicator').innerText = "Bot is calculating...";
+      if (game.game_over()) return checkGameOver();
+
+      setTimeout(() => {
+        const moves = game.moves({ verbose: true });
+        if (moves.length === 0) return checkGameOver();
+
+        let chosenMove = null;
+
+        // Blunder injection according to difficulty level
+        if (Math.random() < currentBot.blunderRate) {
+          chosenMove = moves[Math.floor(Math.random() * moves.length)];
+        } else {
+          let bestValue = Infinity;
+          for (const m of moves) {
+            game.move(m);
+            const val = minimax(currentBot.depth - 1, true, -Infinity, Infinity);
+            game.undo();
+            if (val < bestValue) {
+              bestValue = val;
+              chosenMove = m;
+            }
+          }
+        }
+
+        game.move(chosenMove || moves[0]);
+        previousEval = evaluateBoard();
+        updateEvalBar(previousEval);
+        renderBoard();
+
+        document.getElementById('turnIndicator').innerText = "White to move";
+        if (game.game_over()) checkGameOver();
+      }, 350 + Math.random() * 300);
+    }
+
+    // Hint: Suggests Top Tactical or Engine Move
+    document.getElementById('btnHint').onclick = () => {
+      if (game.game_over() || game.turn() !== 'w') return;
+      const moves = game.moves({ verbose: true });
+      if (moves.length === 0) return;
+
+      let bestMove = null;
+      let bestScore = -Infinity;
+
+      for (const m of moves) {
+        game.move(m);
+        const sc = evaluateBoard();
+        game.undo();
+        if (sc > bestScore) {
+          bestScore = sc;
+          bestMove = m;
+        }
+      }
+
+      hintMove = bestMove;
+      renderBoard();
+    };
+
+    function checkGameOver() {
+      clearInterval(timerInterval);
+      if (game.in_checkmate()) {
+        const winner = game.turn() === 'b' ? 'You Won!' : 'Bot Won!';
+        alert(`🏆 Checkmate: ${winner}`);
+      } else if (game.in_draw()) {
+        alert("🤝 Game Drawn!");
+      }
+    }
+
+    document.getElementById('btnResign').onclick = () => {
+      if (confirm("Are you sure you want to resign?")) {
+        clearInterval(timerInterval);
+        alert("🏳️ You Resigned!");
+        window.location.href = "index.html";
+      }
+    };
+
+    // Clock
+    const timerInterval = setInterval(() => {
+      if (game.game_over()) return;
+      if (game.turn() === 'w') {
+        userTime--;
+        const m = Math.floor(userTime / 60).toString().padStart(2, '0');
+        const s = (userTime % 60).toString().padStart(2, '0');
+        document.getElementById('userClock').innerText = `${m}:${s}`;
+      } else {
+        botTime--;
+        const m = Math.floor(botTime / 60).toString().padStart(2, '0');
+        const s = (botTime % 60).toString().padStart(2, '0');
+        document.getElementById('botClock').innerText = `${m}:${s}`;
+      }
+    }, 1000);
+
+    renderBoard();
   </script>
 </body>
 </html>
+
