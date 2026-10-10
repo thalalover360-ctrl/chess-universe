@@ -18,7 +18,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
-  <!-- Top Navbar -->
+  <!-- Navbar -->
   <header class="navbar">
     <div class="nav-brand">
       <a href="index.html" class="flex items-center gap-2">
@@ -30,8 +30,8 @@
       <span id="matchTypePill" class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
         ⚡ RATED
       </span>
-      <button id="btnCopyGameLink" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
-        <span>📋</span> Share
+      <button id="btnShareMatch" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition">
+        📋 Share
       </button>
       <a href="index.html" class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-700 transition">Leave</a>
     </div>
@@ -40,13 +40,12 @@
   <!-- Arena Container -->
   <main class="arena-wrapper flex-1">
     
-    <!-- Stage: Opponent, Board & Player -->
     <div class="board-stage">
       
       <!-- Top Opponent Plate -->
       <div class="player-plate" id="opponentPlate">
         <div class="player-info">
-          <img id="opponentAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Opponent" class="player-img" alt="Opponent">
+          <img id="opponentAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Challenger" class="player-img" alt="Opponent">
           <div class="player-details">
             <h4 id="opponentName">Challenger</h4>
             <span id="opponentElo">Elo: 1200</span>
@@ -55,13 +54,13 @@
         <div class="player-clock" id="opponentClock">10:00</div>
       </div>
 
-      <!-- Touch-Locked Board Box -->
-      <div id="board" class="chessboard-box"></div>
+      <!-- Chess Board Container -->
+      <div id="board" class="chessboard-box w-full max-w-[420px] aspect-square mx-auto"></div>
 
       <!-- Bottom User Plate -->
       <div class="player-plate" id="userPlate">
         <div class="player-info">
-          <img id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="player-img" alt="User">
+          <img id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=You" class="player-img" alt="User">
           <div class="player-details">
             <h4 id="userName">You</h4>
             <span id="userElo">Calibrating (?)</span>
@@ -72,7 +71,7 @@
 
     </div>
 
-    <!-- Right Sidebar -->
+    <!-- Sidebar -->
     <div class="arena-sidebar">
       <div class="sidebar-header">
         <h3 class="sidebar-title flex items-center gap-2">
@@ -81,41 +80,36 @@
         <span id="gameStatusPill" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">White to move</span>
       </div>
 
-      <!-- Notation History -->
       <div class="moves-table" id="movesList"></div>
-
-      <!-- Tactical Hint Banner -->
       <div id="hintBox" class="hidden px-3 py-2 bg-slate-900 border-t border-slate-800 text-[11px] text-amber-300 font-medium"></div>
 
-      <!-- Controls -->
       <div class="arena-controls">
-        <button id="btnHint" class="btn-secondary py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border-amber-500/30 hover:border-amber-400 text-amber-300">
-          <span>💡</span> Tactical Hint
+        <button id="btnHint" class="btn-secondary py-2.5 px-3 rounded-xl text-xs font-bold border-amber-500/30 text-amber-300">
+          💡 Tactical Hint
         </button>
-        <button id="btnResign" class="btn-secondary py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border-red-500/30 hover:border-red-400 text-red-400">
-          <span>🏳️</span> Resign
+        <button id="btnResign" class="btn-secondary py-2.5 px-3 rounded-xl text-xs font-bold border-red-500/30 text-red-400">
+          🏳️ Resign
         </button>
       </div>
     </div>
 
   </main>
 
-  <!-- Post-Game Analysis Report Modal -->
+  <!-- Game Over Modal -->
   <div id="gameModal" class="modal-backdrop">
     <div class="modal-dialog">
       <div id="modalIcon" class="modal-icon text-4xl mb-2">🏆</div>
       <h2 id="modalTitle" class="modal-title text-2xl font-black mb-1">Victory!</h2>
       <p id="modalSubtitle" class="modal-subtitle text-xs text-slate-400 mb-4">Post-game evaluation complete</p>
       
-      <!-- Accuracy Card -->
       <div class="analysis-report grid grid-cols-3 gap-2 bg-slate-900 p-3 rounded-2xl border border-slate-800 mb-4 text-center">
         <div>
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Accuracy</span>
-          <span id="statAccuracy" class="text-lg font-black text-emerald-400">84%</span>
+          <span id="statAccuracy" class="text-lg font-black text-emerald-400">82%</span>
         </div>
         <div class="border-x border-slate-800">
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Best Moves</span>
-          <span id="statBest" class="text-lg font-black text-blue-400">9</span>
+          <span id="statBest" class="text-lg font-black text-blue-400">8</span>
         </div>
         <div>
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Blunders</span>
@@ -123,80 +117,34 @@
         </div>
       </div>
 
-      <!-- Elo Status Card -->
       <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 mb-6 flex justify-around text-center">
         <div>
-          <span class="text-xs text-slate-400 block font-semibold">Match Result</span>
-          <span id="modalRatingChange" class="text-xl font-black text-emerald-400">+18</span>
+          <span class="text-xs text-slate-400 block font-semibold">Result</span>
+          <span id="modalRatingChange" class="text-xl font-black text-emerald-400">+20</span>
         </div>
         <div>
-          <span class="text-xs text-slate-400 block font-semibold">Current Rating</span>
+          <span class="text-xs text-slate-400 block font-semibold">Rating</span>
           <span id="modalNewRating" class="text-xl font-black text-slate-200">1200</span>
         </div>
       </div>
 
       <div class="flex gap-2">
         <a href="index.html" class="btn-secondary flex-1 py-3 rounded-xl text-xs font-bold text-center">Lobby</a>
-        <button id="btnModalAction" class="btn-primary flex-1 py-3 rounded-xl text-xs font-black">Play Again</button>
+        <button onclick="window.location.reload()" class="btn-primary flex-1 py-3 rounded-xl text-xs font-black">Play Again</button>
       </div>
     </div>
   </div>
-    <!-- Game Engine Module Part 2 -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    // Session Guard
+  <!-- Board & Engine Script -->
+  <script>
     if (!localStorage.getItem('chess_auth')) {
       window.location.href = 'login.html';
     }
 
-    // Firebase Setup
-    const firebaseConfig = {
-      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
-      authDomain: "chess-universe-5a7cb.firebaseapp.com",
-      projectId: "chess-universe-5a7cb",
-      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
-      messagingSenderId: "145519167856",
-      appId: "1:145519167856:web:bf124bc275895447fd27b5"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Audio Engine via Web Audio API
-    const SoundFx = {
-      ctx: null,
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-      },
-      play(freq, type, duration) {
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + duration);
-      },
-      move() { this.play(350, 'sine', 0.08); },
-      capture() { this.play(220, 'triangle', 0.12); },
-      check() { this.play(650, 'sawtooth', 0.18); }
-    };
-
-    // State Variables
     const urlParams = new URLSearchParams(window.location.search);
     const gameMode = urlParams.get('mode') || 'bot';
     const matchType = urlParams.get('matchType') || 'rated';
     let userSide = (urlParams.get('side') === 'b' || urlParams.get('side') === 'black') ? 'black' : 'white';
-    const roomId = urlParams.get('room');
     const botLevel = parseInt(urlParams.get('level') || '1');
     const botName = decodeURIComponent(urlParams.get('botName') || 'Noobie Bob');
     const botElo = urlParams.get('botElo') || '400';
@@ -207,21 +155,14 @@
     let userTime = 600;
     let opponentTime = 600;
     let timerInterval = null;
+    let userMoves = 0;
+    let bestMoves = 0;
+    let blunders = 0;
 
-    let userMoveCount = 0;
-    let bestMoveCount = 0;
-    let blunderCount = 0;
-
-    // UI Labels & Hydration
-    const matchPill = document.getElementById('matchTypePill');
-    if (matchType === 'friendly') {
-      matchPill.innerText = "☕ FRIENDLY";
-      matchPill.className = "text-xs font-black px-2.5 py-1 rounded-full bg-slate-800 text-amber-400 border border-slate-700";
-    }
-
-    const userName = localStorage.getItem('chess_name') || 'Player';
-    document.getElementById('userName').innerText = userName;
-    document.getElementById('userAvatar').src = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/bottts/svg?seed=${userName}`;
+    // Profiles setup
+    const myName = localStorage.getItem('chess_name') || 'Player';
+    document.getElementById('userName').innerText = myName;
+    document.getElementById('userAvatar').src = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/bottts/svg?seed=${myName}`;
     document.getElementById('userElo').innerText = localStorage.getItem('chess_rating') || 'Calibrating (?)';
 
     if (gameMode === 'bot') {
@@ -230,112 +171,12 @@
       document.getElementById('opponentAvatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${botName}`;
     }
 
-    // High Resolution Pieces Theme
-    function customPieceTheme(piece) {
-      const pieceMap = {
-        'wP': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
-        'wN': 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
-        'wB': 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
-        'wR': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
-        'wQ': 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
-        'wK': 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
-        'bP': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
-        'bN': 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
-        'bB': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
-        'bR': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
-        'bQ': 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
-        'bK': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg'
-      };
-      return pieceMap[piece];
-    }
-        // Board Highlights Cleanup
-    function removeHighlights() {
-      $('#board .square-55d63').removeClass('legal-dot legal-capture square-selected square-hint-from square-hint-to square-check');
-      $('#hintBox').addClass('hidden').text('');
+    if (matchType === 'friendly') {
+      document.getElementById('matchTypePill').innerText = '☕ FRIENDLY';
+      document.getElementById('matchTypePill').className = 'text-xs font-black px-2.5 py-1 rounded-full bg-slate-800 text-amber-400 border border-slate-700';
     }
 
-    // Show Legal Moves Dots & Rings
-    function showLegalMoves(square) {
-      removeHighlights();
-      const moves = game.moves({ square: square, verbose: true });
-      if (moves.length === 0) return;
-
-      $(`#board .square-${square}`).addClass('square-selected');
-      moves.forEach(m => {
-        const sq = $(`#board .square-${m.to}`);
-        if (m.captured) {
-          sq.addClass('legal-capture');
-        } else {
-          sq.addClass('legal-dot');
-        }
-      });
-    }
-
-    // Tap-to-Move Logic for Mobile
-    function handleSquareSelection(square) {
-      if (game.game_over()) return;
-      const isUserTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
-      if (!isUserTurn) return;
-
-      const piece = game.get(square);
-
-      if (selectedSquare) {
-        if (selectedSquare === square) {
-          selectedSquare = null;
-          removeHighlights();
-          return;
-        }
-
-        const move = game.move({
-          from: selectedSquare,
-          to: square,
-          promotion: 'q'
-        });
-
-        if (move) {
-          board.position(game.fen());
-          selectedSquare = null;
-          removeHighlights();
-          processUserMoveEvaluation(move);
-          return;
-        }
-      }
-
-      if (piece && ((piece.color === 'w' && userSide === 'white') || (piece.color === 'b' && userSide === 'black'))) {
-        selectedSquare = square;
-        showLegalMoves(square);
-      } else {
-        selectedSquare = null;
-        removeHighlights();
-      }
-    }
-
-    // Drag and Drop Callbacks
-    function onDragStart(source, piece) {
-      if (game.game_over()) return false;
-      const isUserTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
-      if (!isUserTurn) return false;
-      const pieceColor = piece.search(/^b/) !== -1 ? 'black' : 'white';
-      return pieceColor === userSide;
-    }
-
-    function onDrop(source, target) {
-      removeHighlights();
-      const move = game.move({
-        from: source,
-        to: target,
-        promotion: 'q'
-      });
-
-      if (move === null) return 'snapback';
-      processUserMoveEvaluation(move);
-    }
-
-    function onSnapEnd() {
-      board.position(game.fen());
-    }
-
-    // Tactical Positional Piece-Square Tables (PST)
+    // PST Tables
     const pstPawn = [
       0,  0,  0,  0,  0,  0,  0,  0,
       50, 50, 50, 50, 50, 50, 50, 50,
@@ -347,67 +188,54 @@
       0,  0,  0,  0,  0,  0,  0,  0
     ];
 
-    const pstKnight = [
-      -50,-40,-30,-30,-30,-30,-40,-50,
-      -40,-20,  0,  0,  0,  0,-20,-40,
-      -30,  0, 10, 15, 15, 10,  0,-30,
-      -30,  5, 15, 20, 20, 15,  5,-30,
-      -30,  0, 15, 20, 20, 15,  0,-30,
-      -30,  5, 10, 15, 15, 10,  5,-30,
-      -40,-20,  0,  5,  5,  0,-20,-40,
-      -50,-40,-30,-30,-30,-30,-40,-50
-    ];
-
-    function evaluateBoard(chessInstance) {
+    function evaluateBoard(chessObj) {
       let score = 0;
       const values = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-      const squares = chessInstance.SQUARES;
-
-      for (let i = 0; i < squares.length; i++) {
-        const p = chessInstance.get(squares[i]);
-        if (p) {
-          let val = values[p.type];
-          if (p.type === 'p') val += pstPawn[i];
-          if (p.type === 'n') val += pstKnight[i];
-          score += (p.color === 'w' ? val : -val);
+      const sqs = chessObj.SQUARES;
+      for (let i = 0; i < sqs.length; i++) {
+        const piece = chessObj.get(sqs[i]);
+        if (piece) {
+          let val = values[piece.type];
+          if (piece.type === 'p') val += pstPawn[i];
+          score += (piece.color === 'w' ? val : -val);
         }
       }
       return score;
     }
 
-    function getBestTacticalMove(chessInstance) {
-      const moves = chessInstance.moves({ verbose: true });
+    function getBestMove(chessObj) {
+      const moves = chessObj.moves({ verbose: true });
       if (moves.length === 0) return null;
 
-      let bestScore = chessInstance.turn() === 'w' ? -Infinity : Infinity;
-      let chosenMove = moves[0];
+      let bestScore = chessObj.turn() === 'w' ? -Infinity : Infinity;
+      let selected = moves[0];
 
       for (let m of moves) {
-        chessInstance.move(m);
-        let evalScore = evaluateBoard(chessInstance);
-        chessInstance.undo();
+        chessObj.move(m);
+        let score = evaluateBoard(chessObj);
+        chessObj.undo();
 
-        if (chessInstance.turn() === 'w') {
-          if (evalScore > bestScore) {
-            bestScore = evalScore;
-            chosenMove = m;
+        if (chessObj.turn() === 'w') {
+          if (score > bestScore) {
+            bestScore = score;
+            selected = m;
           }
         } else {
-          if (evalScore < bestScore) {
-            bestScore = evalScore;
-            chosenMove = m;
+          if (score < bestScore) {
+            bestScore = score;
+            selected = m;
           }
         }
       }
-      return chosenMove;
+      return selected;
     }
-        // Highlights & Legal Move Dots
+
     function removeHighlights() {
-      $('#board .square-55d63').removeClass('legal-dot legal-capture square-selected square-hint-from square-hint-to square-check');
+      $('#board .square-55d63').removeClass('legal-dot legal-capture square-selected square-hint-from square-hint-to');
       $('#hintBox').addClass('hidden').text('');
     }
 
-    function showLegalMoves(square) {
+    function showLegalDots(square) {
       removeHighlights();
       const moves = game.moves({ square: square, verbose: true });
       if (moves.length === 0) return;
@@ -415,19 +243,34 @@
       $(`#board .square-${square}`).addClass('square-selected');
       moves.forEach(m => {
         const sq = $(`#board .square-${m.to}`);
-        if (m.captured) {
-          sq.addClass('legal-capture');
-        } else {
-          sq.addClass('legal-dot');
-        }
+        if (m.captured) sq.addClass('legal-capture');
+        else sq.addClass('legal-dot');
       });
     }
 
-    // Tap-To-Move and Drag Handlers
-    function handleSquareSelection(square) {
+    function onDragStart(source, piece) {
+      if (game.game_over()) return false;
+      const isMyTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
+      if (!isMyTurn) return false;
+      const pieceColor = piece.search(/^b/) !== -1 ? 'black' : 'white';
+      return pieceColor === userSide;
+    }
+
+    function onDrop(source, target) {
+      removeHighlights();
+      const move = game.move({ from: source, to: target, promotion: 'q' });
+      if (move === null) return 'snapback';
+      processMoveDone(move);
+    }
+
+    function onSnapEnd() {
+      board.position(game.fen());
+    }
+
+    function handleSquareClick(square) {
       if (game.game_over()) return;
-      const isUserTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
-      if (!isUserTurn) return;
+      const isMyTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
+      if (!isMyTurn) return;
 
       const piece = game.get(square);
 
@@ -438,169 +281,79 @@
           return;
         }
 
-        const move = game.move({
-          from: selectedSquare,
-          to: square,
-          promotion: 'q'
-        });
-
+        const move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
         if (move) {
           board.position(game.fen());
           selectedSquare = null;
           removeHighlights();
-          processUserMoveEvaluation(move);
+          processMoveDone(move);
           return;
         }
       }
 
       if (piece && ((piece.color === 'w' && userSide === 'white') || (piece.color === 'b' && userSide === 'black'))) {
         selectedSquare = square;
-        showLegalMoves(square);
+        showLegalDots(square);
       } else {
         selectedSquare = null;
         removeHighlights();
       }
     }
 
-    function onDragStart(source, piece) {
-      if (game.game_over()) return false;
-      const isUserTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
-      if (!isUserTurn) return false;
-      const pieceColor = piece.search(/^b/) !== -1 ? 'black' : 'white';
-      return pieceColor === userSide;
-    }
+    function processMoveDone(move) {
+      userMoves++;
+      const best = getBestMove(game);
+      if (best && best.from === move.from && best.to === move.to) {
+        bestMoves++;
+      }
 
-    function onDrop(source, target) {
-      removeHighlights();
-      const move = game.move({
-        from: source,
-        to: target,
-        promotion: 'q'
-      });
+      updateNotationList(move);
 
-      if (move === null) return 'snapback';
-      processUserMoveEvaluation(move);
-    }
+      const pill = document.getElementById('gameStatusPill');
+      pill.innerText = game.turn() === 'w' ? 'White to move' : 'Black to move';
 
-    function onSnapEnd() {
-      board.position(game.fen());
-    }
-        // Piece-Square Positional Tables for High Tier AI
-    const pstPawn = [
-      0,  0,  0,  0,  0,  0,  0,  0,
-      50, 50, 50, 50, 50, 50, 50, 50,
-      10, 10, 20, 30, 30, 20, 10, 10,
-      5,  5, 10, 25, 25, 10,  5,  5,
-      0,  0,  0, 20, 20,  0,  0,  0,
-      5, -5,-10,  0,  0,-10, -5,  5,
-      5, 10, 10,-20,-20, 10, 10,  5,
-      0,  0,  0,  0,  0,  0,  0,  0
-    ];
+      if (game.game_over()) {
+        endGame();
+        return;
+      }
 
-    const pstKnight = [
-      -50,-40,-30,-30,-30,-30,-40,-50,
-      -40,-20,  0,  0,  0,  0,-20,-40,
-      -30,  0, 10, 15, 15, 10,  0,-30,
-      -30,  5, 15, 20, 20, 15,  5,-30,
-      -30,  0, 15, 20, 20, 15,  0,-30,
-      -30,  5, 10, 15, 15, 10,  5,-30,
-      -40,-20,  0,  5,  5,  0,-20,-40,
-      -50,-40,-30,-30,-30,-30,-40,-50
-    ];
-
-    function evaluateBoard(chessInstance) {
-      let score = 0;
-      const values = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-      const squares = chessInstance.SQUARES;
-
-      for (let i = 0; i < squares.length; i++) {
-        const p = chessInstance.get(squares[i]);
-        if (p) {
-          let val = values[p.type];
-          if (p.type === 'p') val += pstPawn[i];
-          if (p.type === 'n') val += pstKnight[i];
-          score += (p.color === 'w' ? val : -val);
+      if (gameMode === 'bot') {
+        const isBotTurn = (game.turn() === 'w' && userSide === 'black') || (game.turn() === 'b' && userSide === 'white');
+        if (isBotTurn) {
+          setTimeout(makeBotMove, 400);
         }
       }
-      return score;
     }
 
-    function getBestTacticalMove(chessInstance) {
-      const moves = chessInstance.moves({ verbose: true });
-      if (moves.length === 0) return null;
-
-      let bestScore = chessInstance.turn() === 'w' ? -Infinity : Infinity;
-      let chosenMove = moves[0];
-
-      for (let m of moves) {
-        chessInstance.move(m);
-        let evalScore = evaluateBoard(chessInstance);
-        chessInstance.undo();
-
-        if (chessInstance.turn() === 'w') {
-          if (evalScore > bestScore) {
-            bestScore = evalScore;
-            chosenMove = m;
-          }
-        } else {
-          if (evalScore < bestScore) {
-            bestScore = evalScore;
-            chosenMove = m;
-          }
-        }
-      }
-      return chosenMove;
-    }
-
-    // Bot AI Decision Making
-    function triggerBotMove() {
+    function makeBotMove() {
       if (game.game_over()) return;
       const moves = game.moves({ verbose: true });
       if (moves.length === 0) return;
 
-      let nextMove = null;
-
+      let chosen = null;
       if (botLevel === 1) {
-        nextMove = Math.random() < 0.65 ? moves[Math.floor(Math.random() * moves.length)] : getBestTacticalMove(game);
+        chosen = Math.random() < 0.65 ? moves[Math.floor(Math.random() * moves.length)] : getBestMove(game);
       } else if (botLevel <= 4) {
         const attacks = moves.filter(m => m.captured || m.san.includes('+'));
-        nextMove = (attacks.length > 0 && Math.random() < 0.7) ? attacks[Math.floor(Math.random() * attacks.length)] : getBestTacticalMove(game);
+        chosen = (attacks.length > 0 && Math.random() < 0.7) ? attacks[Math.floor(Math.random() * attacks.length)] : getBestMove(game);
       } else {
-        nextMove = getBestTacticalMove(game);
+        chosen = getBestMove(game);
       }
 
-      if (!nextMove) nextMove = moves[0];
-
-      const res = game.move(nextMove);
+      if (!chosen) chosen = moves[0];
+      const res = game.move(chosen);
       board.position(game.fen());
+      updateNotationList(res);
 
-      if (game.in_check()) SoundFx.check();
-      else if (res.captured) SoundFx.capture();
-      else SoundFx.move();
+      const pill = document.getElementById('gameStatusPill');
+      pill.innerText = game.turn() === 'w' ? 'White to move' : 'Black to move';
 
-      updateNotation(res);
-      handlePostMoveState();
-    }
-
-    // Notation & Accuracy Logic
-    function processUserMoveEvaluation(move) {
-      userMoveCount++;
-      const topMove = getBestTacticalMove(game);
-      if (topMove && topMove.from === move.from && topMove.to === move.to) {
-        bestMoveCount++;
-      } else if (Math.random() < 0.08) {
-        blunderCount++;
+      if (game.game_over()) {
+        endGame();
       }
-
-      if (game.in_check()) SoundFx.check();
-      else if (move.captured) SoundFx.capture();
-      else SoundFx.move();
-
-      updateNotation(move);
-      handlePostMoveState();
     }
 
-    function updateNotation(move) {
+    function updateNotationList(move) {
       const list = document.getElementById('movesList');
       const round = Math.ceil(game.history().length / 2);
 
@@ -612,257 +365,113 @@
         list.appendChild(row);
       } else {
         const cell = document.getElementById(`b_${round}`);
-        if (cell) {
-          cell.innerText = move.san;
-          cell.className = "font-bold text-slate-200";
-        }
+        if (cell) cell.innerText = move.san;
       }
       list.scrollTop = list.scrollHeight;
     }
-        // Post Move State Dispatcher
-    function handlePostMoveState() {
-      const pill = document.getElementById('gameStatusPill');
-      pill.innerText = game.turn() === 'w' ? "White to move" : "Black to move";
-      if (game.in_check()) pill.innerText += " (Check!)";
 
-      if (game.game_over()) {
-        clearInterval(timerInterval);
-        handleMatchCompletion();
-        return;
-      }
-
-      if (gameMode === 'bot') {
-        const isBotTurn = (game.turn() === 'w' && userSide === 'black') || (game.turn() === 'b' && userSide === 'white');
-        if (isBotTurn) {
-          setTimeout(triggerBotMove, 400);
-        }
-      }
-
-      if (gameMode === 'pvp' && roomId) {
-        updateDoc(doc(db, "matches", roomId), {
-          fen: game.fen(),
-          turn: game.turn(),
-          history: game.history(),
-          updatedAt: Date.now()
-        }).catch(console.error);
-      }
-    }
-
-    // 2-Way Realtime WhatsApp Match Synchronization
-    if (gameMode === 'pvp' && roomId) {
-      const roomRef = doc(db, "matches", roomId);
-
-      getDoc(roomRef).then((snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data.creator !== userName) {
-            const updatePayload = { status: 'playing' };
-            if (userSide === 'black' && !data.black) {
-              updatePayload.black = userName;
-              updatePayload.blackElo = localStorage.getItem('chess_rating') || '?';
-            } else if (userSide === 'white' && !data.white) {
-              updatePayload.white = userName;
-              updatePayload.whiteElo = localStorage.getItem('chess_rating') || '?';
-            }
-            updateDoc(roomRef, updatePayload);
-          }
-        }
-      });
-
-      onSnapshot(roomRef, (snap) => {
-        if (!snap.exists()) return;
-        const d = snap.data();
-
-        if (userSide === 'white' && d.black) {
-          document.getElementById('opponentName').innerText = d.black;
-          document.getElementById('opponentElo').innerText = `Elo: ${d.blackElo || 1200}`;
-          document.getElementById('opponentAvatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${d.black}`;
-        } else if (userSide === 'black' && d.white) {
-          document.getElementById('opponentName').innerText = d.white;
-          document.getElementById('opponentElo').innerText = `Elo: ${d.whiteElo || 1200}`;
-          document.getElementById('opponentAvatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${d.white}`;
-        }
-
-        if (d.fen && d.fen !== "start" && d.fen !== game.fen()) {
-          game.load(d.fen);
-          board.position(d.fen);
-          SoundFx.move();
-
-          const pill = document.getElementById('gameStatusPill');
-          pill.innerText = game.turn() === 'w' ? "White to move" : "Black to move";
-          if (game.in_check()) pill.innerText += " (Check!)";
-
-          if (game.game_over()) {
-            clearInterval(timerInterval);
-            handleMatchCompletion();
-          }
-        }
-      });
-    }
-
-    // Clocks
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60).toString().padStart(2, '0');
-      const s = (sec % 60).toString().padStart(2, '0');
-      return `${m}:${s}`;
-    }
-
-    function startClocks() {
-      timerInterval = setInterval(() => {
-        if (game.game_over()) return;
-        const isUserTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
-
-        if (isUserTurn) {
-          userTime--;
-          const el = document.getElementById('userClock');
-          el.innerText = formatTime(userTime);
-          if (userTime <= 0) {
-            clearInterval(timerInterval);
-            handleMatchCompletion('timeout');
-          }
-        } else {
-          opponentTime--;
-          const el = document.getElementById('opponentClock');
-          el.innerText = formatTime(opponentTime);
-          if (opponentTime <= 0) {
-            clearInterval(timerInterval);
-            handleMatchCompletion('opponent_timeout');
-          }
-        }
-      }, 1000);
-    }
-
-    // Hint & Resign Controls
-    document.getElementById('btnHint').onclick = () => {
-      removeHighlights();
-      const best = getBestTacticalMove(game);
-      if (!best) return;
-
-      $(`#board .square-${best.from}`).addClass('square-hint-from');
-      $(`#board .square-${best.to}`).addClass('square-hint-to');
-
-      const box = document.getElementById('hintBox');
-      box.classList.remove('hidden');
-      box.innerText = `💡 Tactical Line: Move ${best.piece.toUpperCase()} from ${best.from} to ${best.to}`;
-    };
-
-    document.getElementById('btnResign').onclick = () => {
-      if (confirm("Do you want to resign this match?")) {
-        clearInterval(timerInterval);
-        handleMatchCompletion('resigned');
-      }
-    };
-
-    // Match Completion & 5-Match Calibration Engine
-    function handleMatchCompletion(reason = null) {
+    function endGame(resign = false) {
+      clearInterval(timerInterval);
       const modal = document.getElementById('gameModal');
       const icon = document.getElementById('modalIcon');
       const title = document.getElementById('modalTitle');
-      const subtitle = document.getElementById('modalSubtitle');
       const changeEl = document.getElementById('modalRatingChange');
       const newEloEl = document.getElementById('modalNewRating');
 
-      let userWon = false;
-      let delta = 0;
+      let won = false;
 
-      if (reason === 'resigned') {
-        icon.innerText = "🏳️";
-        title.innerText = "Defeat";
-        subtitle.innerText = "You resigned the match";
-        delta = -15;
-      } else if (game.in_checkmate() || reason === 'opponent_timeout') {
+      if (resign) {
+        icon.innerText = '🏳️';
+        title.innerText = 'Defeat';
+        changeEl.innerText = '-15';
+      } else if (game.in_checkmate()) {
         const winner = game.turn() === 'w' ? 'black' : 'white';
-        if (winner === userSide || reason === 'opponent_timeout') {
-          userWon = true;
-          icon.innerText = "🏆";
-          title.innerText = "Checkmate Victory!";
-          subtitle.innerText = "Outstanding tactical play.";
-          delta = 20;
-
+        if (winner === userSide) {
+          won = true;
+          icon.innerText = '🏆';
+          title.innerText = 'Victory!';
+          changeEl.innerText = '+20';
           if (gameMode === 'bot') {
-            const currentUnlocked = parseInt(localStorage.getItem('chess_max_bot_unlocked') || '1');
-            if (botLevel >= currentUnlocked && currentUnlocked < 10) {
-              localStorage.setItem('chess_max_bot_unlocked', (currentUnlocked + 1).toString());
-            }
+            const currentLvl = parseInt(localStorage.getItem('chess_max_bot_unlocked') || '1');
+            if (botLevel >= currentLvl) localStorage.setItem('chess_max_bot_unlocked', (currentLvl + 1).toString());
           }
         } else {
-          icon.innerText = "💀";
-          title.innerText = "Checkmated";
-          subtitle.innerText = "Your king fell under attack.";
-          delta = -18;
+          icon.innerText = '💀';
+          title.innerText = 'Defeat';
+          changeEl.innerText = '-18';
         }
       } else {
-        icon.innerText = "🤝";
-        title.innerText = "Drawn Match";
-        subtitle.innerText = "Stalemate or insufficient pieces.";
-        delta = 0;
+        icon.innerText = '🤝';
+        title.innerText = 'Draw';
+        changeEl.innerText = '0';
       }
 
-      const total = Math.max(1, userMoveCount);
-      const accuracy = Math.min(96, Math.max(50, Math.round(((bestMoveCount * 1.5 + (total - blunderCount)) / (total * 2)) * 100)));
+      const total = Math.max(1, userMoves);
+      const acc = Math.min(95, Math.max(50, Math.round(((bestMoves * 1.5 + total) / (total * 2)) * 100)));
+      document.getElementById('statAccuracy').innerText = `${acc}%`;
+      document.getElementById('statBest').innerText = bestMoves;
 
-      document.getElementById('statAccuracy').innerText = `${accuracy}%`;
-      document.getElementById('statBest').innerText = bestMoveCount;
-      document.getElementById('statBlunders').innerText = blunderCount;
-
-      let calibGames = parseInt(localStorage.getItem('chess_calibration_games') || '0');
-      let calibScore = parseInt(localStorage.getItem('chess_calibration_score') || '0');
-
-      if (matchType === 'friendly') {
-        changeEl.innerText = "0 (Friendly)";
-        newEloEl.innerText = localStorage.getItem('chess_rating') || "Calibrating (?)";
-      } else if (calibGames < 5) {
-        calibGames++;
-        calibScore += userWon ? 1 : 0;
-        localStorage.setItem('chess_calibration_games', calibGames.toString());
-        localStorage.setItem('chess_calibration_score', calibScore.toString());
-
-        if (calibGames >= 5) {
-          const calculatedElo = 800 + (calibScore * 130) + Math.round(accuracy * 2);
-          localStorage.setItem('chess_rating', calculatedElo.toString());
-          changeEl.innerText = "Calibrated!";
-          newEloEl.innerText = calculatedElo;
-        } else {
-          changeEl.innerText = `Game ${calibGames}/5`;
-          newEloEl.innerText = `Calibrating (${5 - calibGames} left)`;
-        }
+      let calib = parseInt(localStorage.getItem('chess_calibration_games') || '0');
+      if (calib < 5) {
+        calib++;
+        localStorage.setItem('chess_calibration_games', calib.toString());
+        newEloEl.innerText = `Calibrating (${5 - calib} left)`;
       } else {
-        let currentElo = parseInt(localStorage.getItem('chess_rating') || '1200');
-        currentElo = Math.max(100, currentElo + delta);
-        localStorage.setItem('chess_rating', currentElo.toString());
-        changeEl.innerText = delta >= 0 ? `+${delta}` : `${delta}`;
-        newEloEl.innerText = currentElo;
+        newEloEl.innerText = '1200';
       }
 
       modal.classList.add('show');
     }
 
-    document.getElementById('btnModalAction').onclick = () => {
-      window.location.reload();
+    document.getElementById('btnHint').onclick = () => {
+      removeHighlights();
+      const best = getBestMove(game);
+      if (!best) return;
+      $(`#board .square-${best.from}`).addClass('square-hint-from');
+      $(`#board .square-${best.to}`).addClass('square-hint-to');
+      document.getElementById('hintBox').classList.remove('hidden');
+      document.getElementById('hintBox').innerText = `💡 Best move: ${best.piece.toUpperCase()} from ${best.from} to ${best.to}`;
     };
 
-    // Board Init
+    document.getElementById('btnResign').onclick = () => {
+      if (confirm('Resign match?')) endGame(true);
+    };
+
+    // Board Init (Using standard CDN pieces for 100% reliable load)
     board = Chessboard('board', {
       draggable: true,
       position: 'start',
       orientation: userSide,
-      pieceTheme: customPieceTheme,
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
       onDragStart: onDragStart,
       onDrop: onDrop,
       onSnapEnd: onSnapEnd
     });
 
-    startClocks();
     $(window).resize(board.resize);
 
-    $(document).on('click touchend', '#board .square-55d63', function () {
+    $(document).on('click touchend', '#board .square-55d63', function() {
       const sq = $(this).attr('data-square');
-      if (sq) handleSquareSelection(sq);
+      if (sq) handleSquareClick(sq);
     });
 
-    if (gameMode === 'bot' && userSide === 'black') {
-      setTimeout(triggerBotMove, 600);
-    }
+    // Clock Interval
+    timerInterval = setInterval(() => {
+      if (game.game_over()) return;
+      const isMyTurn = (game.turn() === 'w' && userSide === 'white') || (game.turn() === 'b' && userSide === 'black');
+      if (isMyTurn) {
+        userTime--;
+        const m = Math.floor(userTime / 60).toString().padStart(2, '0');
+        const s = (userTime % 60).toString().padStart(2, '0');
+        document.getElementById('userClock').innerText = `${m}:${s}`;
+      } else {
+        opponentTime--;
+        const m = Math.floor(opponentTime / 60).toString().padStart(2, '0');
+        const s = (opponentTime % 60).toString().padStart(2, '0');
+        document.getElementById('opponentClock').innerText = `${m}:${s}`;
+      }
+    }, 1000);
   </script>
 </body>
-</html>
+  </html>
+  
