@@ -1,1627 +1,290 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#10151f">
-<title>Chess Universe — Advanced Bot</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+<title>Chess Universe — Bot Arena</title>
 <style>
-:root {
-  --bg: #10151f;
-  --panel: #192231;
-  --panel2: #222e40;
-  --text: #f2f5fa;
-  --muted: #9caec4;
-  --accent: #59e0b0;
-  --accent2: #30b8f0;
-  --danger: #ff6d7d;
-  --border: rgba(255,255,255,.09);
-  --light-square: #e8edf3;
-  --dark-square: #648477;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  color: var(--text);
-  background:
-    radial-gradient(ellipse at top, #20354a 0%, transparent 55%),
-    var(--bg);
-  font-family: Inter, Arial, sans-serif;
-}
-
-button, select {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: .45;
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(10,15,23,.75);
-}
-
-.brand {
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: -.5px;
-}
-
-.brand span {
-  color: var(--accent);
-}
-
-.back-link {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 13px;
-}
-
-.back-link:hover {
-  color: var(--accent);
-}
-
-.page {
-  width: min(1100px, 100%);
-  margin: auto;
-  padding: 22px 14px 40px;
-}
-
-.hero {
-  margin-bottom: 20px;
-}
-
-.hero h1 {
-  margin: 0 0 7px;
-  font-size: clamp(24px, 5vw, 36px);
-  letter-spacing: -1px;
-}
-
-.hero p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.6;
-  font-size: 14px;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(270px, .8fr);
-  gap: 18px;
-  align-items: start;
-}
-
-.panel {
-  min-width: 0;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(25,34,49,.94);
-  box-shadow: 0 18px 50px rgba(0,0,0,.2);
-}
-
-.panel-title {
-  margin: 0 0 13px;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.field label {
-  display: block;
-  margin-bottom: 7px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.field select {
-  width: 100%;
-  min-height: 42px;
-  padding: 9px;
-  color: var(--text);
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-.primary, .secondary, .danger-button {
-  min-height: 42px;
-  padding: 10px 13px;
-  border: 0;
-  border-radius: 10px;
-  font-weight: 700;
-  transition: transform .15s, filter .15s;
-}
-
-.primary:hover, .secondary:hover, .danger-button:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
-
-.primary {
-  color: #071710;
-  background: var(--accent);
-}
-
-.secondary {
-  color: var(--text);
-  background: var(--panel2);
-  border: 1px solid var(--border);
-}
-
-.danger-button {
-  color: white;
-  background: #9c3448;
-}
-
-.button-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.button-row button {
-  flex: 1 1 auto;
-}
-
-.status {
-  margin: 14px 0;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: var(--muted);
-  background: rgba(0,0,0,.14);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.status strong {
-  color: var(--accent);
-}
-
-.board-wrap {
-  width: 100%;
-  max-width: 620px;
-  margin: 0 auto;
-}
-
-.board {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  width: 100%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border: 4px solid #2a394a;
-  border-radius: 8px;
-  box-shadow: 0 16px 35px rgba(0,0,0,.28);
-  touch-action: manipulation;
-}
-
-.square {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  aspect-ratio: 1;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  font-family: Arial, sans-serif;
-  font-size: clamp(22px, 6.3vw, 52px);
-  line-height: 1;
-  user-select: none;
-}
-
-.square.light {
-  background: var(--light-square);
-}
-
-.square.dark {
-  background: var(--dark-square);
-}
-
-.square.selected {
-  box-shadow: inset 0 0 0 4px #f5d35f;
-}
-
-.square.legal::after {
-  content: "";
-  position: absolute;
-  width: 23%;
-  height: 23%;
-  border-radius: 50%;
-  background: rgba(15,30,40,.35);
-}
-
-.square.capture::after {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border: 4px solid rgba(220,50,65,.72);
-  border-radius: 50%;
-}
-
-.square.hint-from {
-  box-shadow: inset 0 0 0 5px #45c8ff;
-}
-
-.square.hint-to {
-  box-shadow: inset 0 0 0 5px #f6d45d;
-}
-
-.square.last-move {
-  background-image: linear-gradient(rgba(255,226,90,.3), rgba(255,226,90,.3));
-}
-
-.square.in-check {
-  background-image: linear-gradient(rgba(255,50,70,.55), rgba(255,50,70,.55));
-}
-
-.coordinates {
-  position: absolute;
-  left: 3px;
-  bottom: 2px;
-  font-size: 9px;
-  font-weight: 800;
-  opacity: .7;
-  pointer-events: none;
-}
-
-.piece {
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.18));
-}
-
-.board-note {
-  margin: 9px 0 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.moves {
-  min-height: 90px;
-  max-height: 260px;
-  overflow: auto;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: rgba(0,0,0,.14);
-}
-
-.move-row {
-  display: grid;
-  grid-template-columns: 28px 1fr 1fr;
-  gap: 8px;
-  padding: 7px 4px;
-  border-bottom: 1px solid rgba(255,255,255,.05);
-  font-size: 13px;
-}
-
-.move-number {
-  color: var(--muted);
-}
-
-.move-white, .move-black {
-  overflow-wrap: anywhere;
-}
-
-.empty-moves {
-  padding: 20px 4px;
-  color: var(--muted);
-  text-align: center;
-  font-size: 13px;
-}
-
-.info-card {
-  margin-top: 12px;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: rgba(0,0,0,.12);
-}
-
-.info-card h3 {
-  margin: 0 0 6px;
-  font-size: 13px;
-}
-
-.info-card p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.bot-progress {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.bot-progress strong {
-  color: var(--accent);
-}
-
-.promotion {
-  display: none;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.promotion.show {
-  display: flex;
-}
-
-.promotion button {
-  flex: 1;
-  padding: 10px;
-  color: var(--text);
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-size: 20px;
-}
-
-.footer {
-  padding: 22px 0 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-@media (max-width: 760px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .page {
-    padding: 18px 10px 30px;
-  }
-
-  .panel {
-    padding: 12px;
-  }
-
-  .square {
-    font-size: clamp(22px, 10vw, 45px);
-  }
-
-  .topbar {
-    padding: 13px 12px;
-  }
-}
-
-@media (max-width: 360px) {
-  .controls {
-    grid-template-columns: 1fr;
-  }
-
-  .square {
-    font-size: 25px;
-  }
-}
+:root{--bg:#10151f;--panel:#1c2738;--line:#354459;--text:#f2f5fa;--muted:#aab6c7;--green:#59e0b0;--light:#e8edf3;--dark:#648477}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#20364b,transparent 55%),var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif}
+header{padding:16px;background:#0b111b;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.brand{font-size:19px;font-weight:900}.brand span{color:var(--green)}
+a{color:var(--muted);text-decoration:none}
+main{max-width:1000px;margin:auto;padding:18px 12px}
+h1{margin:5px 0;font-size:32px}h2{font-size:18px;margin:0 0 12px}
+.sub{color:var(--muted);line-height:1.5}
+.layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(250px,.8fr);gap:14px}
+.panel{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+select,button{font:inherit}
+select{width:100%;padding:11px;border-radius:9px;border:1px solid var(--line);background:#29364b;color:white}
+.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:4px solid #354459;border-radius:6px;overflow:hidden}
+.sq{position:relative;min-width:0;aspect-ratio:1;border:0;padding:0;display:flex;align-items:center;justify-content:center;font-size:clamp(25px,7vw,52px);line-height:1;cursor:pointer;touch-action:manipulation}
+.light{background:var(--light);color:#111}.dark{background:var(--dark);color:white}
+.sq.selected{box-shadow:inset 0 0 0 4px #ffe064}
+.sq.target:after{content:"";width:22%;height:22%;border-radius:50%;background:#18232d88;position:absolute}
+.sq.capture:after{content:"";position:absolute;inset:3px;border:4px solid #e34b5eaa;border-radius:50%}
+.sq.hintfrom{box-shadow:inset 0 0 0 5px #36bfff}.sq.hintto{box-shadow:inset 0 0 0 5px #ffe064}
+.coord{position:absolute;left:3px;bottom:2px;font-size:9px;font-weight:bold;pointer-events:none}
+.note{text-align:center;font-size:12px;color:var(--muted);margin:9px 0}
+.status,.card{padding:12px;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#0b111b66;line-height:1.5}
+.status b{color:var(--green)}
+.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.btn{flex:1 1 auto;min-height:42px;padding:9px;border:1px solid var(--line);border-radius:9px;background:#29364b;color:white;font-weight:bold;cursor:pointer}
+.btn.primary{background:var(--green);color:#081711;border-color:transparent}
+.btn:disabled{opacity:.45}
+.muted{font-size:12px;color:var(--muted);line-height:1.5}
+.stat{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--muted)}
+.stat b{color:var(--green)}
+.moves{max-height:250px;overflow:auto;font-size:13px}
+.move{display:grid;grid-template-columns:30px 1fr 1fr;padding:7px;border-bottom:1px solid #ffffff12}
+.promotion{display:none;gap:6px;margin-top:10px}.promotion.show{display:flex}
+.promotion button{flex:1;padding:9px;background:#29364b;color:white;border:1px solid var(--line);border-radius:8px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+@media(max-width:700px){.layout{grid-template-columns:1fr}main{padding:14px 9px}.panel{padding:11px}.sq{font-size:clamp(25px,10vw,47px)}}
+@media(max-width:360px){.controls{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">♟ CHESS <span>UNIVERSE</span></div>
-  <a class="back-link" href="bots.html">← Back to Bots</a>
-</header>
-
-<main class="page">
-  <section class="hero">
-    <h1>Advanced Bot Arena</h1>
-    <p>Challenge your selected bot, analyse moves, and climb the rating ladder.</p>
-  </section>
-
-  <div class="layout">
-    <section class="panel">
-      <h2 class="panel-title">♟ Chess Board</h2>
-
-      <div class="controls">
-        <div class="field">
-          <label for="gameMode">Game Mode</label>
-          <select id="gameMode">
-            <option value="bot">Play vs Bot</option>
-            <option value="pass">Pass &amp; Play</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="playerSide">Play As</label>
-          <select id="playerSide">
-            <option value="white">White</option>
-            <option value="black">Black</option>
-            <option value="random">Random</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="board-wrap">
-        <div id="board" class="board" role="grid" aria-label="Chess board"></div>
-      </div>
-
-      <p class="board-note">
-        Tap a piece, then tap its destination square.
-      </p>
-
-      <div class="status" id="status" aria-live="polite">
-        <strong>Ready!</strong> Start a new game to play.
-      </div>
-
-      <div class="promotion" id="promotion">
-        <button type="button" data-promote="q" aria-label="Promote to queen">♕</button>
-        <button type="button" data-promote="r" aria-label="Promote to rook">♖</button>
-        <button type="button" data-promote="b" aria-label="Promote to bishop">♗</button>
-        <button type="button" data-promote="n" aria-label="Promote to knight">♘</button>
-      </div>
-
-      <div class="button-row">
-        <button class="primary" id="newGame">▶ New Game</button>
-        <button class="secondary" id="hintBtn">💡 Hint</button>
-      </div>
-
-      <div class="button-row">
-        <button class="secondary" id="undoBtn">↩ Undo</button>
-        <button class="secondary" id="flipBtn">⇅ Flip Board</button>
-        <button class="danger-button" id="restartBtn">⟳ Restart</button>
-      </div>
-    </section>
-
-    <aside class="panel">
-      <h2 class="panel-title">🤖 Opponent</h2>
-
-      <div class="info-card">
-        <h3 id="botName">Chess Bot</h3>
-        <p id="botDetails">Your selected opponent will appear here.</p>
-        <div class="bot-progress">
-          <span>Bot rating</span>
-          <strong id="botRating">—</strong>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <h3>📜 Move History</h3>
-        <div class="moves" id="moveHistory">
-          <div class="empty-moves">Moves will appear here.</div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <h3>🏆 Bot Progress</h3>
-        <p id="progressText">Win against a bot to unlock the next challenge.</p>
-        <div class="bot-progress">
-          <span>Unlocked</span>
-          <strong id="unlockedCount">1 / 10</strong>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <h3>🧠 How to Play</h3>
-        <p>
-          Select a piece and then its destination. Use Hint for a suggested
-          move, Undo to take back moves, and Restart to reset the game.
-          In Pass &amp; Play, two people share the same device.
-        </p>
-      </div>
-    </aside>
-  </div>
-
-  <div class="footer">
-    Chess Universe · Advanced Bot Arena
-  </div>
+<header><div class="brand">♟ CHESS <span>UNIVERSE</span></div><a href="bots.html">← Back to Bots</a></header>
+<main>
+<h1>Bot Arena</h1>
+<p class="sub">Play against a bot, practise with a friend and unlock new levels.</p>
+<div class="layout">
+<section class="panel">
+<h2>♟ Chess Board</h2>
+<div class="controls">
+<div><label for="mode">Game mode</label><select id="mode"><option value="bot">Play vs Bot</option><option value="pass">Pass &amp; Play</option></select></div>
+<div><label for="side">Play as</label><select id="side"><option value="white">White</option><option value="black">Black</option><option value="random">Random</option></select></div>
+</div>
+<div id="board" class="board" aria-label="Chess board"></div>
+<p class="note">Tap a piece, then tap its destination.</p>
+<div id="status" class="status" role="status"><b>Status:</b> Loading chess rules…</div>
+<div id="promotion" class="promotion">
+<button data-p="q">♕ Queen</button><button data-p="r">♖ Rook</button><button data-p="b">♗ Bishop</button><button data-p="n">♘ Knight</button>
+</div>
+<div class="buttons"><button id="new" class="btn primary">▶ New Game</button><button id="hint" class="btn">💡 Hint</button></div>
+<div class="buttons"><button id="undo" class="btn">↩ Undo</button><button id="flip" class="btn">⇅ Flip Board</button><button id="restart" class="btn">⟳ Restart</button></div>
+</section>
+<aside class="panel">
+<h2>🤖 Opponent</h2>
+<div class="card"><b id="botName">Rookie Bot</b><p id="botDesc" class="muted">Bot difficulty</p><div class="stat"><span>Rating</span><b id="rating">200</b></div></div>
+<div class="card"><h2>📜 Move History</h2><div id="history" class="moves">No moves yet.</div></div>
+<div class="card"><h2>🏆 Progress</h2><p id="progressText" class="muted">Beat the current bot to unlock the next level.</p><div class="stat"><span>Unlocked</span><b id="unlocked">1 / 10</b></div></div>
+<div class="card muted">The bot uses a lightweight move evaluator. Difficulty ratings are approximate, not official engine ratings.</div>
+</aside>
+</div>
+<footer>Chess Universe · Bot Arena</footer>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
 <script>
+(function(){
 "use strict";
-
-/* ==========================================
-   CHESS UNIVERSE — ADVANCED BOT
-   PART 3: ENGINE SETUP & GAME STATE
-========================================== */
-
-const $ = id => document.getElementById(id);
-
-const boardElement = $("board");
-const statusElement = $("status");
-const historyElement = $("moveHistory");
-
-const modeSelect = $("gameMode");
-const sideSelect = $("playerSide");
-
-const newGameButton = $("newGame");
-const hintButton = $("hintBtn");
-const undoButton = $("undoBtn");
-const flipButton = $("flipBtn");
-const restartButton = $("restartBtn");
-
-const PIECES = {
-  w: {
-    k: "♔",
-    q: "♕",
-    r: "♖",
-    b: "♗",
-    n: "♘",
-    p: "♙"
-  },
-  b: {
-    k: "♚",
-    q: "♛",
-    r: "♜",
-    b: "♝",
-    n: "♞",
-    p: "♟"
-  }
-};
-
-const BOT_LEVELS = [
-  { level: 1, name: "Rookie Bot", rating: 200 },
-  { level: 2, name: "Learner Bot", rating: 400 },
-  { level: 3, name: "Club Bot", rating: 600 },
-  { level: 4, name: "Skilled Bot", rating: 800 },
-  { level: 5, name: "Tactical Bot", rating: 1000 },
-  { level: 6, name: "Expert Bot", rating: 1200 },
-  { level: 7, name: "Master Bot", rating: 1400 },
-  { level: 8, name: "Elite Bot", rating: 1600 },
-  { level: 9, name: "Grandmaster Bot", rating: 1800 },
-  { level: 10, name: "Legend Bot", rating: 2000 }
+const $=id=>document.getElementById(id);
+const LIBRARIES=[
+"https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js",
+"https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"
 ];
+const GLYPH={w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}};
+const VALUE={p:100,n:320,b:330,r:500,q:900,k:20000};
+const BOTS=[
+["Rookie Bot",200],["Learner Bot",400],["Club Bot",600],
+["Skilled Bot",800],["Tactical Bot",1000],["Expert Bot",1200],
+["Master Bot",1400],["Elite Bot",1600],["Grandmaster Bot",1800],["Legend Bot",2000]
+];
+const KEY="chessUniverseBotProgress";
+let chess=null,libIndex=0,selected=null,targets=[],hint=null,flipped=false;
+let mode="bot",player="w",botLevel=1,gameOver=false,thinking=false;
+let pendingPromotion=null,botTimer=null,resultSaved=false;
 
-let chess;
-let selectedSquare = null;
-let legalTargets = [];
-let flipped = false;
-let gameOver = false;
-let thinking = false;
-let hintMove = null;
-let lastMove = null;
-let pendingPromotion = null;
-let currentBot = BOT_LEVELS[0];
-let playerColor = "w";
-let gameMode = "bot";
-let gameStarted = false;
-let gameResultSaved = false;
-let stockfish = null;
-let engineReady = false;
-let engineFailed = false;
-let engineRequest = null;
-let engineRequestId = 0;
-
-/* Persistent progression shared with bots.html. */
-const PROGRESS_KEY = "chessUniverseBotProgress";
-
-function readProgress() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
-    const unlocked = Number(saved.unlocked || saved.unlockedLevel || 1);
-
-    return {
-      unlocked: Math.max(1, Math.min(10, unlocked)),
-      wins: Number(saved.wins || 0)
-    };
-  } catch (error) {
-    return { unlocked: 1, wins: 0 };
-  }
+function setStatus(message,type){
+ const el=$("status");el.replaceChildren();
+ const b=document.createElement("b");b.textContent=(type==="error"?"Error: ":type==="success"?"Result: ":"Status: ");
+ el.append(b,document.createTextNode(message));
 }
-
-function saveProgress(progress) {
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
-  } catch (error) {
-    console.warn("Could not save bot progress.", error);
-  }
+function loadLibrary(){
+ if(typeof window.Chess==="function"){startApp();return}
+ if(libIndex>=LIBRARIES.length){
+  setStatus("Chess rules library could not load. Check internet, reload this page, or try again later.","error");
+  return;
+ }
+ const s=document.createElement("script");s.src=LIBRARIES[libIndex++];s.async=true;
+ s.onload=()=>{if(typeof window.Chess==="function")startApp();else loadLibrary()};
+ s.onerror=loadLibrary;document.head.appendChild(s);
 }
-
-function loadSelectedBot() {
-  let selected = null;
-
-  try {
-    selected = JSON.parse(
-      sessionStorage.getItem("chessUniverseSelectedBot") || "null"
-    );
-  } catch (error) {
-    selected = null;
-  }
-
-  const progress = readProgress();
-
-  if (selected && Number.isFinite(Number(selected.level))) {
-    const requestedLevel = Math.max(1, Math.min(10, Number(selected.level)));
-    const allowedLevel = Math.min(requestedLevel, progress.unlocked);
-
-    currentBot = BOT_LEVELS[allowedLevel - 1];
-  } else {
-    currentBot = BOT_LEVELS[0];
-  }
+function readProgress(){
+ try{const p=JSON.parse(localStorage.getItem(KEY)||"{}");return{unlocked:Math.max(1,Math.min(10,Number(p.unlocked||p.unlockedLevel||1))),wins:Number(p.wins||0)}}catch(e){return{unlocked:1,wins:0}}
 }
-
-function updateBotPanel() {
-  const progress = readProgress();
-
-  $("botName").textContent = currentBot.name;
-  $("botDetails").textContent =
-    "Challenge level " + currentBot.level + " of 10.";
-
-  $("botRating").textContent = currentBot.rating;
-  $("unlockedCount").textContent = progress.unlocked + " / 10";
-
-  $("progressText").textContent =
-    progress.unlocked >= 10
-      ? "All bots unlocked. Keep improving your chess."
-      : "Win against level " + currentBot.level +
-        " to work toward the next challenge.";
+function saveProgress(p){try{localStorage.setItem(KEY,JSON.stringify(p))}catch(e){}}
+function loadBot(){
+ let saved=null;try{saved=JSON.parse(sessionStorage.getItem("chessUniverseSelectedBot")||"null")}catch(e){}
+ const p=readProgress();let level=Number(saved&&saved.level)||1;
+ botLevel=Math.max(1,Math.min(p.unlocked,10,level));updateBotPanel();
 }
-
-function setStatus(message, type = "normal") {
-  const color = type === "error"
-    ? "#ff8b98"
-    : type === "success"
-      ? "#59e0b0"
-      : "#f2f5fa";
-
-  statusElement.innerHTML = "";
-
-  const strong = document.createElement("strong");
-  strong.style.color = color;
-  strong.textContent = type === "success"
-    ? "Great! "
-    : type === "error"
-      ? "Notice: "
-      : "Status: ";
-
-  const text = document.createElement("span");
-  text.textContent = message;
-
-  statusElement.append(strong, text);
+function updateBotPanel(){
+ const p=readProgress(),b=BOTS[botLevel-1];
+ $("botName").textContent=b[0];$("botDesc").textContent="Challenge level "+botLevel+" of 10";
+ $("rating").textContent=b[1];$("unlocked").textContent=p.unlocked+" / 10";
+ $("progressText").textContent=p.unlocked===10?"All levels unlocked.":"Beat level "+botLevel+" to unlock the next bot.";
 }
-
-function clearSelection() {
-  selectedSquare = null;
-  legalTargets = [];
+function cancelBot(){clearTimeout(botTimer);botTimer=null;thinking=false}
+function clearPick(){selected=null;targets=[];hint=null;pendingPromotion=null;$("promotion").classList.remove("show")}
+function startApp(){
+ if(chess)return;
+ loadBot();chess=new window.Chess();
+ $("new").addEventListener("click",newGame);
+ $("restart").addEventListener("click",restart);
+ $("undo").addEventListener("click",undo);
+ $("hint").addEventListener("click",showHint);
+ $("flip").addEventListener("click",()=>{flipped=!flipped;render()});
+ $("mode").addEventListener("change",newGame);
+ $("side").addEventListener("change",newGame);
+ $("promotion").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+  if(!pendingPromotion)return;
+  const p=pendingPromotion;pendingPromotion=null;$("promotion").classList.remove("show");
+  playMove(p.from,p.to,b.dataset.p);
+ }));
+ newGame();
 }
-
-function clearHint() {
-  hintMove = null;
+function render(){
+ if(!chess)return;
+ const board=$("board");board.replaceChildren();
+ const files=flipped?"hgfedcba":"abcdefgh",ranks=flipped?[1,2,3,4,5,6,7,8]:[8,7,6,5,4,3,2,1];
+ const hist=chess.history({verbose:true}),last=hist[hist.length-1];
+ ranks.forEach(rank=>{for(const file of files){
+  const sq=file+rank,piece=chess.get(sq),btn=document.createElement("button");
+  btn.type="button";btn.className="sq "+(((file.charCodeAt(0)-97)+rank)%2===0?"light":"dark");
+  btn.dataset.sq=sq;btn.setAttribute("aria-label",sq+(piece?" "+piece.color+" "+piece.type:""));
+  if(selected===sq)btn.classList.add("selected");
+  if(targets.includes(sq))btn.classList.add(piece?"capture":"target");
+  if(hint&&hint.from===sq)btn.classList.add("hintfrom");
+  if(hint&&hint.to===sq)btn.classList.add("hintto");
+  if(last&&(last.from===sq||last.to===sq))btn.style.backgroundImage="linear-gradient(#ffe06444,#ffe06444)";
+  if(piece)btn.append(document.createTextNode(GLYPH[piece.color][piece.type]));
+  if((!flipped&&file==="a")||(flipped&&file==="h")){const c=document.createElement("span");c.className="coord";c.textContent=rank;btn.append(c)}
+  if((!flipped&&rank===1)||(flipped&&rank===8)){const c=document.createElement("span");c.className="coord";c.style.left="auto";c.style.right="3px";c.textContent=file;btn.append(c)}
+  btn.addEventListener("click",()=>squareClick(sq));board.append(btn);
+ }});
+ renderHistory();$("undo").disabled=!chess.history().length||thinking;
+ $("hint").disabled=gameOver||thinking||mode!=="bot";
 }
-
-function resetTransientState() {
-  clearSelection();
-  clearHint();
-  pendingPromotion = null;
-  $("promotion").classList.remove("show");
+function renderHistory(){
+ const el=$("history");el.replaceChildren();const m=chess.history();
+ if(!m.length){el.textContent="No moves yet.";return}
+ for(let i=0;i<m.length;i+=2){const row=document.createElement("div");row.className="move";
+  [Math.floor(i/2)+1+".",m[i]||"",m[i+1]||""].forEach(v=>{const s=document.createElement("span");s.textContent=v;row.append(s)});
+  el.append(row);
+ }el.scrollTop=el.scrollHeight;
 }
-
-function getSelectedSide() {
-  const choice = sideSelect.value;
-
-  if (choice === "random") {
-    return Math.random() < 0.5 ? "w" : "b";
+function canPlay(){return chess&&!gameOver&&!thinking&&(mode==="pass"||chess.turn()===player)}
+function squareClick(sq){
+ if(!canPlay()){if(thinking)setStatus("Bot is thinking…");return}
+ hint=null;const piece=chess.get(sq);
+ if(selected&&targets.includes(sq)){
+  const moving=chess.get(selected);
+  if(moving&&moving.type==="p"&&(sq.endsWith("8")||sq.endsWith("1"))){
+   pendingPromotion={from:selected,to:sq};$("promotion").classList.add("show");render();setStatus("Choose promotion piece.");return;
   }
-
-  return choice === "black" ? "b" : "w";
+  playMove(selected,sq,"q");return;
+ }
+ if(piece&&(mode==="pass"?piece.color===chess.turn():piece.color===player)){
+  selected=sq;targets=chess.moves({square:sq,verbose:true}).map(m=>m.to);render();return;
+ }
+ selected=null;targets=[];render();
 }
-
-function isPlayersTurn() {
-  if (!chess || gameOver || thinking) return false;
-
-  return gameMode === "pass" || chess.turn() === playerColor;
+function playMove(from,to,promotion){
+ const result=chess.move({from,to,promotion:promotion||"q"});
+ if(!result){clearPick();render();setStatus("That move is not legal.","error");return}
+ clearPick();render();
+ if(checkEnd())return;
+ if(mode==="bot"&&chess.turn()!==player)queueBot();
+ else setStatus(chess.in_check()?"Check! Protect your king.":(chess.turn()==="w"?"White":"Black")+" to move.");
 }
-
-function pieceBelongsToCurrentPlayer(square) {
-  const piece = chess.get(square);
-
-  if (!piece) return false;
-
-  return gameMode === "pass"
-    ? piece.color === chess.turn()
-    : piece.color === playerColor;
+function checkEnd(){
+ let message=null;
+ if(chess.in_checkmate())message=(chess.turn()==="w"?"Black":"White")+" wins by checkmate!";
+ else if(chess.in_stalemate())message="Draw by stalemate.";
+ else if(chess.in_threefold_repetition())message="Draw by repetition.";
+ else if(chess.insufficient_material())message="Draw: insufficient material.";
+ else if(chess.in_draw())message="Game drawn.";
+ if(!message)return false;
+ gameOver=true;setStatus(message,"success");saveResult(message);render();return true;
 }
-
-function cancelEngineRequest() {
-  engineRequestId++;
-
-  if (engineRequest) {
-    clearTimeout(engineRequest.timeout);
-    engineRequest = null;
-  }
+function saveResult(message){
+ if(resultSaved)return;resultSaved=true;
+ if(mode!=="bot")return;
+ const won=message.startsWith((player==="w"?"White":"Black")+" wins");
+ if(!won)return;
+ const p=readProgress();p.wins++;
+ if(botLevel>=p.unlocked)p.unlocked=Math.min(10,botLevel+1);
+ saveProgress(p);updateBotPanel();
+ setStatus(botLevel===10?"You beat the final bot! All levels completed.":"Victory! "+BOTS[Math.min(9,botLevel)][0]+" unlocked.","success");
 }
-<script>
-/* ==========================================
-   PART 4: BOARD, LEGAL MOVES & MOVE HISTORY
-========================================== */
-
-function renderBoard() {
-  if (!chess) return;
-
-  boardElement.innerHTML = "";
-
-  const files = flipped
-    ? ["h", "g", "f", "e", "d", "c", "b", "a"]
-    : ["a", "b", "c", "d", "e", "f", "g", "h"];
-
-  const ranks = flipped
-    ? [1, 2, 3, 4, 5, 6, 7, 8]
-    : [8, 7, 6, 5, 4, 3, 2, 1];
-
-  const history = chess.history({ verbose: true });
-  lastMove = history.length ? history[history.length - 1] : null;
-
-  for (const rank of ranks) {
-    for (const file of files) {
-      const squareName = file + rank;
-      const piece = chess.get(squareName);
-      const fileIndex = file.charCodeAt(0) - 97;
-
-      const isLight = (fileIndex + rank) % 2 === 0;
-
-      const square = document.createElement("button");
-      square.type = "button";
-      square.className = "square " + (isLight ? "light" : "dark");
-      square.dataset.square = squareName;
-      square.setAttribute("role", "gridcell");
-      square.setAttribute(
-        "aria-label",
-        squareName + (piece ? " " + piece.color + " " + piece.type : "")
-      );
-
-      if (selectedSquare === squareName) {
-        square.classList.add("selected");
-      }
-
-      if (legalTargets.includes(squareName)) {
-        const targetPiece = chess.get(squareName);
-
-        square.classList.add(
-          targetPiece ? "capture" : "legal"
-        );
-      }
-
-      if (
-        lastMove &&
-        (lastMove.from === squareName || lastMove.to === squareName)
-      ) {
-        square.classList.add("last-move");
-      }
-
-      if (
-        hintMove &&
-        hintMove.from === squareName
-      ) {
-        square.classList.add("hint-from");
-      }
-
-      if (
-        hintMove &&
-        hintMove.to === squareName
-      ) {
-        square.classList.add("hint-to");
-      }
-
-      if (
-        piece &&
-        piece.type === "k" &&
-        piece.color === chess.turn() &&
-        chess.in_check()
-      ) {
-        square.classList.add("in-check");
-      }
-
-      if (piece) {
-        const glyph = document.createElement("span");
-        glyph.className = "piece";
-        glyph.textContent = PIECES[piece.color][piece.type];
-        square.appendChild(glyph);
-      }
-
-      if (
-        (!flipped && file === "a") ||
-        (flipped && file === "h")
-      ) {
-        const coordinate = document.createElement("span");
-        coordinate.className = "coordinates";
-        coordinate.textContent = rank;
-        square.appendChild(coordinate);
-      }
-
-      if (
-        (!flipped && rank === 1) ||
-        (flipped && rank === 8)
-      ) {
-        const coordinate = document.createElement("span");
-        coordinate.className = "coordinates";
-        coordinate.style.left = "auto";
-        coordinate.style.right = "3px";
-        coordinate.textContent = file;
-        square.appendChild(coordinate);
-      }
-
-      square.addEventListener("click", () => handleSquareClick(squareName));
-      boardElement.appendChild(square);
-    }
-  }
-
-  updateMoveHistory();
-  updateButtons();
+function evaluate(){
+ let score=0;const board=chess.board();
+ for(let r=0;r<8;r++)for(let f=0;f<8;f++){
+  const p=board[r][f];if(!p)continue;const sign=p.color==="w"?1:-1;
+  score+=sign*(VALUE[p.type]||0);
+  if(p.type==="p")score+=sign*(p.color==="w"?6-r:r-1)*5;
+  if(p.type==="n"||p.type==="b")score+=sign*(7-Math.abs(3.5-f)-Math.abs(3.5-r))*4;
+ }
+ return chess.turn()==="w"?score:-score;
 }
-
-function updateMoveHistory() {
-  if (!chess) return;
-
-  const history = chess.history();
-
-  historyElement.innerHTML = "";
-
-  if (!history.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty-moves";
-    empty.textContent = "Moves will appear here.";
-    historyElement.appendChild(empty);
-    return;
-  }
-
-  for (let i = 0; i < history.length; i += 2) {
-    const row = document.createElement("div");
-    row.className = "move-row";
-
-    const number = document.createElement("span");
-    number.className = "move-number";
-    number.textContent = (Math.floor(i / 2) + 1) + ".";
-
-    const whiteMove = document.createElement("span");
-    whiteMove.className = "move-white";
-    whiteMove.textContent = history[i] || "";
-
-    const blackMove = document.createElement("span");
-    blackMove.className = "move-black";
-    blackMove.textContent = history[i + 1] || "";
-
-    row.append(number, whiteMove, blackMove);
-    historyElement.appendChild(row);
-  }
-
-  historyElement.scrollTop = historyElement.scrollHeight;
+function chooseMove(level){
+ const moves=chess.moves({verbose:true});if(!moves.length)return null;
+ let best=-Infinity,candidates=[];
+ for(const m of moves){
+  chess.move({from:m.from,to:m.to,promotion:m.promotion||"q"});
+  let score=chess.in_checkmate()?100000:-evaluate();
+  if(m.captured)score+=(VALUE[m.captured]||0)*.8;
+  if(m.promotion)score+=800;
+  if(m.san&&m.san.includes("+"))score+=30;
+  chess.undo();
+  score+=Math.random()*(level<=2?300:level<=4?180:level<=6?90:level<=8?35:12);
+  if(score>best){best=score;candidates=[m]}else if(score>=best-18)candidates.push(m);
+ }
+ return candidates[Math.floor(Math.random()*candidates.length)]||moves[0];
 }
-
-function updateButtons() {
-  if (!chess) return;
-
-  const hasMoves = chess.history().length > 0;
-
-  undoButton.disabled = !hasMoves || thinking;
-  hintButton.disabled = gameOver || thinking || gameMode === "pass";
-  restartButton.disabled = thinking;
+function queueBot(){
+ if(gameOver||mode!=="bot"||chess.turn()===player)return;
+ thinking=true;render();setStatus(BOTS[botLevel-1][0]+" is thinking…");
+ botTimer=setTimeout(()=>{
+  thinking=false;if(gameOver||mode!=="bot"||chess.turn()===player)return;
+  const m=chooseMove(botLevel);if(!m){checkEnd();return}
+  playMove(m.from,m.to,m.promotion||"q");
+ },Math.max(180,750-botLevel*45));
 }
-
-function handleSquareClick(squareName) {
-  if (!chess || gameOver || thinking) return;
-
-  if (!isPlayersTurn()) {
-    setStatus("Wait for the bot to finish its move.");
-    return;
-  }
-
-  clearHint();
-
-  const clickedPiece = chess.get(squareName);
-
-  if (selectedSquare && legalTargets.includes(squareName)) {
-    const movingPiece = chess.get(selectedSquare);
-
-    if (
-      movingPiece &&
-      movingPiece.type === "p" &&
-      (squareName.endsWith("8") || squareName.endsWith("1"))
-    ) {
-      pendingPromotion = {
-        from: selectedSquare,
-        to: squareName
-      };
-
-      $("promotion").classList.add("show");
-      setStatus("Choose the piece for pawn promotion.");
-      renderBoard();
-      return;
-    }
-
-    makePlayerMove(selectedSquare, squareName, "q");
-    return;
-  }
-
-  if (clickedPiece && pieceBelongsToCurrentPlayer(squareName)) {
-    selectedSquare = squareName;
-
-    legalTargets = chess
-      .moves({ square: squareName, verbose: true })
-      .map(move => move.to);
-
-    renderBoard();
-    return;
-  }
-
-  clearSelection();
-  renderBoard();
+function showHint(){
+ if(mode!=="bot"||gameOver||thinking||chess.turn()!==player){setStatus("Hint is available on your turn in a bot game.");return}
+ const m=chooseMove(10);if(!m)return;
+ hint={from:m.from,to:m.to};render();setStatus("Suggested move: "+m.from+" to "+m.to+". Blue is the start; yellow is the destination.");
 }
-
-function makePlayerMove(from, to, promotion = "q") {
-  try {
-    const move = chess.move({
-      from,
-      to,
-      promotion
-    });
-
-    if (!move) {
-      setStatus("That move is not legal.", "error");
-      clearSelection();
-      renderBoard();
-      return;
-    }
-
-    resetTransientState();
-    afterMove("player");
-  } catch (error) {
-    console.error("Move error:", error);
-    setStatus("Could not make that move. Try another square.", "error");
-  }
+function newGame(){
+ if(!chess){setStatus("Chess rules library is still loading.");return}
+ cancelBot();mode=$("mode").value;
+ const side=$("side").value;player=side==="random"?(Math.random()<.5?"w":"b"):(side==="black"?"b":"w");
+ chess.reset();gameOver=false;resultSaved=false;clearPick();render();
+ if(mode==="pass"){setStatus("Pass & Play started. White moves first.");return}
+ setStatus("You are playing as "+(player==="w"?"White":"Black")+".");
+ if(chess.turn()!==player)queueBot();
 }
-
-function afterMove(source) {
-  clearSelection();
-  clearHint();
-  renderBoard();
-
-  if (checkGameOver()) return;
-
-  if (gameMode === "bot" && chess.turn() !== playerColor) {
-    scheduleBotMove();
-  } else {
-    const side = chess.turn() === "w" ? "White" : "Black";
-    setStatus(side + " to move.");
-  }
+function restart(){
+ if(!chess)return;cancelBot();chess.reset();gameOver=false;resultSaved=false;clearPick();render();
+ if(mode==="bot"&&chess.turn()!==player)queueBot();else setStatus("Game restarted. White moves first.");
 }
-
-$("promotion").querySelectorAll("[data-promote]").forEach(button => {
-  button.addEventListener("click", () => {
-    if (!pendingPromotion) return;
-
-    const pending = pendingPromotion;
-    const promotion = button.dataset.promote;
-
-    $("promotion").classList.remove("show");
-    pendingPromotion = null;
-
-    makePlayerMove(pending.from, pending.to, promotion);
-  });
-});
-</script>
-<script>
-/* ==========================================
-   PART 5: STOCKFISH ENGINE & BOT AI
-========================================== */
-
-function loadStockfish() {
-  if (stockfish || engineFailed) return;
-
-  try {
-    stockfish = new Worker(
-      "https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js"
-    );
-
-    stockfish.onmessage = event => {
-      const message = String(event.data || "");
-
-      if (message === "uciok") {
-        stockfish.postMessage("isready");
-        return;
-      }
-
-      if (message === "readyok") {
-        engineReady = true;
-        return;
-      }
-
-      if (message.startsWith("bestmove")) {
-        handleEngineBestMove(message);
-      }
-    };
-
-    stockfish.onerror = error => {
-      console.warn("Stockfish unavailable:", error);
-      engineFailed = true;
-      engineReady = false;
-
-      if (thinking && engineRequest) {
-        clearTimeout(engineRequest.timeout);
-        engineRequest = null;
-        thinking = false;
-        fallbackBotMove();
-      }
-    };
-
-    stockfish.postMessage("uci");
-  } catch (error) {
-    console.warn("Engine could not start:", error);
-    engineFailed = true;
-    stockfish = null;
-  }
+function undo(){
+ if(!chess||thinking||!chess.history().length){setStatus("No move available to undo.");return}
+ cancelBot();gameOver=false;resultSaved=false;clearPick();chess.undo();
+ if(mode==="bot"&&chess.history().length&&chess.turn()!==player)chess.undo();
+ render();setStatus("Move undone.");
 }
-
-function scheduleBotMove() {
-  if (
-    !chess ||
-    gameOver ||
-    gameMode !== "bot" ||
-    chess.turn() === playerColor
-  ) {
-    return;
-  }
-
-  thinking = true;
-  clearSelection();
-  clearHint();
-  setStatus(currentBot.name + " is thinking...");
-  updateButtons();
-
-  loadStockfish();
-
-  if (engineReady && stockfish) {
-    askEngineForMove();
-  } else {
-    /*
-      Wait briefly for Stockfish to initialise.
-      If unavailable, use the built-in fallback.
-    */
-    engineRequest = {
-      timeout: setTimeout(() => {
-        engineRequest = null;
-        thinking = false;
-        fallbackBotMove();
-      }, 1800)
-    };
-  }
-}
-
-function askEngineForMove() {
-  if (!stockfish || !engineReady || gameOver) {
-    thinking = false;
-    fallbackBotMove();
-    return;
-  }
-
-  if (engineRequest) {
-    clearTimeout(engineRequest.timeout);
-  }
-
-  const requestId = ++engineRequestId;
-
-  engineRequest = {
-    id: requestId,
-    timeout: setTimeout(() => {
-      if (requestId !== engineRequestId) return;
-
-      engineRequest = null;
-      thinking = false;
-      fallbackBotMove();
-    }, 5000)
-  };
-
-  const skill = Math.max(
-    0,
-    Math.min(20, Math.round((currentBot.level - 1) * 2.2))
-  );
-
-  stockfish.postMessage("stop");
-  stockfish.postMessage("ucinewgame");
-  stockfish.postMessage("setoption name Skill Level value " + skill);
-  stockfish.postMessage("position fen " + chess.fen());
-  stockfish.postMessage("go movetime " + (250 + currentBot.level * 100));
-}
-
-function handleEngineBestMove(message) {
-  if (!engineRequest || gameOver) return;
-
-  clearTimeout(engineRequest.timeout);
-  engineRequest = null;
-
-  const parts = message.trim().split(/\s+/);
-  const uci = parts[1];
-
-  if (!uci || uci === "(none)" || uci === "0000") {
-    thinking = false;
-    checkGameOver();
-    updateButtons();
-    return;
-  }
-
-  const move = {
-    from: uci.slice(0, 2),
-    to: uci.slice(2, 4)
-  };
-
-  if (uci.length >= 5) {
-    move.promotion = uci[4].toLowerCase();
-  }
-
-  thinking = false;
-
-  try {
-    const result = chess.move(move);
-
-    if (!result) {
-      fallbackBotMove();
-      return;
-    }
-
-    afterMove("bot");
-  } catch (error) {
-    console.error("Bot move failed:", error);
-    fallbackBotMove();
-  }
-}
-
-/* Built-in fallback if the external engine cannot load. */
-const PIECE_VALUE = {
-  p: 100,
-  n: 320,
-  b: 330,
-  r: 500,
-  q: 900,
-  k: 20000
-};
-
-function evaluatePosition() {
-  let score = 0;
-  const board = chess.board();
-
-  for (let rank = 0; rank < 8; rank++) {
-    for (let file = 0; file < 8; file++) {
-      const piece = board[rank][file];
-      if (!piece) continue;
-
-      const value = PIECE_VALUE[piece.type] || 0;
-      const sign = piece.color === "w" ? 1 : -1;
-
-      score += sign * value;
-
-      if (piece.type === "p") {
-        const progress = piece.color === "w" ? 6 - rank : rank - 1;
-        score += sign * progress * 5;
-      }
-
-      if (piece.type === "n" || piece.type === "b") {
-        const centreDistance =
-          Math.abs(3.5 - file) + Math.abs(3.5 - rank);
-
-        score += sign * (7 - centreDistance) * 4;
-      }
-    }
-  }
-
-  return chess.turn() === "w" ? score : -score;
-}
-
-function fallbackBotMove() {
-  if (!chess || gameOver || chess.game_over()) {
-    thinking = false;
-    checkGameOver();
-    return;
-  }
-
-  const legalMoves = chess.moves({ verbose: true });
-
-  if (!legalMoves.length) {
-    thinking = false;
-    checkGameOver();
-    return;
-  }
-
-  const botColor = chess.turn();
-  let bestScore = -Infinity;
-  let candidates = [];
-
-  for (const move of legalMoves) {
-    chess.move({
-      from: move.from,
-      to: move.to,
-      promotion: move.promotion || "q"
-    });
-
-    let score;
-
-    if (chess.in_checkmate()) {
-      score = 100000;
-    } else {
-      score = -evaluatePosition();
-
-      if (move.captured) {
-        score += (PIECE_VALUE[move.captured] || 0) * 0.8;
-      }
-
-      if (move.promotion) {
-        score += 800;
-      }
-
-      if (move.san && move.san.includes("+")) {
-        score += 35;
-      }
-    }
-
-    chess.undo();
-
-    /*
-      Higher levels make more consistent choices.
-      Lower levels deliberately include some variety.
-    */
-    const noise = Math.random() *
-      (currentBot.level <= 2 ? 260 :
-       currentBot.level <= 4 ? 150 :
-       currentBot.level <= 6 ? 75 :
-       currentBot.level <= 8 ? 30 : 8);
-
-    score += noise;
-
-    if (score > bestScore) {
-      bestScore = score;
-      candidates = [move];
-    } else if (score >= bestScore - 20) {
-      candidates.push(move);
-    }
-  }
-
-  const choice = candidates[
-    Math.floor(Math.random() * candidates.length)
-  ] || legalMoves[0];
-
-  thinking = false;
-
-  const played = chess.move({
-    from: choice.from,
-    to: choice.to,
-    promotion: choice.promotion || "q"
-  });
-
-  if (played) {
-    afterMove("bot");
-  } else {
-    setStatus("Bot couldn't find a move. Restart the game.", "error");
-    renderBoard();
-  }
-}
-</script>
-<script>
-/* ==========================================
-   PART 6: HINT, UNDO, RESTART & FLIP
-========================================== */
-
-function getBestHint() {
-  if (!chess || gameOver || thinking || gameMode !== "bot") {
-    setStatus("Hint is available during a bot game when the bot isn't thinking.");
-    return;
-  }
-
-  if (chess.turn() !== playerColor) {
-    setStatus("Wait for your turn before asking for a hint.");
-    return;
-  }
-
-  const moves = chess.moves({ verbose: true });
-
-  if (!moves.length) {
-    checkGameOver();
-    return;
-  }
-
-  let bestMove = null;
-  let bestScore = -Infinity;
-
-  for (const move of moves) {
-    chess.move({
-      from: move.from,
-      to: move.to,
-      promotion: move.promotion || "q"
-    });
-
-    let score;
-
-    if (chess.in_checkmate()) {
-      score = 100000;
-    } else {
-      score = -evaluatePosition();
-
-      if (move.captured) {
-        score += (PIECE_VALUE[move.captured] || 0) * 0.8;
-      }
-
-      if (move.promotion) {
-        score += 800;
-      }
-
-      if (move.san && move.san.includes("+")) {
-        score += 35;
-      }
-    }
-
-    chess.undo();
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestMove = move;
-    }
-  }
-
-  if (!bestMove) {
-    setStatus("No hint is available right now.");
-    return;
-  }
-
-  hintMove = {
-    from: bestMove.from,
-    to: bestMove.to
-  };
-
-  renderBoard();
-
-  setStatus(
-    "Suggested move: " + bestMove.from + " → " + bestMove.to +
-    ". Blue marks the starting square; yellow marks the destination.",
-    "success"
-  );
-}
-
-function undoLastTurn() {
-  if (!chess || thinking) return;
-
-  const history = chess.history();
-
-  if (!history.length) {
-    setStatus("There are no moves to undo.");
-    return;
-  }
-
-  resetTransientState();
-  gameOver = false;
-  gameResultSaved = false;
-
-  if (gameMode === "bot") {
-    /*
-      Undo the bot move and the player's preceding move,
-      when both exist.
-    */
-    chess.undo();
-
-    if (chess.history().length) {
-      chess.undo();
-    }
-  } else {
-    chess.undo();
-  }
-
-  cancelEngineRequest();
-
-  thinking = false;
-  renderBoard();
-
-  setStatus("Move undone. Your game continues.");
-}
-
-function restartGame() {
-  if (thinking) {
-    cancelEngineRequest();
-    thinking = false;
-  }
-
-  chess.reset();
-
-  gameOver = false;
-  gameStarted = true;
-  gameResultSaved = false;
-
-  resetTransientState();
-  renderBoard();
-
-  if (gameMode === "bot" && chess.turn() !== playerColor) {
-    setStatus(currentBot.name + " is thinking...");
-    scheduleBotMove();
-  } else {
-    setStatus("New game started. White moves first.");
-  }
-}
-
-function flipBoard() {
-  flipped = !flipped;
-  renderBoard();
-}
-
-hintButton.addEventListener("click", getBestHint);
-undoButton.addEventListener("click", undoLastTurn);
-flipButton.addEventListener("click", flipBoard);
-restartButton.addEventListener("click", restartGame);
-      </script>
-   <script>
-/* ==========================================
-   PART 7: GAME RESULTS & BOT PROGRESSION
-========================================== */
-
-function checkGameOver() {
-  if (!chess) return false;
-
-  if (chess.in_checkmate()) {
-    gameOver = true;
-
-    const winner = chess.turn() === "w" ? "Black" : "White";
-
-    setStatus("CHECKMATE! " + winner + " wins!", "success");
-
-    handleGameResult(winner);
-    renderBoard();
-
-    return true;
-  }
-
-  if (chess.in_stalemate()) {
-    gameOver = true;
-    setStatus("Draw by stalemate!", "success");
-    renderBoard();
-    return true;
-  }
-
-  if (chess.in_threefold_repetition()) {
-    gameOver = true;
-    setStatus("Draw by threefold repetition.", "success");
-    renderBoard();
-    return true;
-  }
-
-  if (chess.insufficient_material()) {
-    gameOver = true;
-    setStatus("Draw: insufficient material.", "success");
-    renderBoard();
-    return true;
-  }
-
-  if (chess.in_draw()) {
-    gameOver = true;
-    setStatus("Game drawn!", "success");
-    renderBoard();
-    return true;
-  }
-
-  if (chess.in_check()) {
-    setStatus("Check! Protect your king.");
-  }
-
-  return false;
-}
-
-function handleGameResult(winner) {
-  if (gameResultSaved) return;
-
-  gameResultSaved = true;
-
-  if (gameMode !== "bot") {
-    return;
-  }
-
-  const playerWon =
-    (winner === "White" && playerColor === "w") ||
-    (winner === "Black" && playerColor === "b");
-
-  if (!playerWon) {
-    setStatus("Game over. Keep practising and try again.");
-    return;
-  }
-
-  const progress = readProgress();
-
-  if (currentBot.level >= progress.unlocked) {
-    progress.unlocked = Math.min(10, currentBot.level + 1);
-  }
-
-  progress.wins += 1;
-  saveProgress(progress);
-  updateBotPanel();
-
-  if (currentBot.level >= 10) {
-    setStatus(
-      "You defeated the final bot! All 10 levels completed!",
-      "success"
-    );
-  } else {
-    setStatus(
-      "You defeated " + currentBot.name +
-      "! Bot level " + Math.min(10, currentBot.level + 1) +
-      " is now unlocked.",
-      "success"
-    );
-  }
-}
-
-/* ==========================================
-   PART 7: GAME INITIALISATION
-========================================== */
-
-function startNewGame() {
-  if (thinking) {
-    cancelEngineRequest();
-    thinking = false;
-  }
-
-  gameMode = modeSelect.value;
-  playerColor = getSelectedSide();
-
-  chess = new Chess();
-
-  gameOver = false;
-  gameStarted = true;
-  gameResultSaved = false;
-
-  resetTransientState();
-  renderBoard();
-
-  if (gameMode === "pass") {
-    setStatus("Pass & Play started. White moves first.");
-    return;
-  }
-
-  const colorName = playerColor === "w" ? "White" : "Black";
-
-  setStatus("You are playing as " + colorName + ".");
-
-  if (chess.turn() !== playerColor) {
-    scheduleBotMove();
-  }
-}
-
-newGameButton.addEventListener("click", startNewGame);
-
-modeSelect.addEventListener("change", () => {
-  startNewGame();
-});
-
-sideSelect.addEventListener("change", () => {
-  if (gameStarted) startNewGame();
-});
-
-loadSelectedBot();
-updateBotPanel();
-loadStockfish();
-startNewGame();
+loadLibrary();
+})();
 </script>
 </body>
-</html>   
+  </html>
+  
