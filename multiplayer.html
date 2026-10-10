@@ -2,261 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Play Online | Chess Universe</title>
-  
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Multiplayer Arena | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
 
-  <!-- Navbar -->
-  <header class="navbar">
-    <div class="nav-brand">
-      <a href="index.html">
-        <span class="brand-icon">♞</span>
-        <span>CHESS UNIVERSE</span>
-      </a>
+  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
+      <span class="font-bold text-sm tracking-wide text-white">MULTIPLAYER</span>
     </div>
-
-    <div class="nav-links">
-      <a href="index.html" class="nav-item">Lobby</a>
-      <a href="bots.html" class="nav-item">Bots Lounge</a>
-      <a href="multiplayer.html" class="nav-item active text-emerald-400">Play Online</a>
-    </div>
-
-    <div class="user-badge" onclick="window.location.href='index.html'">
-      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="user-avatar" alt="Avatar">
-      <div class="hidden sm:block text-left">
-        <div id="navName" class="user-name">Player</div>
-      </div>
-      <span id="navElo" class="elo-pill">?</span>
-    </div>
+    <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">Hub</a>
   </header>
 
-  <!-- Main Container -->
-  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6 flex flex-col justify-center">
+  <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4">
 
-    <!-- Header Intro -->
-    <div class="text-center space-y-2">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase">
-        <span>🌐</span> Multiplayer Arena
-      </div>
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Challenge Friends or Find Opponents</h1>
-      <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-        Create a 1-tap WhatsApp duel link or invite directly via Player Tag.
-      </p>
-    </div>
-
-    <!-- Match Configuration Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      <!-- WhatsApp / Friend Duel Room -->
-      <div class="glass-card p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
-        <div class="space-y-4">
-          <div class="flex items-center gap-3">
-            <span class="text-3xl">📱</span>
-            <div>
-              <h3 class="text-lg font-extrabold text-white">Create WhatsApp Duel</h3>
-              <p class="text-xs text-slate-400">Instant synced board link for friends</p>
-            </div>
+    <!-- Online PvP -->
+    <a href="online.html" class="block bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 p-5 rounded-2xl transition group shadow-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-2xl text-sky-400">
+            ⚡
           </div>
-
-          <!-- Rated vs Friendly -->
           <div>
-            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Match Type</label>
-            <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
-              <button id="btnModeRated" class="py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition">
-                ⚡ Rated (Elo)
-              </button>
-              <button id="btnModeFriendly" class="py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition">
-                ☕ Friendly (Casual)
-              </button>
-            </div>
+            <h3 class="text-sm font-bold text-white group-hover:text-sky-400 transition">Random Online Match</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Quick matchmaking with random opponents</p>
           </div>
+        </div>
+        <span class="text-slate-500 text-lg group-hover:translate-x-0.5 transition">→</span>
+      </div>
+    </a>
 
-          <!-- Color Chooser -->
+    <!-- Friend Duel -->
+    <a href="friend.html" class="block bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 p-5 rounded-2xl transition group shadow-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl text-emerald-400">
+            👥
+          </div>
           <div>
-            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Your Piece Color</label>
-            <div class="grid grid-cols-2 gap-2">
-              <button id="btnSideWhite" class="py-2.5 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition">White ♔</button>
-              <button id="btnSideBlack" class="py-2.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition">Black ♚</button>
-            </div>
+            <h3 class="text-sm font-bold text-white group-hover:text-emerald-400 transition">10-Digit UID Friend Duel</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Search friends, room codes & direct WhatsApp invite</p>
           </div>
         </div>
-
-        <div class="space-y-2 pt-2">
-          <button id="btnWhatsAppInvite" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-black py-3.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition">
-            <span>Invite on WhatsApp</span>
-            <span>💬</span>
-          </button>
-          <button id="btnCopyLink" class="w-full btn-secondary py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
-            <span>📋</span>
-            <span id="copyTxt">Copy Direct Game Link</span>
-          </button>
-        </div>
+        <span class="text-slate-500 text-lg group-hover:translate-x-0.5 transition">→</span>
       </div>
-
-      <!-- Live Radar Matchmaking -->
-      <div class="glass-card p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
-        <div class="space-y-4">
-          <div class="flex items-center gap-3">
-            <span class="text-3xl">📡</span>
-            <div>
-              <h3 class="text-lg font-extrabold text-white">Live Radar Search</h3>
-              <p class="text-xs text-slate-400">Match against online players instantly</p>
-            </div>
-          </div>
-
-          <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-3">
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-400">Radar Pool:</span>
-              <span class="font-bold text-emerald-400">Global Rapid Queue</span>
-            </div>
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-400">Clock Format:</span>
-              <span class="font-bold text-slate-200">10 Min Rapid</span>
-            </div>
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-400">Fair Play Shield:</span>
-              <span class="font-bold text-amber-400">Protected</span>
-            </div>
-          </div>
-
-          <div id="radarSearching" class="hidden text-center py-4 space-y-3">
-            <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
-              <div class="absolute inset-0 rounded-full border-2 border-emerald-500 animate-ping opacity-40"></div>
-              <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl font-bold">
-                ♞
-              </div>
-            </div>
-            <p class="text-xs text-emerald-400 font-bold animate-pulse">Searching for live opponent...</p>
-          </div>
-        </div>
-
-        <button id="btnStartRadar" class="w-full btn-primary py-3.5 rounded-xl text-xs sm:text-sm font-extrabold">
-          Find Match On Radar ⚡
-        </button>
-      </div>
-
-    </div>
+    </a>
 
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-
-    if (!localStorage.getItem('chess_auth')) {
-      window.location.href = 'login.html';
-    }
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
-      authDomain: "chess-universe-5a7cb.firebaseapp.com",
-      projectId: "chess-universe-5a7cb",
-      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
-      messagingSenderId: "145519167856",
-      appId: "1:145519167856:web:bf124bc275895447fd27b5"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const userName = localStorage.getItem('chess_name') || 'Player';
-    const userElo = localStorage.getItem('chess_rating') || '?';
-    document.getElementById('navName').innerText = userName;
-    document.getElementById('navAvatar').src = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Player';
-    document.getElementById('navElo').innerText = userElo;
-
-    let selectedMode = 'rated';
-    let selectedSide = 'white';
-
-    // Mode Toggle
-    const btnRated = document.getElementById('btnModeRated');
-    const btnFriendly = document.getElementById('btnModeFriendly');
-    btnRated.onclick = () => {
-      selectedMode = 'rated';
-      btnRated.className = "py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition";
-      btnFriendly.className = "py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition";
-    };
-    btnFriendly.onclick = () => {
-      selectedMode = 'friendly';
-      btnFriendly.className = "py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition";
-      btnRated.className = "py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition";
-    };
-
-    // Color Toggle
-    const btnWhite = document.getElementById('btnSideWhite');
-    const btnBlack = document.getElementById('btnSideBlack');
-    btnWhite.onclick = () => {
-      selectedSide = 'white';
-      btnWhite.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition";
-      btnBlack.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition";
-    };
-    btnBlack.onclick = () => {
-      selectedSide = 'black';
-      btnBlack.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition";
-      btnWhite.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition";
-    };
-
-    async function generateRoomLinks() {
-      const roomId = 'room_' + Math.random().toString(36).substring(2, 9);
-      const guestSide = selectedSide === 'white' ? 'black' : 'white';
-
-      const matchData = {
-        roomId: roomId,
-        creator: userName,
-        creatorSide: selectedSide,
-        matchType: selectedMode,
-        white: selectedSide === 'white' ? userName : null,
-        whiteElo: selectedSide === 'white' ? userElo : null,
-        black: selectedSide === 'black' ? userName : null,
-        blackElo: selectedSide === 'black' ? userElo : null,
-        fen: 'start',
-        turn: 'w',
-        status: 'waiting',
-        updatedAt: Date.now()
-      };
-
-      await setDoc(doc(db, "matches", roomId), matchData);
-
-      const cleanOrigin = window.location.href.split('multiplayer.html')[0];
-      const hostUrl = `${cleanOrigin}game.html?mode=pvp&room=${roomId}&side=${selectedSide}&matchType=${selectedMode}`;
-      const guestUrl = `${cleanOrigin}game.html?mode=pvp&room=${roomId}&side=${guestSide}&matchType=${selectedMode}`;
-
-      return { hostUrl, guestUrl };
-    }
-
-    // 1-Tap WhatsApp Share
-    document.getElementById('btnWhatsAppInvite').onclick = async () => {
-      const { hostUrl, guestUrl } = await generateRoomLinks();
-      const text = `⚔️ ${userName} has challenged you to a ${selectedMode.toUpperCase()} Chess Match!\n\nTap to join immediately:\n${guestUrl}`;
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-      window.location.href = hostUrl;
-    };
-
-    // Copy Link Button
-    document.getElementById('btnCopyLink').onclick = async () => {
-      const { hostUrl, guestUrl } = await generateRoomLinks();
-      navigator.clipboard.writeText(guestUrl).then(() => {
-        document.getElementById('copyTxt').innerText = "Copied! Launching game...";
-        setTimeout(() => {
-          window.location.href = hostUrl;
-        }, 600);
-      });
-    };
-
-    // Live Radar Button
-    document.getElementById('btnStartRadar').onclick = async () => {
-      document.getElementById('radarSearching').classList.remove('hidden');
-      document.getElementById('btnStartRadar').classList.add('hidden');
-
-      setTimeout(async () => {
-        const { hostUrl } = await generateRoomLinks();
-        window.location.href = hostUrl;
-      }, 2000);
-    };
+    import { checkAuthOrRedirect } from './script.js';
+    checkAuthOrRedirect();
   </script>
 </body>
 </html>
