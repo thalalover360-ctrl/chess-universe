@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Friends & Duel | Chess Universe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0b0f17; }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
+      <span class="font-bold text-sm tracking-wide text-white">FRIEND DUEL</span>
+    </div>
+    <div class="flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
+      <span class="text-[11px] text-slate-400">My UID:</span>
+      <span id="myUID" class="text-xs font-mono font-bold text-emerald-400">----------</span>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4">
+
+    <!-- Search Friend by 10-Digit UID -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Search by 10-Digit UID</h3>
+      <div class="flex gap-2">
+        <input type="text" id="inputSearchUID" maxlength="10" placeholder="e.g. 4920183749" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 font-mono focus:outline-none focus:border-emerald-500">
+        <button id="btnSearchFriend" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition">
+          Search
+        </button>
+      </div>
+
+      <!-- Search Result Display Box -->
+      <div id="searchResultBox" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img id="foundAvatar" src="" class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700" alt="Player">
+          <div>
+            <h4 id="foundName" class="text-xs font-bold text-white">Player Name</h4>
+            <span id="foundUID" class="text-[10px] text-slate-400 font-mono">UID: ----------</span>
+          </div>
+        </div>
+        <button id="btnAddFriend" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          + Add
+        </button>
+      </div>
+    </div>
+
+    <!-- Private Room Code Section -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Quick Private Room</h3>
+      
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btnCreateRoom" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-xl text-xs font-bold text-white transition flex items-center justify-center gap-1.5">
+          <span>➕</span> Create Room
+        </button>
+        <button id="btnJoinRoom" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-xl text-xs font-bold text-white transition flex items-center justify-center gap-1.5">
+          <span>🔑</span> Join Room
+        </button>
+      </div>
+
+      <button id="btnWhatsAppInvite" class="w-full bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+        <span>💬</span> Challenge via WhatsApp
+      </button>
+    </div>
+
+    <!-- Friends List Section -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">My Friends</h3>
+        <span id="friendCount" class="text-[11px] font-mono text-emerald-400">0 Friends</span>
+      </div>
+
+      <div id="friendsListContainer" class="space-y-2">
+        <p class="text-xs text-slate-500 text-center py-4">Abhi koi friend add nahi kiya. Upar 10-digit UID search karke add karo!</p>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+      authDomain: "chess-universe-5a7cb.firebaseapp.com",
+      projectId: "chess-universe-5a7cb",
+      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+      messagingSenderId: "145519167856",
+      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    if (!localStorage.getItem('chess_auth')) {
+      window.location.href = 'login.html';
+    }
+
+    const myFirebaseUID = localStorage.getItem('chess_firebase_uid');
+    const myGameUID = localStorage.getItem('chess_game_uid') || '1029384756';
+    document.getElementById('myUID').innerText = myGameUID;
+
+    let targetFriend = null;
+
+    // Search by 10-digit UID
+    document.getElementById('btnSearchFriend').onclick = async () => {
+      const queryUID = document.getElementById('inputSearchUID').value.trim();
+      if (queryUID.length !== 10 || isNaN(queryUID)) {
+        return alert("10-digit numeric UID daalo!");
+      }
+      if (queryUID === myGameUID) {
+        return alert("Apna khud ka UID add nahi kar sakte!");
+      }
+
+      const resBox = document.getElementById('searchResultBox');
+      resBox.classList.add('hidden');
+
+      try {
+        const snap = await getDoc(doc(db, "uids", queryUID));
+        if (!snap.exists()) {
+          alert("Is UID ka koi player nahi mila!");
+          return;
+        }
+
+        const data = snap.data();
+        targetFriend = {
+          gameUID: queryUID,
+          name: data.name,
+          rating: data.rating || 1200,
+          avatar: `https://api.dicebear.com/7.x/identicon/svg?seed=${queryUID}`
+        };
+
+        document.getElementById('foundName').innerText = targetFriend.name;
+        document.getElementById('foundUID').innerText = `UID: ${targetFriend.gameUID}`;
+        document.getElementById('foundAvatar').src = targetFriend.avatar;
+        resBox.classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert("Search failed: " + err.message);
+      }
+    };
+
+    // Add Friend in Firestore
+    document.getElementById('btnAddFriend').onclick = async () => {
+      if (!targetFriend || !myFirebaseUID) return;
+
+      try {
+        const userRef = doc(db, "users", myFirebaseUID);
+        await updateDoc(userRef, {
+          friends: arrayUnion(targetFriend)
+        });
+
+        alert(`${targetFriend.name} dost ban gaya!`);
+        document.getElementById('searchResultBox').classList.add('hidden');
+        document.getElementById('inputSearchUID').value = '';
+        loadFriends();
+      } catch (err) {
+        console.error(err);
+        alert("Friend add karne me problem hui: " + err.message);
+      }
+    };
+
+    // Load Friends from Database
+    async function loadFriends() {
+      if (!myFirebaseUID) return;
+      try {
+        const userSnap = await getDoc(doc(db, "users", myFirebaseUID));
+        if (!userSnap.exists()) return;
+
+        const friends = userSnap.data().friends || [];
+        document.getElementById('friendCount').innerText = `${friends.length} Friends`;
+
+        const container = document.getElementById('friendsListContainer');
+        if (friends.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Abhi koi friend add nahi kiya. Upar 10-digit UID search karke add karo!</p>';
+          return;
+        }
+
+        container.innerHTML = '';
+        friends.forEach(f => {
+          const item = document.createElement('div');
+          item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between';
+          item.innerHTML = `
+            <div class="flex items-center gap-3">
+              <img src="${f.avatar}" class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700" alt="">
+              <div>
+                <h4 class="text-xs font-bold text-white">${f.name}</h4>
+                <span class="text-[10px] text-slate-400 font-mono">UID: ${f.gameUID} • ${f.rating} Elo</span>
+              </div>
+            </div>
+            <button onclick="challengeFriend('${f.gameUID}')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              Duel ⚔️
+            </button>
+          `;
+          container.appendChild(item);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.challengeFriend = (uid) => {
+      const room = Math.floor(100000 + Math.random() * 900000);
+      alert(`Duel link ban gaya!\nRoom Code: ${room}\nOpponent UID: ${uid}`);
+      window.location.href = `online.html?room=${room}&side=white`;
+    };
+
+    document.getElementById('btnCreateRoom').onclick = () => {
+      const room = Math.floor(100000 + Math.random() * 900000);
+      prompt("Room ban gaya! Ye code apne dost ko do:", room);
+      window.location.href = `online.html?room=${room}&side=white`;
+    };
+
+    document.getElementById('btnJoinRoom').onclick = () => {
+      const room = prompt("Enter 6-digit Room Code:");
+      if (room && room.trim().length === 6) {
+        window.location.href = `online.html?room=${room.trim()}&side=black`;
+      }
+    };
+
+    document.getElementById('btnWhatsAppInvite').onclick = () => {
+      const text = `Chess me duel khelega? Mera 10-digit UID hai: ${myGameUID}. Room join kar: https://thalalover360-ctrl.github.io/chess-universe/friend.html`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    loadFriends();
+  </script>
+</body>
+</html>
