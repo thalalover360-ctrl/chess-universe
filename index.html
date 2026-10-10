@@ -1,226 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#080b14">
-    <meta name="description" content="Enter Chess Universe — play chess, challenge your mind, and master the board.">
-    <title>Chess Universe | Rule Your Kingdom</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090d0b">
+<title>Chess Universe — Rule Your Kingdom</title>
+<style>
+*{box-sizing:border-box}
+:root{--gold:#e8c477;--green:#183e30;--bg:#090d0b;--muted:#a6b2a7}
+body{margin:0;background:radial-gradient(ellipse at 75% 30%,#20392b 0,transparent 45%),var(--bg);color:#f8f2e5;font-family:Arial,sans-serif}
+nav{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 7%;border-bottom:1px solid #ffffff18}
+.brand{font-family:Georgia,serif;font-size:20px;letter-spacing:2px;color:var(--gold)}
+.brand span{font-size:28px;margin-right:8px}
+.navright{display:flex;gap:12px;align-items:center}
+a{color:inherit;text-decoration:none}
+.btn{display:inline-flex;justify-content:center;align-items:center;padding:13px 19px;border-radius:7px;border:1px solid #b79857;font-weight:bold;font-size:13px;cursor:pointer}
+.btn.gold{background:linear-gradient(130deg,#f2d99c,#bd8b3c);color:#17160f;border:0}
+.btn.ghost{background:#ffffff08}
+main{max-width:1160px;margin:auto;padding:45px 6% 70px}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;min-height:440px}
+.eyebrow{color:var(--gold);font-size:11px;letter-spacing:4px;font-weight:bold}
+h1{font:clamp(44px,6vw,76px)/1.04 Georgia,serif;margin:20px 0}
+h1 em{color:var(--gold);font-weight:normal}
+.intro{max-width:440px;line-height:1.8;color:#b7c1b8;font-size:15px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.art{position:relative;min-height:330px;display:grid;place-items:center}
+.orbit{position:absolute;width:min(330px,80vw);aspect-ratio:1;border:1px solid #d6b46635;border-radius:50%;box-shadow:0 0 70px #c69d3720,inset 0 0 60px #c69d3710}
+.king{font-size:clamp(160px,28vw,260px);color:#f3e5bd;text-shadow:0 4px 0 #8c7444,0 12px 5px #000,0 0 45px #e6c16a55;z-index:1}
+.spark{position:absolute;color:var(--gold);font-size:28px}
+.s1{top:18%;left:15%}.s2{right:12%;top:27%}.s3{bottom:12%;left:20%}
+.sectionhead{text-align:center;margin:36px 0 24px}
+.sectionhead h2{font:32px Georgia,serif;margin:0 0 10px}
+.sectionhead p{color:var(--muted);font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{border:1px solid #ffffff1c;background:linear-gradient(145deg,#17241c,#0e1511);border-radius:12px;padding:23px;min-height:205px;transition:.2s}
+.card:hover{border-color:#d9b45e88;transform:translateY(-3px)}
+.ico{font-size:34px;margin-bottom:17px}
+.card h3{font:22px Georgia,serif;margin:0 0 10px;color:#f2dfb4}
+.card p{font-size:13px;color:#aab7ad;line-height:1.7;min-height:43px}
+.card a{display:inline-block;margin-top:7px;color:var(--gold);font-size:13px;font-weight:bold}
+.featurebar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.feature{border:1px solid #ffffff12;border-radius:8px;padding:17px;text-align:center;color:#d3d8cd;font-size:12px}
+.feature strong{display:block;color:var(--gold);font-size:21px;margin-bottom:5px}
+footer{text-align:center;border-top:1px solid #ffffff16;padding:24px;color:#78887c;font-size:11px;letter-spacing:1px}
+@media(max-width:720px){
+ nav{padding:0 5%;height:66px}.brand{font-size:15px}.brand span{font-size:22px}
+ .navright{gap:7px}.navright .btn{padding:10px;font-size:11px}
+ main{padding:30px 5% 45px}.hero{grid-template-columns:1fr;gap:0;text-align:center}
+ .intro{margin:auto}.actions{justify-content:center}.art{min-height:245px;grid-row:1}
+ .king{font-size:190px}.orbit{width:240px}
+ .cards{grid-template-columns:1fr}.card{min-height:0}
+ .featurebar{gap:6px}.feature{padding:12px 5px;font-size:10px}
+ .feature strong{font-size:17px}
+}
+</style>
 </head>
-
 <body>
-    <header class="navbar">
-        <a href="index.html" class="logo">
-            <span class="logo-icon">♟</span>
-            CHESS<span class="logo-highlight"> UNIVERSE</span>
-        </a>
+<nav>
+ <a class="brand" href="index.html"><span>♛</span>CHESS UNIVERSE</a>
+ <div class="navright">
+  <a class="btn ghost" href="login.html">Log In</a>
+  <a class="btn gold" href="login.html">Join Free ↗</a>
+ </div>
+</nav>
 
-        <button class="menu-toggle" id="menuToggle"
-                aria-label="Toggle navigation" aria-expanded="false">
-            ☰
-        </button>
+<main>
+ <section class="hero">
+  <div>
+   <div class="eyebrow">STRATEGY · HONOUR · GLORY</div>
+   <h1>Every move.<br>Build your <em>legacy.</em></h1>
+   <p class="intro">Enter a world where every move matters. Challenge intelligent opponents, invite your friends, and write your own royal story.</p>
+   <div class="actions">
+    <a class="btn gold" href="bot-game.html">♟ Play vs Bot</a>
+    <a class="btn ghost" href="multiplayer.html">⚔ Play a Friend</a>
+   </div>
+  </div>
+  <div class="art">
+   <div class="orbit"></div>
+   <span class="spark s1">✦</span><span class="spark s2">✧</span><span class="spark s3">✦</span>
+   <div class="king">♚</div>
+  </div>
+ </section>
 
-        <nav class="nav-links" id="navLinks">
-            <a href="#home">Home</a>
-            <a href="#features">Features</a>
-            <a href="game.html" class="nav-play">Play Chess ↗</a>
-        </nav>
-    </header>
+ <div class="sectionhead">
+  <h2>Your kingdom. Your rules.</h2>
+  <p>Choose your battlefield and make your next move.</p>
+ </div>
 
-    <main>
-        <section class="hero" id="home">
-            <div class="hero-content">
-                <div class="badge">
-                    <span class="status-dot"></span>
-                    YOUR NEXT MOVE STARTS HERE
-                </div>
+ <section class="cards">
+  <article class="card">
+   <div class="ico">♟</div>
+   <h3>Play vs Bot</h3>
+   <p>Sharpen your strategy against a computer opponent. Every game is a new lesson.</p>
+   <a href="bot-game.html">Enter the arena →</a>
+  </article>
+  <article class="card">
+   <div class="ico">⚔</div>
+   <h3>Challenge a Friend</h3>
+   <p>Bring a friend into the battle. Room codes and online play are coming next.</p>
+   <a href="multiplayer.html">Open multiplayer →</a>
+  </article>
+  <article class="card">
+   <div class="ico">♛</div>
+   <h3>Your Royal Profile</h3>
+   <p>Prepare your player identity for stats, achievements, and your chess journey.</p>
+   <a href="login.html">Create your account →</a>
+  </article>
+ </section>
 
-                <h1>
-                    RULE YOUR<br>
-                    <span class="gradient-text">KINGDOM.</span>
-                </h1>
+ <section class="featurebar">
+  <div class="feature"><strong>♜</strong>Classic chess rules</div>
+  <div class="feature"><strong>✦</strong>Royal visual style</div>
+  <div class="feature"><strong>♔</strong>Made for every player</div>
+ </section>
+</main>
 
-                <p class="hero-description">
-                    Think ahead. Make your move. Outsmart the board.
-                    Your chess journey begins right here.
-                </p>
-
-                <div class="hero-buttons">
-                    <a href="game.html" class="primary-button">
-                        ♟ PLAY CHESS NOW
-                        <span>↗</span>
-                    </a>
-
-                    <a href="#features" class="secondary-button">
-                        EXPLORE FEATURES ↓
-                    </a>
-                </div>
-
-                <div class="hero-stats">
-                    <div class="stat">
-                        <strong>64</strong>
-                        <span>SQUARES</span>
-                    </div>
-
-                    <div class="stat-divider"></div>
-
-                    <div class="stat">
-                        <strong>32</strong>
-                        <span>PIECES</span>
-                    </div>
-
-                    <div class="stat-divider"></div>
-
-                    <div class="stat">
-                        <strong>∞</strong>
-                        <span>POSSIBILITIES</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chess-visual" aria-label="Decorative chess board">
-                <div class="visual-glow"></div>
-
-                <div class="mini-board">
-                    <div class="square light">♜</div>
-                    <div class="square dark">♞</div>
-                    <div class="square light">♝</div>
-                    <div class="square dark">♛</div>
-                    <div class="square light">♚</div>
-                    <div class="square dark">♝</div>
-                    <div class="square light">♞</div>
-                    <div class="square dark">♜</div>
-
-                    <div class="square dark">♟</div>
-                    <div class="square light">♟</div>
-                    <div class="square dark">♟</div>
-                    <div class="square light">♟</div>
-                    <div class="square dark">♟</div>
-                    <div class="square light">♟</div>
-                    <div class="square dark">♟</div>
-                    <div class="square light">♟</div>
-
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-                    <div class="square dark"></div>
-                    <div class="square light"></div>
-
-                    <div class="square light">♙</div>
-                    <div class="square dark">♙</div>
-                    <div class="square light">♙</div>
-                    <div class="square dark">♙</div>
-                    <div class="square light">♙</div>
-                    <div class="square dark">♙</div>
-                    <div class="square light">♙</div>
-                    <div class="square dark">♙</div>
-
-                    <div class="square dark">♖</div>
-                    <div class="square light">♘</div>
-                    <div class="square dark">♗</div>
-                    <div class="square light">♕</div>
-                    <div class="square dark">♔</div>
-                    <div class="square light">♗</div>
-                    <div class="square dark">♘</div>
-                    <div class="square light">♖</div>
-                </div>
-
-                <div class="floating-card">
-                    <span class="floating-icon">♛</span>
-                    <div>
-                        <strong>YOUR MOVE</strong>
-                        <span>Think like a grandmaster.</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="features-section" id="features">
-            <div class="section-heading">
-                <span class="eyebrow">THE UNIVERSE AWAITS</span>
-                <h2>ONE BOARD.<br><span class="gradient-text">ENDLESS POSSIBILITIES.</span></h2>
-                <p>Everything begins with a single move.</p>
-            </div>
-
-            <div class="feature-grid">
-                <article class="feature-card">
-                    <div class="feature-icon">♟</div>
-                    <span class="feature-number">01 / PLAY</span>
-                    <h3>Classic Chess</h3>
-                    <p>Challenge yourself with a classic chess game on your own board.</p>
-                    <a href="game.html" class="feature-link">
-                        PLAY NOW <span>↗</span>
-                    </a>
-                </article>
-
-                <article class="feature-card">
-                    <div class="feature-icon">♙</div>
-                    <span class="feature-number">02 / CONNECT</span>
-                    <h3>Play with Friends</h3>
-                    <p>Online multiplayer is a future feature. For now, play locally on one device.</p>
-                    <span class="coming-soon">COMING SOON</span>
-                </article>
-
-                <article class="feature-card">
-                    <div class="feature-icon">♜</div>
-                    <span class="feature-number">03 / IMPROVE</span>
-                    <h3>Game Analysis</h3>
-                    <p>Chess analysis tools and deeper game insights are planned for the future.</p>
-                    <span class="coming-soon">COMING SOON</span>
-                </article>
-            </div>
-        </section>
-
-        <section class="final-cta">
-            <span class="eyebrow">THE BOARD IS WAITING</span>
-            <h2>READY TO MAKE<br>YOUR <span class="gradient-text">MOVE?</span></h2>
-            <a href="game.html" class="primary-button">
-                ENTER THE GAME ♟ <span>↗</span>
-            </a>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <a href="index.html" class="logo">
-            <span class="logo-icon">♟</span>
-            CHESS<span class="logo-highlight"> UNIVERSE</span>
-        </a>
-
-        <p>Built for thinkers. Made for challengers.</p>
-        <span class="copyright">© 2026 Chess Universe</span>
-    </footer>
-
-    <script src="script.js"></script>
+<footer>CHESS UNIVERSE · YOUR NEXT MOVE STARTS HERE</footer>
 </body>
 </html>
+
