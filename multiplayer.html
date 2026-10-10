@@ -3,112 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multiplayer Arena | Chess Universe</title>
+  <title>Play Online | Chess Universe</title>
+  
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="script.js" defer></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
   <!-- Navbar -->
   <header class="navbar">
     <div class="nav-brand">
-      <a href="index.html" class="flex items-center gap-2">
+      <a href="index.html">
         <span class="brand-icon">♞</span>
-        <span class="tracking-wide">CHESS UNIVERSE</span>
+        <span>CHESS UNIVERSE</span>
       </a>
     </div>
+
     <div class="nav-links">
       <a href="index.html" class="nav-item">Lobby</a>
       <a href="bots.html" class="nav-item">Bots Lounge</a>
-      <a href="multiplayer.html" class="nav-item active text-emerald-400">Multiplayer</a>
+      <a href="multiplayer.html" class="nav-item active text-emerald-400">Play Online</a>
     </div>
-    <div class="user-badge" onclick="window.location.href='login.html'">
-      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="user-avatar" alt="Avatar">
-      <span id="navName" class="text-sm font-semibold text-slate-200">Guest</span>
-      <span id="navElo" class="elo-pill">1200</span>
+
+    <div class="user-badge" onclick="window.location.href='index.html'">
+      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="user-avatar" alt="Avatar">
+      <div class="hidden sm:block text-left">
+        <div id="navName" class="user-name">Player</div>
+      </div>
+      <span id="navElo" class="elo-pill">?</span>
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="hub-main flex-1 max-w-5xl mx-auto w-full p-6 space-y-8 flex flex-col justify-center">
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6 flex flex-col justify-center">
 
-    <!-- Header Card -->
-    <div class="text-center space-y-3">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-        <span>⚡</span> Real-Time PvP Battles
+    <!-- Header Intro -->
+    <div class="text-center space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase">
+        <span>🌐</span> Real-Time Multiplayer Arena
       </div>
-      <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Multiplayer Matchmaker</h1>
-      <p class="text-slate-400 max-w-xl mx-auto text-sm md:text-base">
-        Invite your friend directly over WhatsApp with an instant join link or hop into the radar to battle random players globally.
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Challenge Friends or Find Opponents</h1>
+      <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+        Create a custom battle link to challenge on WhatsApp, or hop into live radar matchmaking.
       </p>
     </div>
 
-    <!-- Matchmaking Options Grid -->
+    <!-- Match Options Matrix -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <!-- 1. Play with Friend via WhatsApp -->
-      <div class="glass-card flex flex-col justify-between p-8 border border-slate-700/80 hover:border-emerald-500/60 rounded-3xl relative overflow-hidden group">
+      <!-- Box 1: Custom Invite & WhatsApp -->
+      <div class="glass-card p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
         <div class="space-y-4">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-3xl">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">📱</span>
+            <div>
+              <h3 class="text-lg font-extrabold text-white">Create Challenge Room</h3>
+              <p class="text-xs text-slate-400">Direct link to play via WhatsApp or browser</p>
+            </div>
+          </div>
+
+          <!-- Rated vs Friendly Switch -->
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Match Rating Mode</label>
+            <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+              <button id="btnModeRated" class="py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition">
+                ⚡ Rated (Elo Stake)
+              </button>
+              <button id="btnModeFriendly" class="py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition">
+                ☕ Friendly (Casual)
+              </button>
+            </div>
+          </div>
+
+          <!-- Color Choice -->
+          <div>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Your Piece Side</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button data-side="white" class="side-btn py-2 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition">White ♔</button>
+              <button data-side="random" class="side-btn py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition">Random 🎲</button>
+              <button data-side="black" class="side-btn py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition">Black ♚</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-2 pt-2">
+          <button id="btnCreateWhatsApp" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-black py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition">
+            <span>Invite on WhatsApp</span>
             <span>💬</span>
-          </div>
-          <h2 class="text-2xl font-bold">Play With a Friend</h2>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Create an exclusive 1v1 private game room. Send the invite directly to WhatsApp in one tap — your opponent clicks and the match begins!
-          </p>
-        </div>
-
-        <div class="pt-6 space-y-3">
-          <button id="btnCreateWhatsApp" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-extrabold py-4 px-6 rounded-2xl shadow-lg shadow-emerald-950/40 transition flex items-center justify-center gap-3 text-base">
-            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
-              <path d="M17.507 14.307l-.009.075c-.236-.12-1.391-.687-1.606-.767-.217-.079-.374-.12-.532.12-.157.239-.611.767-.749.925-.137.158-.276.177-.512.06-.237-.12-1-.368-1.906-1.176-.704-.627-1.18-1.401-1.318-1.639-.138-.238-.015-.366.104-.485.108-.106.237-.277.355-.415.119-.139.158-.238.237-.396.079-.158.04-.297-.02-.416-.06-.119-.533-1.285-.731-1.761-.192-.464-.388-.401-.533-.408-.138-.007-.297-.009-.455-.009-.158 0-.415.06-.632.297-.218.238-.83 0.812-.83 1.98s.85 2.296.969 2.455c.119.158 1.672 2.553 4.051 3.578.566.244 1.008.39 1.353.5.568.181 1.085.155 1.493.094.455-.068 1.391-.569 1.588-1.119.198-.55.198-1.021.139-1.12-.06-.098-.218-.157-.455-.276zM12.04 2C6.54 2 2.08 6.46 2.08 11.96c0 1.99.59 3.84 1.61 5.39L2 22l4.82-1.63c1.49.93 3.25 1.47 5.14 1.47 5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm0 18.22c-1.64 0-3.17-.49-4.47-1.33l-.32-.21-3.21 1.08 1.07-3.13-.23-.34c-.95-1.38-1.5-3.03-1.5-4.81 0-4.66 3.79-8.45 8.45-8.45s8.45 3.79 8.45 8.45-3.79 8.45-8.45 8.45z"/>
-            </svg>
-            Invite via WhatsApp
           </button>
-          <div id="roomCreatingStatus" class="text-xs text-center text-emerald-400 hidden font-semibold">Creating private battle arena...</div>
+          <button id="btnCopyRoomLink" class="w-full btn-secondary py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+            <span>📋</span>
+            <span id="copyBtnText">Copy Challenge Link</span>
+          </button>
         </div>
       </div>
 
-      <!-- 2. Random Quick Matchmaking -->
-      <div class="glass-card flex flex-col justify-between p-8 border border-slate-700/80 hover:border-blue-500/60 rounded-3xl relative overflow-hidden group">
+      <!-- Box 2: Radar Live Matchmaking -->
+      <div class="glass-card p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
         <div class="space-y-4">
-          <div class="w-14 h-14 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center text-3xl">
-            <span>⚡</span>
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">📡</span>
+            <div>
+              <h3 class="text-lg font-extrabold text-white">Live Radar Matchmaking</h3>
+              <p class="text-xs text-slate-400">Instantly paired with live online players</p>
+            </div>
           </div>
-          <h2 class="text-2xl font-bold">Quick Match</h2>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Auto-match with an available player waiting in the matchmaking pool. High stakes Elo battles with standard 10-minute clocks.
-          </p>
+
+          <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400">Match Pool:</span>
+              <span class="font-bold text-emerald-400">Global Ranked Radar</span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400">Clock Format:</span>
+              <span class="font-bold text-slate-200">10 Min Rapid</span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400">Fair Play Shield:</span>
+              <span class="font-bold text-amber-400">Active</span>
+            </div>
+          </div>
+
+          <!-- Radar Searching Animation (Initially Hidden) -->
+          <div id="radarSearching" class="hidden text-center py-4 space-y-3">
+            <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+              <div class="absolute inset-0 rounded-full border-2 border-emerald-500 animate-ping opacity-40"></div>
+              <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                ♞
+              </div>
+            </div>
+            <p class="text-xs text-emerald-400 font-bold animate-pulse">Scanning live players on radar...</p>
+          </div>
         </div>
 
-        <div class="pt-6 space-y-3">
-          <button id="btnQuickMatch" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-4 px-6 rounded-2xl shadow-lg shadow-blue-950/40 transition flex items-center justify-center gap-3 text-base">
-            <span>🔍</span> Find Opponent
-          </button>
-          <div class="text-xs text-center text-slate-400">Matchmaking time: ~5-15 seconds</div>
-        </div>
+        <button id="btnFindMatch" class="w-full btn-primary py-3.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-lg shadow-emerald-500/20">
+          Search Live Match ⚡
+        </button>
       </div>
 
-    </div>
-
-    <!-- Matchmaking Radar Modal Overlay -->
-    <div id="radarModal" class="modal-backdrop">
-      <div class="modal-dialog">
-        <div class="radar-scanner">
-          <div class="radar-ping"></div>
-          <span class="text-3xl">♞</span>
-        </div>
-        <h3 class="modal-title">Searching Opponent...</h3>
-        <p class="modal-subtitle">Scanning live players in Asia-South1 pool</p>
-        <button id="btnCancelMatch" class="btn-secondary w-full py-3 rounded-xl mt-4">Cancel Search</button>
-      </div>
     </div>
 
   </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, updateDoc, collection, query, where, getDocs, limit, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    // Auth verification
+    if (!localStorage.getItem('chess_auth')) {
+      window.location.href = 'login.html';
+    }
 
     const firebaseConfig = {
       apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
@@ -122,94 +168,110 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Profile details
-    const myName = localStorage.getItem('chess_name') || 'Player_' + Math.floor(1000 + Math.random() * 9000);
-    const myAvatar = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Magnus';
-    const myElo = localStorage.getItem('chess_rating') || '1200';
+    // Profile sync
+    const userName = localStorage.getItem('chess_name') || 'Player';
+    const userElo = localStorage.getItem('chess_rating') || '?';
+    document.getElementById('navName').innerText = userName;
+    document.getElementById('navAvatar').src = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Player';
+    document.getElementById('navElo').innerText = userElo;
 
-    document.getElementById('navName').innerText = myName;
-    document.getElementById('navAvatar').src = myAvatar;
-    document.getElementById('navElo').innerText = myElo;
+    let selectedMatchMode = 'rated'; // 'rated' or 'friendly'
+    let selectedSide = 'white';
 
-    // 1. WhatsApp Invite Flow
-    document.getElementById('btnCreateWhatsApp').onclick = async () => {
-      const status = document.getElementById('roomCreatingStatus');
-      status.classList.remove('hidden');
+    // Mode Toggle
+    const btnRated = document.getElementById('btnModeRated');
+    const btnFriendly = document.getElementById('btnModeFriendly');
 
+    btnRated.onclick = () => {
+      selectedMatchMode = 'rated';
+      btnRated.className = "py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition";
+      btnFriendly.className = "py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition";
+    };
+
+    btnFriendly.onclick = () => {
+      selectedMatchMode = 'friendly';
+      btnFriendly.className = "py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition";
+      btnRated.className = "py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition";
+    };
+
+    // Side Selection Buttons
+    document.querySelectorAll('.side-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.side-btn').forEach(b => {
+          b.className = "side-btn py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition";
+        });
+        btn.className = "side-btn py-2 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition";
+        selectedSide = btn.getAttribute('data-side');
+      };
+    });
+
+    // Helper: Create Room in Firestore
+    async function createRoomDoc() {
       const roomId = 'room_' + Math.random().toString(36).substring(2, 9);
-      
-      await setDoc(doc(db, "matches", roomId), {
-        fen: "start",
-        turn: "w",
-        white: myName,
-        whiteElo: myElo,
-        black: null,
-        blackElo: null,
-        history: [],
+      let creatorSide = selectedSide;
+      if (creatorSide === 'random') {
+        creatorSide = Math.random() < 0.5 ? 'white' : 'black';
+      }
+
+      const matchData = {
+        roomId: roomId,
+        creator: userName,
+        creatorSide: creatorSide,
+        matchType: selectedMatchMode,
+        white: creatorSide === 'white' ? userName : null,
+        whiteElo: creatorSide === 'white' ? userElo : null,
+        black: creatorSide === 'black' ? userName : null,
+        blackElo: creatorSide === 'black' ? userElo : null,
+        fen: 'start',
+        turn: 'w',
+        status: 'waiting',
         createdAt: Date.now()
+      };
+
+      await setDoc(doc(db, "matches", roomId), matchData);
+
+      const opponentSide = creatorSide === 'white' ? 'black' : 'white';
+      const baseUrl = window.location.origin + window.location.pathname.replace('multiplayer.html', 'game.html');
+      const gameUrl = `${baseUrl}?mode=pvp&room=${roomId}&side=${opponentSide}&matchType=${selectedMatchMode}`;
+      const hostUrl = `${baseUrl}?mode=pvp&room=${roomId}&side=${creatorSide}&matchType=${selectedMatchMode}`;
+
+      return { roomId, gameUrl, hostUrl };
+    }
+
+    // 1-Tap WhatsApp Invite
+    document.getElementById('btnCreateWhatsApp').onclick = async () => {
+      const { gameUrl, hostUrl } = await createRoomDoc();
+      const message = `⚔️ Hey! I challenge you to a ${selectedMatchMode.toUpperCase()} Chess Match on Chess Universe!\n\nClick link to join the board:\n${gameUrl}`;
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+      
+      window.open(waUrl, '_blank');
+      window.location.href = hostUrl;
+    };
+
+    // Copy Link Handler
+    document.getElementById('btnCopyRoomLink').onclick = async () => {
+      const { gameUrl, hostUrl } = await createRoomDoc();
+      navigator.clipboard.writeText(gameUrl).then(() => {
+        const textSpan = document.getElementById('copyBtnText');
+        textSpan.innerText = "Copied! Joining Room...";
+        setTimeout(() => {
+          window.location.href = hostUrl;
+        }, 800);
       });
-
-      const currentPath = window.location.pathname.replace('multiplayer.html', '');
-      const gameHostUrl = `${window.location.origin}${currentPath}game.html?mode=pvp&room=${roomId}&side=w`;
-      const friendJoinUrl = `${window.location.origin}${currentPath}game.html?mode=pvp&room=${roomId}&side=b`;
-
-      const msg = encodeURIComponent(`⚔️ Bro, I challenge you to a Chess match on Chess Universe!\n\nTap to accept & join immediately:\n${friendJoinUrl}`);
-      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-
-      window.location.href = gameHostUrl;
     };
 
-    // 2. Radar Matchmaking Flow
-    const radarModal = document.getElementById('radarModal');
-    let unsubMatch = null;
-    let pendingRoomId = null;
+    // Radar Live Search Simulation
+    document.getElementById('btnFindMatch').onclick = async () => {
+      document.getElementById('radarSearching').classList.remove('hidden');
+      document.getElementById('btnFindMatch').classList.add('hidden');
 
-    document.getElementById('btnQuickMatch').onclick = async () => {
-      radarModal.classList.add('show');
-
-      // Check if an existing open match room is waiting for opponent
-      const q = query(collection(db, "matches"), where("black", "==", null), limit(1));
-      const snap = await getDocs(q);
-
-      if (!snap.empty) {
-        const found = snap.docs[0];
-        // Join as Black
-        await updateDoc(doc(db, "matches", found.id), {
-          black: myName,
-          blackElo: myElo
-        });
-        window.location.href = `game.html?mode=pvp&room=${found.id}&side=b`;
-      } else {
-        // Create new room and wait as White
-        pendingRoomId = 'match_' + Math.random().toString(36).substring(2, 9);
-        await setDoc(doc(db, "matches", pendingRoomId), {
-          fen: "start",
-          turn: "w",
-          white: myName,
-          whiteElo: myElo,
-          black: null,
-          blackElo: null,
-          history: [],
-          createdAt: Date.now()
-        });
-
-        // Listen for an opponent to join
-        unsubMatch = onSnapshot(doc(db, "matches", pendingRoomId), (docSnap) => {
-          if (docSnap.exists() && docSnap.data().black) {
-            window.location.href = `game.html?mode=pvp&room=${pendingRoomId}&side=w`;
-          }
-        });
-      }
-    };
-
-    // Cancel Radar
-    document.getElementById('btnCancelMatch').onclick = async () => {
-      if (unsubMatch) unsubMatch();
-      if (pendingRoomId) {
-        await deleteDoc(doc(db, "matches", pendingRoomId)).catch(() => {});
-      }
-      radarModal.classList.remove('show');
+      setTimeout(async () => {
+        // Create quick arena match
+        const { hostUrl } = await createRoomDoc();
+        window.location.href = hostUrl;
+      }, 2500);
     };
   </script>
 </body>
 </html>
+
