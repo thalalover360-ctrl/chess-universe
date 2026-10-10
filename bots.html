@@ -1,291 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080b12">
-<title>Bot Challenge | Chess Universe</title>
-
-<style>
-:root {
-  --bg:#080b12;
-  --panel:#111827;
-  --border:#253247;
-  --text:#f1f5f9;
-  --muted:#94a3b8;
-  --cyan:#22d3ee;
-  --purple:#a78bfa;
-  --green:#4ade80;
-}
-* { box-sizing:border-box; }
-body {
-  margin:0;
-  min-height:100vh;
-  background:radial-gradient(ellipse at top,#17233b 0%,transparent 55%),var(--bg);
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-}
-button,a { -webkit-tap-highlight-color:transparent; }
-header {
-  padding:20px 6%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  border-bottom:1px solid #ffffff12;
-}
-.logo { font-size:21px;font-weight:900;letter-spacing:1px; }
-.logo span { color:var(--cyan); }
-.back {
-  color:var(--muted);
-  text-decoration:none;
-  border:1px solid var(--border);
-  padding:10px 15px;
-  border-radius:12px;
-  font-size:13px;
-}
-.back:hover { color:white;border-color:var(--cyan); }
-.hero { text-align:center;padding:45px 18px 25px; }
-.badge {
-  display:inline-block;
-  color:var(--cyan);
-  background:#22d3ee12;
-  border:1px solid #22d3ee40;
-  border-radius:30px;
-  padding:8px 14px;
-  font-size:11px;
-  font-weight:bold;
-  letter-spacing:2px;
-}
-h1 { font-size:clamp(32px,6vw,54px);margin:18px 0 12px;font-weight:900; }
-h1 span {
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-}
-.subtitle {
-  color:var(--muted);
-  line-height:1.6;
-  font-size:14px;
-  max-width:480px;
-  margin:auto;
-}
-.progress-wrap {
-  max-width:520px;
-  margin:30px auto 0;
-  padding:18px;
-  background:#111827cc;
-  border:1px solid var(--border);
-  border-radius:18px;
-  text-align:left;
-}
-.progress-info {
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  font-size:13px;
-  margin-bottom:12px;
-}
-.progress-info span:last-child { color:var(--cyan);font-weight:bold; }
-.progress-track { height:7px;background:#263246;border-radius:10px;overflow:hidden; }
-.progress-fill {
-  width:10%;
-  height:100%;
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  border-radius:10px;
-  transition:width .3s;
-}
-main { width:min(1100px,92%);margin:20px auto 60px; }
-.section-heading { margin:20px 0; }
-.section-heading h2 { font-size:20px;margin:0; }
-.section-heading p { color:var(--muted);font-size:12px;margin:5px 0 0; }
-.grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px; }
-.bot {
-  position:relative;
-  overflow:hidden;
-  background:linear-gradient(145deg,#151e2e,#0d121d);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:20px;
-  min-width:0;
-  transition:transform .2s,border-color .2s;
-}
-.bot.unlocked { border-color:#22d3ee70; }
-.bot.unlocked:hover { transform:translateY(-3px);border-color:var(--cyan); }
-.bot-top { display:flex;justify-content:space-between;align-items:flex-start;gap:10px; }
-.avatar {
-  width:54px;height:54px;
-  display:grid;place-items:center;
-  background:#1d2b40;
-  border:1px solid #33445d;
-  border-radius:16px;
-  font-size:29px;
-  flex-shrink:0;
-}
-.status {
-  font-size:10px;font-weight:bold;letter-spacing:1px;
-  border-radius:20px;padding:7px 9px;white-space:nowrap;
-}
-.status.open { color:var(--green);background:#4ade8015;border:1px solid #4ade8040; }
-.status.locked { color:#9ca3af;background:#ffffff08;border:1px solid #ffffff12; }
-.bot h3 { font-size:18px;margin:17px 0 7px; }
-.description { min-height:34px;color:var(--muted);font-size:12px;line-height:1.5;margin:0 0 18px; }
-.bot-bottom {
-  display:flex;justify-content:space-between;align-items:center;
-  gap:8px;padding-top:15px;border-top:1px solid #ffffff12;
-}
-.rating-label { color:var(--muted);font-size:10px;letter-spacing:1px; }
-.rating { color:var(--cyan);font-size:22px;font-weight:900;margin-top:4px; }
-.play-btn {
-  background:linear-gradient(135deg,#22d3ee,#818cf8);
-  color:#08111e;border:0;border-radius:11px;
-  padding:12px 16px;font-weight:900;font-size:12px;cursor:pointer;
-}
-.play-btn:active { transform:scale(.97); }
-.play-btn:disabled { color:#9ca3af;background:#273244;cursor:not-allowed; }
-footer {
-  text-align:center;padding:25px 15px;color:#64748b;
-  font-size:12px;border-top:1px solid #ffffff10;
-}
-@media(min-width:800px) {
-  .grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
-}
-@media(max-width:420px) {
-  header { padding:16px 4%; }
-  .logo { font-size:17px; }
-  .hero { padding-top:35px; }
-  main { width:94%; }
-  .grid { gap:10px; }
-  .bot { padding:13px;border-radius:16px; }
-  .avatar { width:43px;height:43px;font-size:24px;border-radius:13px; }
-  .status { font-size:8px;padding:6px; }
-  .bot h3 { font-size:15px; }
-  .description { font-size:11px; }
-  .rating { font-size:19px; }
-  .play-btn { padding:10px;font-size:11px; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07110e">
+  <title>Chess Bots | Chess Universe</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page { width:min(1100px,calc(100% - 28px)); margin:auto; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap; padding:20px 0; border-bottom:1px solid var(--border); }
+    .topbar a:first-child { color:var(--gold); font-weight:800; }
+    .intro { text-align:center; padding:55px 0 35px; }
+    .intro h1 { margin:12px 0; }
+    .intro p { max-width:600px; margin:auto; }
+    .bot-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; padding-bottom:55px; }
+    .bot-card { display:flex; flex-direction:column; min-height:330px; }
+    .bot-avatar { display:grid; place-items:center; width:82px; height:82px; margin-bottom:18px; border:1px solid var(--border); border-radius:22px; background:rgba(0,214,154,.08); color:var(--gold); font-size:2.8rem; }
+    .difficulty { display:inline-block; width:max-content; padding:5px 10px; border-radius:30px; background:rgba(0,214,154,.08); color:var(--green); font-size:.75rem; font-weight:800; }
+    .bot-card h2 { font-family:Inter,sans-serif; font-size:1.35rem; margin:14px 0 8px; }
+    .bot-card p { flex:1; }
+    .bot-card .btn { width:100%; margin-top:16px; }
+    .notice { margin-bottom:40px; padding:16px; border:1px solid var(--border); border-radius:14px; background:var(--panel); color:var(--muted); }
+    @media(max-width:760px) { .bot-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:500px) { .bot-grid { grid-template-columns:1fr; } .intro { padding-top:38px; } }
+  </style>
 </head>
-
 <body>
-<header>
-  <div class="logo">♟ CHESS <span>UNIVERSE</span></div>
-  <a class="back" href="index.html">← Home</a>
-</header>
+  <header class="page topbar">
+    <a href="index.html">♟ CHESS UNIVERSE</a>
+    <a class="btn" href="index.html">← Home</a>
+  </header>
 
-<section class="hero">
-  <div class="badge">OFFLINE BOT CHALLENGE</div>
-  <h1>Choose Your <span>Opponent</span></h1>
-  <p class="subtitle">Start as a rookie. Defeat every challenger. Your ultimate opponent awaits at 2000 rating.</p>
+  <main class="page">
+    <section class="intro">
+      <span class="eyebrow">CHOOSE YOUR OPPONENT</span>
+      <h1>Meet Your <span class="gradient-text">Rivals.</span></h1>
+      <p>Pick a style, enter the board and sharpen your chess instincts.</p>
+    </section>
 
-  <div class="progress-wrap">
-    <div class="progress-info">
-      <span>YOUR PROGRESS</span>
-      <span id="progressText">1 / 10 Unlocked</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-  </div>
-</section>
-
-<main>
-  <div class="section-heading">
-    <h2>⚔️ The Challenger League</h2>
-    <p>Win your current challenge to unlock the next bot.</p>
-  </div>
-  <div class="grid" id="botGrid"></div>
-</main>
-
-<footer>CHESS UNIVERSE · BOT CHALLENGE<br><br>Ten opponents. One champion. ♟</footer>
-
-<script>
-const bots = [
-  {name:"Pawn Rookie",rating:200,icon:"♟",description:"Your first opponent. Learn the basics."},
-  {name:"Knight Scout",rating:400,icon:"♞",description:"Watch your pieces carefully."},
-  {name:"Bishop Brain",rating:600,icon:"♝",description:"Long diagonals and simple tactics."},
-  {name:"Rook Raider",rating:800,icon:"♜",description:"Open files are dangerous."},
-  {name:"Tactical Fox",rating:1000,icon:"🦊",description:"Forks, pins and tactical surprises."},
-  {name:"Dark Knight",rating:1200,icon:"♞",description:"Sharper attacks await."},
-  {name:"Mastermind",rating:1400,icon:"🧠",description:"Plan ahead and defend carefully."},
-  {name:"Grandmaster",rating:1600,icon:"👑",description:"Strong strategic play awaits."},
-  {name:"Elite Engine",rating:1800,icon:"⚡",description:"One mistake can change the game."},
-  {name:"Chess Overlord",rating:2000,icon:"💀",description:"The final challenge. Prove yourself."}
-];
-
-const SAVE_KEY = "chessUniverseBotProgress";
-const BOT_KEY = "chessUniverseSelectedBot";
-
-function getProgress() {
-  try {
-    const value = Number(localStorage.getItem(SAVE_KEY));
-    return Number.isFinite(value) ? Math.max(1,Math.min(10,Math.floor(value))) : 1;
-  } catch(error) {
-    return 1;
-  }
-}
-
-function selectBot(level) {
-  if (level > getProgress()) return;
-
-  const bot = bots[level - 1];
-
-  try {
-    sessionStorage.setItem(BOT_KEY, JSON.stringify({
-      level: level,
-      name: bot.name,
-      rating: bot.rating
-    }));
-
-    // Open the chessboard for the selected bot.
-    window.location.href = "bot-game.html";
-  } catch(error) {
-    alert("Your browser blocked session storage. Please allow site storage and try again.");
-  }
-}
-
-function renderBots() {
-  const unlocked = getProgress();
-  const grid = document.getElementById("botGrid");
-
-  grid.innerHTML = bots.map((bot,index) => {
-    const level = index + 1;
-    const isUnlocked = level <= unlocked;
-
-    return `
-      <article class="bot ${isUnlocked ? "unlocked" : ""}">
-        <div class="bot-top">
-          <div class="avatar">${isUnlocked ? bot.icon : "🔒"}</div>
-          <span class="status ${isUnlocked ? "open" : "locked"}">
-            ${isUnlocked ? "● UNLOCKED" : "🔒 LOCKED"}
-          </span>
-        </div>
-        <h3>${level}. ${bot.name}</h3>
-        <p class="description">${bot.description}</p>
-        <div class="bot-bottom">
-          <div>
-            <div class="rating-label">BOT RATING</div>
-            <div class="rating">${bot.rating}</div>
-          </div>
-          <button class="play-btn"
-            ${isUnlocked ? "" : "disabled"}
-            onclick="selectBot(${level})">
-            ${isUnlocked ? "CHALLENGE →" : "LOCKED"}
-          </button>
-        </div>
+    <section class="bot-grid">
+      <article class="card bot-card">
+        <div class="bot-avatar">♟</div>
+        <span class="difficulty">BEGINNER</span>
+        <h2>Rookie</h2>
+        <p>A starting point for learning the game and practising your moves.</p>
+        <a class="btn btn-primary" href="bot-game.html?level=easy">Challenge Rookie →</a>
       </article>
-    `;
-  }).join("");
 
-  document.getElementById("progressText").textContent =
-    `${unlocked} / 10 Unlocked`;
+      <article class="card bot-card">
+        <div class="bot-avatar">♞</div>
+        <span class="difficulty">INTERMEDIATE</span>
+        <h2>Strategist</h2>
+        <p>Build better habits and think carefully before every move.</p>
+        <a class="btn btn-primary" href="bot-game.html?level=medium">Challenge Strategist →</a>
+      </article>
 
-  document.getElementById("progressFill").style.width =
-    `${unlocked * 10}%`;
-}
+      <article class="card bot-card">
+        <div class="bot-avatar">♜</div>
+        <span class="difficulty">ADVANCED</span>
+        <h2>Tactician</h2>
+        <p>Look for tactical opportunities and test your decision-making.</p>
+        <a class="btn btn-primary" href="bot-game.html?level=hard">Challenge Tactician →</a>
+      </article>
 
-renderBots();
-</script>
+      <article class="card bot-card">
+        <div class="bot-avatar">♝</div>
+        <span class="difficulty">CLASSIC</span>
+        <h2>The Guardian</h2>
+        <p>Return to the fundamentals and focus on safe, solid development.</p>
+        <a class="btn" href="bot-game.html?level=easy">Play Match →</a>
+      </article>
+
+      <article class="card bot-card">
+        <div class="bot-avatar">♛</div>
+        <span class="difficulty">TACTICAL</span>
+        <h2>The Queen</h2>
+        <p>Practise planning, piece activity and controlling the board.</p>
+        <a class="btn" href="bot-game.html?level=hard">Play Match →</a>
+      </article>
+
+      <article class="card bot-card">
+        <div class="bot-avatar">♚</div>
+        <span class="difficulty">QUICK PLAY</span>
+        <h2>Random Rival</h2>
+        <p>Jump into a match without spending time choosing an opponent.</p>
+        <a class="btn btn-gold" href="bot-game.html">Start Match →</a>
+      </article>
+    </section>
+
+    <aside class="notice">
+      <strong style="color:var(--gold)">♟ Note:</strong>
+      These are opponent presets, not six separate AI engines. Actual difficulty depends on the bot logic implemented in <code>bot-game.html</code>.
+    </aside>
+  </main>
+
+  <footer>
+    <div class="page">♟ Chess Universe · <a href="index.html">Back to Home</a></div>
+  </footer>
 </body>
 </html>
