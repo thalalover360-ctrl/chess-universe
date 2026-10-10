@@ -3,146 +3,187 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Chess Universe</title>
+  <title>Login & Verification | Chess Universe</title>
+  
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
 
-  <div class="glass-panel max-w-md w-full p-8 rounded-3xl shadow-2xl text-center space-y-6 relative overflow-hidden">
-    <!-- Glowing background accent -->
-    <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-    <!-- Header -->
-    <div class="space-y-2">
-      <div class="text-5xl text-emerald-400 drop-shadow">♞</div>
-      <h1 class="text-3xl font-extrabold tracking-tight">Chess Universe</h1>
-      <p class="text-sm text-slate-400">Choose your avatar and sign in to track your Elo rating</p>
+  <!-- Main Login Card -->
+  <div class="glass-card max-w-md w-full p-6 sm:p-8 space-y-6 border border-slate-800 shadow-2xl relative overflow-hidden">
+    
+    <!-- Brand Header -->
+    <div class="text-center space-y-2">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 text-3xl border border-emerald-500/20 mb-1">
+        ♞
+      </div>
+      <h1 class="text-2xl font-black tracking-tight text-white">CHESS UNIVERSE</h1>
+      <p class="text-xs text-slate-400">Official Ranked Competitive Chess Arena</p>
     </div>
 
-    <!-- Avatar Selection -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wider">Choose Avatar</label>
-      <div class="grid grid-cols-4 gap-3 justify-items-center" id="avatarGrid">
-        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-emerald-400 cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" alt="Avatar 1">
-        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hikaru" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-transparent cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Hikaru" alt="Avatar 2">
-        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Vishy" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-transparent cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Vishy" alt="Avatar 3">
-        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Kasparov" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-transparent cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Kasparov" alt="Avatar 4">
+    <!-- Step 1: Input Identifier -->
+    <div id="stepRequestOtp" class="space-y-4">
+      <div>
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+          Mobile Number or Email
+        </label>
+        <div class="relative">
+          <input 
+            type="text" 
+            id="userInput" 
+            placeholder="+91 98765 43210 or yourname@gmail.com" 
+            class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+          >
+        </div>
+      </div>
+
+      <button 
+        id="btnSendOtp" 
+        class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+      >
+        <span>Get Verification Code</span>
+        <span>→</span>
+      </button>
+
+      <div class="pt-2 text-center">
+        <p class="text-[11px] text-slate-500">
+          By signing in, your initial 5 matches will evaluate your starting Grandmaster Elo rating.
+        </p>
       </div>
     </div>
 
-    <!-- Guest Name Input -->
-    <div class="space-y-1 text-left">
-      <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Display Name</label>
-      <input type="text" id="guestName" placeholder="Enter your name..." value="Grandmaster" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl focus:border-emerald-500 text-white font-medium placeholder-slate-500 focus:outline-none transition">
-    </div>
+    <!-- Step 2: OTP Entry & Profile Nickname -->
+    <div id="stepVerifyOtp" class="space-y-4 hidden">
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-300">OTP Sent to:</span>
+          <span id="displayContact" class="text-xs font-mono text-emerald-400 truncate max-w-[160px]"></span>
+        </div>
+        
+        <!-- Quick Auto-Fill Display Badge -->
+        <div class="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
+          <span class="text-xs text-amber-300 font-semibold">Your Security Code:</span>
+          <span id="demoOtpBadge" class="text-xs font-mono font-black text-amber-400 tracking-wider"></span>
+        </div>
+      </div>
 
-    <!-- Login Options -->
-    <div class="space-y-3 pt-2">
-      <!-- Guest Play Button -->
-      <button id="btnGuestLogin" class="btn-primary w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2">
-        <span>⚡</span> Play as Guest
+      <!-- 6-Digit Box -->
+      <div>
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2 text-center">
+          Enter 6-Digit OTP
+        </label>
+        <input 
+          type="text" 
+          id="otpInput" 
+          maxlength="6" 
+          placeholder="0 0 0 0 0 0" 
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 text-center text-xl tracking-[0.5em] font-mono font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition"
+        >
+      </div>
+
+      <!-- Username Handle -->
+      <div>
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+          Choose Player Nickname
+        </label>
+        <input 
+          type="text" 
+          id="nickInput" 
+          placeholder="e.g. DesiVishy, PawnSlayer" 
+          maxlength="16"
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+        >
+      </div>
+
+      <!-- Action Button -->
+      <button 
+        id="btnVerify" 
+        class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20"
+      >
+        Verify & Enter Arena
       </button>
 
-      <!-- Google Sign-in -->
-      <button id="btnGoogleLogin" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-3 transition">
-        <svg class="w-5 h-5" viewBox="0 0 24 24">
-          <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
-          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-          <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/>
-          <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
-        </svg>
-        Sign in with Google
-      </button>
+      <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+        <button id="btnBackToInput" class="hover:text-slate-200 transition">← Change number/email</button>
+        <button id="btnResendOtp" class="text-emerald-400 hover:underline">Resend OTP</button>
+      </div>
     </div>
 
-    <div id="authStatus" class="text-xs text-amber-400 hidden"></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+  <script>
+    let generatedOtp = null;
+    let savedContact = "";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
-      authDomain: "chess-universe-5a7cb.firebaseapp.com",
-      projectId: "chess-universe-5a7cb",
-      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
-      messagingSenderId: "145519167856",
-      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    // Step 1: Send OTP handler
+    document.getElementById('btnSendOtp').onclick = () => {
+      const inputVal = document.getElementById('userInput').value.trim();
+      
+      if (!inputVal || inputVal.length < 5) {
+        alert("Please enter a valid Mobile Number or Email address.");
+        return;
+      }
+
+      savedContact = inputVal;
+      document.getElementById('displayContact').innerText = savedContact;
+
+      // 6 Digit random code
+      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      document.getElementById('demoOtpBadge').innerText = generatedOtp;
+      document.getElementById('otpInput').value = generatedOtp; // Auto-fill for convenience
+
+      document.getElementById('stepRequestOtp').classList.add('hidden');
+      document.getElementById('stepVerifyOtp').classList.remove('hidden');
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Step 2: Verify & Activate Profile
+    document.getElementById('btnVerify').onclick = () => {
+      const enteredOtp = document.getElementById('otpInput').value.trim();
+      const nickname = document.getElementById('nickInput').value.trim() || `Player_${Math.floor(1000 + Math.random() * 9000)}`;
 
-    let selectedAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=Magnus";
-
-    // Avatar Selection handling
-    document.querySelectorAll('.avatar-opt').forEach(img => {
-      img.addEventListener('click', () => {
-        document.querySelectorAll('.avatar-opt').forEach(el => el.classList.replace('border-emerald-400', 'border-transparent'));
-        img.classList.replace('border-transparent', 'border-emerald-400');
-        selectedAvatar = img.dataset.avatar;
-      });
-    });
-
-    const statusEl = document.getElementById('authStatus');
-    function showStatus(msg) {
-      statusEl.innerText = msg;
-      statusEl.classList.remove('hidden');
-    }
-
-    async function saveUserSession(uid, displayName, photoURL) {
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef);
-      let rating = 1200;
-
-      if (snap.exists()) {
-        rating = snap.data().rating || 1200;
-      } else {
-        await setDoc(userRef, {
-          displayName,
-          photoURL,
-          rating: 1200,
-          createdAt: Date.now()
-        });
+      if (enteredOtp !== generatedOtp) {
+        alert("Invalid OTP! Please check the 6-digit code shown.");
+        return;
       }
 
-      localStorage.setItem('chess_uid', uid);
-      localStorage.setItem('chess_name', displayName);
-      localStorage.setItem('chess_avatar', photoURL);
-      localStorage.setItem('chess_rating', rating);
-
-      window.location.href = "index.html";
-    }
-
-    // Guest Mode
-    document.getElementById('btnGuestLogin').onclick = async () => {
-      showStatus("Creating guest session...");
-      try {
-        const cred = await signInAnonymously(auth);
-        const name = document.getElementById('guestName').value.trim() || "Guest Player";
-        await saveUserSession(cred.user.uid, name, selectedAvatar);
-      } catch (err) {
-        showStatus("Guest login error: " + err.message);
+      // Save user session
+      localStorage.setItem('chess_auth', 'true');
+      localStorage.setItem('chess_contact', savedContact);
+      localStorage.setItem('chess_name', nickname);
+      localStorage.setItem('chess_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(nickname)}`);
+      
+      // Initialize 5-Game Calibration Engine
+      if (!localStorage.getItem('chess_calibration_games')) {
+        localStorage.setItem('chess_calibration_games', '0'); // Completed 0/5 matches
+        localStorage.setItem('chess_rating', 'Calibrating (?)');
+        localStorage.setItem('chess_calibration_score', '0'); // Internal tracker
       }
+
+      // Unlock only Bot 1 by default (Campaign Progression)
+      if (!localStorage.getItem('chess_max_bot_unlocked')) {
+        localStorage.setItem('chess_max_bot_unlocked', '1');
+      }
+
+      // Redirect to Lobby
+      window.location.href = 'index.html';
     };
 
-    // Google Sign In
-    document.getElementById('btnGoogleLogin').onclick = async () => {
-      showStatus("Connecting to Google...");
-      const provider = new GoogleAuthProvider();
-      try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        await saveUserSession(user.uid, user.displayName || "Chess Player", user.photoURL || selectedAvatar);
-      } catch (err) {
-        showStatus("Google login error: " + err.message);
-      }
+    // Resend code trigger
+    document.getElementById('btnResendOtp').onclick = () => {
+      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      document.getElementById('demoOtpBadge').innerText = generatedOtp;
+      document.getElementById('otpInput').value = generatedOtp;
+      alert("New OTP generated!");
+    };
+
+    // Back to edit contact
+    document.getElementById('btnBackToInput').onclick = () => {
+      document.getElementById('stepVerifyOtp').classList.add('hidden');
+      document.getElementById('stepRequestOtp').classList.remove('hidden');
     };
   </script>
 </body>
 </html>
+
