@@ -1,99 +1,174 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090d0b">
-<title>Join Chess Universe</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 10%,#1d4431,transparent 45%),#090d0b;color:#f8f0dd;font-family:Arial,sans-serif;display:flex;flex-direction:column}
-nav{height:75px;padding:0 7%;display:flex;align-items:center;border-bottom:1px solid #ffffff18}
-.brand{font:20px Georgia,serif;letter-spacing:2px;color:#e8c477;text-decoration:none}
-.brand span{font-size:27px;margin-right:9px}
-main{flex:1;display:grid;place-items:center;padding:35px 16px}
-.card{width:min(430px,100%);background:linear-gradient(145deg,#19241d,#101612);border:1px solid #987b43;border-radius:15px;padding:30px;box-shadow:0 20px 70px #0008}
-.crown{text-align:center;font-size:42px;color:#e8c477;text-shadow:0 0 25px #e8c47755}
-h1{text-align:center;font:32px Georgia,serif;margin:10px 0;color:#f5dfad}
-.subtitle{text-align:center;color:#aab6a9;font-size:13px;line-height:1.6;margin-bottom:24px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;background:#090e0b;border-radius:8px;padding:4px;margin-bottom:22px}
-.tabs button{border:0;background:transparent;color:#aab6a9;padding:11px;border-radius:6px;cursor:pointer}
-.tabs button.active{background:#d6b15d;color:#17160f;font-weight:bold}
-label{display:block;color:#d9d5c3;font-size:12px;margin:15px 0 7px}
-input{width:100%;padding:13px;border:1px solid #37483b;background:#0b110d;color:#fff;border-radius:7px;outline:none}
-input:focus{border-color:#e8c477}
-.action{width:100%;padding:13px;border:0;border-radius:7px;background:linear-gradient(120deg,#f1d99b,#bd8c3e);color:#19160e;font-weight:bold;cursor:pointer;margin-top:19px}
-.google{width:100%;padding:12px;background:#111914;border:1px solid #526050;color:#f5f0e4;border-radius:7px;cursor:pointer;margin-top:12px}
-.google b{margin-right:9px;font-size:17px}
-.or{display:flex;align-items:center;gap:10px;color:#718071;font-size:11px;margin:18px 0}
-.or:before,.or:after{content:"";height:1px;background:#ffffff19;flex:1}
-#message{font-size:12px;line-height:1.6;margin-top:13px;color:#e8c477;overflow-wrap:anywhere}
-.note{font-size:11px;color:#8c9b8d;line-height:1.6;text-align:center;margin-top:18px}
-.back{display:block;text-align:center;margin-top:20px;color:#d8bd79;font-size:12px;text-decoration:none}
-footer{text-align:center;padding:18px;color:#758477;font-size:10px;letter-spacing:2px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07110e">
+  <title>Account | Chess Universe</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .auth-showcase {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(28px,7vw,90px);
+      background:
+        radial-gradient(ellipse at 20% 30%,rgba(0,214,154,.12),transparent 55%),
+        #091711;
+      border-right: 1px solid var(--border);
+    }
+    .auth-brand { color:var(--gold); font-weight:800; font-size:1.15rem; }
+    .auth-showcase h1 { margin:25px 0 15px; }
+    .showcase-piece { margin-top:30px; font-size:clamp(7rem,18vw,13rem); line-height:1; color:var(--gold); text-shadow:0 0 65px rgba(231,189,105,.15); }
+    .auth-side { display:grid; place-items:center; padding:28px 16px; }
+    .auth-box { width:min(420px,100%); }
+    .back-link { display:inline-block; margin-bottom:25px; color:var(--muted); }
+    .back-link:hover { color:var(--green); }
+    .tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:5px; margin:22px 0; border:1px solid var(--border); border-radius:13px; background:#08140f; }
+    .tab { padding:11px; border:0; border-radius:9px; color:var(--muted); background:transparent; font-weight:700; }
+    .tab.active { color:#06130d; background:var(--green); }
+    .field { margin-bottom:16px; }
+    .password-wrap { display:flex; gap:8px; }
+    .password-wrap input { flex:1; min-width:0; }
+    .show-password { padding:0 12px; border:1px solid var(--border); border-radius:10px; color:var(--muted); background:var(--panel); }
+    .submit-btn { width:100%; margin-top:5px; }
+    .auth-message { display:none; margin-top:16px; padding:12px; border-radius:10px; color:var(--gold); background:rgba(231,189,105,.08); font-size:.88rem; }
+    .auth-footnote { margin-top:20px; text-align:center; font-size:.82rem; }
+    .home-link { color:var(--green); }
+    @media(max-width:760px) {
+      .auth-page { grid-template-columns:1fr; }
+      .auth-showcase { padding:28px 22px; border-right:0; border-bottom:1px solid var(--border); }
+      .auth-showcase h1 { font-size:2.5rem; }
+      .showcase-piece { display:none; }
+      .auth-side { padding:30px 18px 45px; }
+    }
+  </style>
 </head>
 <body>
-<nav><a class="brand" href="index.html"><span>♛</span>CHESS UNIVERSE</a></nav>
-<main>
-<section class="card">
- <div class="crown">♚</div>
- <h1 id="heading">Enter Your Kingdom</h1>
- <p class="subtitle" id="subtitle">Sign in and continue your chess journey.</p>
- <div class="tabs">
-  <button id="loginTab" class="active" type="button">Log In</button>
-  <button id="signupTab" type="button">Create Account</button>
- </div>
- <form id="authForm">
-  <div id="nameWrap" hidden>
-   <label for="username">PLAYER NAME</label>
-   <input id="username" maxlength="24" autocomplete="nickname" placeholder="Your chess name">
-  </div>
-  <label for="email">EMAIL ADDRESS</label>
-  <input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
-  <label for="password">PASSWORD</label>
-  <input id="password" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters" required>
-  <button class="action" id="submitBtn" type="submit">LOG IN →</button>
- </form>
- <div class="or">OR</div>
- <button class="google" id="googleBtn" type="button"><b>G</b> Continue with Google</button>
- <div id="message" role="status"></div>
- <p class="note">Your account needs a secure authentication provider. This page will connect to Firebase after you add your project configuration.</p>
- <a class="back" href="index.html">← Back to Home</a>
-</section>
-</main>
-<footer>CHESS UNIVERSE · STRATEGY · HONOUR · GLORY</footer>
-<script>
-let mode="login";
-const loginTab=document.getElementById("loginTab");
-const signupTab=document.getElementById("signupTab");
-const nameWrap=document.getElementById("nameWrap");
-const username=document.getElementById("username");
-const password=document.getElementById("password");
-const message=document.getElementById("message");
+  <main class="auth-page">
+    <section class="auth-showcase">
+      <a class="auth-brand" href="index.html">♟ CHESS UNIVERSE</a>
+      <span class="eyebrow" style="width:max-content;margin-top:38px">YOUR NEXT CHAPTER</span>
+      <h1>Every Move<br><span class="gradient-text">Tells a Story.</span></h1>
+      <p>Enter the arena. Challenge your limits. Build your chess journey.</p>
+      <div class="showcase-piece" aria-hidden="true">♚</div>
+    </section>
 
-function setMode(next){
- mode=next;
- loginTab.classList.toggle("active",mode==="login");
- signupTab.classList.toggle("active",mode==="signup");
- nameWrap.hidden=mode!=="signup";
- username.required=mode==="signup";
- password.autocomplete=mode==="login"?"current-password":"new-password";
- document.getElementById("heading").textContent=mode==="login"?"Enter Your Kingdom":"Join the Kingdom";
- document.getElementById("subtitle").textContent=mode==="login"?"Sign in and continue your chess journey.":"Create your player identity and begin your journey.";
- document.getElementById("submitBtn").textContent=mode==="login"?"LOG IN →":"CREATE ACCOUNT →";
- message.textContent="";
-}
-loginTab.onclick=()=>setMode("login");
-signupTab.onclick=()=>setMode("signup");
-document.getElementById("authForm").addEventListener("submit",e=>{
- e.preventDefault();
- message.textContent="Authentication is not connected yet. Firebase setup is required before accounts can be created or used.";
-});
-document.getElementById("googleBtn").onclick=()=>{
- message.textContent="Google sign-in is not connected yet. Firebase configuration is required.";
-};
-</script>
+    <section class="auth-side">
+      <div class="auth-box">
+        <a class="back-link" href="index.html">← Back to Home</a>
+        <h2 id="formTitle">Welcome Back</h2>
+        <p id="formSubtitle">Sign in to your Chess Universe account.</p>
+
+        <div class="tabs">
+          <button class="tab active" id="loginTab" type="button">Login</button>
+          <button class="tab" id="signupTab" type="button">Sign Up</button>
+        </div>
+
+        <form id="authForm">
+          <div class="field" id="usernameField" hidden>
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" placeholder="Choose a username" minlength="3" autocomplete="username">
+          </div>
+
+          <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="password-wrap">
+              <input id="password" name="password" type="password" placeholder="Enter your password" minlength="6" autocomplete="current-password" required>
+              <button class="show-password" id="togglePassword" type="button" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <div class="field" id="confirmField" hidden>
+            <label for="confirmPassword">Confirm password</label>
+            <input id="confirmPassword" type="password" placeholder="Enter password again" minlength="6" autocomplete="new-password">
+          </div>
+
+          <button class="btn btn-primary submit-btn" id="submitButton" type="submit">Login →</button>
+        </form>
+
+        <div class="auth-message" id="authMessage" role="status"></div>
+        <p class="auth-footnote">
+          <a class="home-link" href="bot-game.html">Play as guest</a>
+          <span> · </span>
+          <a class="home-link" href="multiplayer.html">Multiplayer</a>
+        </p>
+        <p class="auth-footnote">Account security requires a real authentication backend.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const loginTab = document.getElementById("loginTab");
+    const signupTab = document.getElementById("signupTab");
+    const formTitle = document.getElementById("formTitle");
+    const formSubtitle = document.getElementById("formSubtitle");
+    const usernameField = document.getElementById("usernameField");
+    const confirmField = document.getElementById("confirmField");
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const submitButton = document.getElementById("submitButton");
+    const authMessage = document.getElementById("authMessage");
+    const authForm = document.getElementById("authForm");
+
+    let mode = "login";
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      const signup = mode === "signup";
+
+      loginTab.classList.toggle("active", !signup);
+      signupTab.classList.toggle("active", signup);
+      usernameField.hidden = !signup;
+      confirmField.hidden = !signup;
+      username.required = signup;
+      confirmPassword.required = signup;
+      password.autocomplete = signup ? "new-password" : "current-password";
+      formTitle.textContent = signup ? "Create Account" : "Welcome Back";
+      formSubtitle.textContent = signup
+        ? "Create your Chess Universe account."
+        : "Sign in to your Chess Universe account.";
+      submitButton.textContent = signup ? "Create Account →" : "Login →";
+      authMessage.style.display = "none";
+    }
+
+    loginTab.addEventListener("click", () => setMode("login"));
+    signupTab.addEventListener("click", () => setMode("signup"));
+
+    document.getElementById("togglePassword").addEventListener("click", function () {
+      const showing = password.type === "text";
+      password.type = showing ? "password" : "text";
+      this.textContent = showing ? "Show" : "Hide";
+      this.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+    });
+
+    authForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      if (mode === "signup" && password.value !== confirmPassword.value) {
+        authMessage.textContent = "Passwords do not match. Please try again.";
+        authMessage.style.display = "block";
+        confirmPassword.focus();
+        return;
+      }
+
+      authMessage.textContent = mode === "signup"
+        ? "The form is ready, but account creation is not connected yet. Connect Firebase Authentication to enable signup."
+        : "Login is not connected yet. Connect Firebase Authentication to enable real accounts.";
+
+      authMessage.style.display = "block";
+    });
+  </script>
 </body>
 </html>
