@@ -3,172 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07110e">
-  <title>Account | Chess Universe</title>
+  <title>Login | Chess Universe</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .auth-page {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    .auth-showcase {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: clamp(28px,7vw,90px);
-      background:
-        radial-gradient(ellipse at 20% 30%,rgba(0,214,154,.12),transparent 55%),
-        #091711;
-      border-right: 1px solid var(--border);
-    }
-    .auth-brand { color:var(--gold); font-weight:800; font-size:1.15rem; }
-    .auth-showcase h1 { margin:25px 0 15px; }
-    .showcase-piece { margin-top:30px; font-size:clamp(7rem,18vw,13rem); line-height:1; color:var(--gold); text-shadow:0 0 65px rgba(231,189,105,.15); }
-    .auth-side { display:grid; place-items:center; padding:28px 16px; }
-    .auth-box { width:min(420px,100%); }
-    .back-link { display:inline-block; margin-bottom:25px; color:var(--muted); }
-    .back-link:hover { color:var(--green); }
-    .tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:5px; margin:22px 0; border:1px solid var(--border); border-radius:13px; background:#08140f; }
-    .tab { padding:11px; border:0; border-radius:9px; color:var(--muted); background:transparent; font-weight:700; }
-    .tab.active { color:#06130d; background:var(--green); }
-    .field { margin-bottom:16px; }
-    .password-wrap { display:flex; gap:8px; }
-    .password-wrap input { flex:1; min-width:0; }
-    .show-password { padding:0 12px; border:1px solid var(--border); border-radius:10px; color:var(--muted); background:var(--panel); }
-    .submit-btn { width:100%; margin-top:5px; }
-    .auth-message { display:none; margin-top:16px; padding:12px; border-radius:10px; color:var(--gold); background:rgba(231,189,105,.08); font-size:.88rem; }
-    .auth-footnote { margin-top:20px; text-align:center; font-size:.82rem; }
-    .home-link { color:var(--green); }
-    @media(max-width:760px) {
-      .auth-page { grid-template-columns:1fr; }
-      .auth-showcase { padding:28px 22px; border-right:0; border-bottom:1px solid var(--border); }
-      .auth-showcase h1 { font-size:2.5rem; }
-      .showcase-piece { display:none; }
-      .auth-side { padding:30px 18px 45px; }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <main class="auth-page">
-    <section class="auth-showcase">
-      <a class="auth-brand" href="index.html">♟ CHESS UNIVERSE</a>
-      <span class="eyebrow" style="width:max-content;margin-top:38px">YOUR NEXT CHAPTER</span>
-      <h1>Every Move<br><span class="gradient-text">Tells a Story.</span></h1>
-      <p>Enter the arena. Challenge your limits. Build your chess journey.</p>
-      <div class="showcase-piece" aria-hidden="true">♚</div>
-    </section>
+<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen p-4">
 
-    <section class="auth-side">
-      <div class="auth-box">
-        <a class="back-link" href="index.html">← Back to Home</a>
-        <h2 id="formTitle">Welcome Back</h2>
-        <p id="formSubtitle">Sign in to your Chess Universe account.</p>
+  <div class="glass-panel max-w-md w-full p-8 rounded-3xl shadow-2xl text-center space-y-6 relative overflow-hidden">
+    <!-- Glowing background accent -->
+    <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="tabs">
-          <button class="tab active" id="loginTab" type="button">Login</button>
-          <button class="tab" id="signupTab" type="button">Sign Up</button>
-        </div>
+    <!-- Header -->
+    <div class="space-y-2">
+      <div class="text-5xl text-emerald-400 drop-shadow">♞</div>
+      <h1 class="text-3xl font-extrabold tracking-tight">Chess Universe</h1>
+      <p class="text-sm text-slate-400">Choose your avatar and sign in to track your Elo rating</p>
+    </div>
 
-        <form id="authForm">
-          <div class="field" id="usernameField" hidden>
-            <label for="username">Username</label>
-            <input id="username" name="username" type="text" placeholder="Choose a username" minlength="3" autocomplete="username">
-          </div>
-
-          <div class="field">
-            <label for="email">Email address</label>
-            <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <div class="password-wrap">
-              <input id="password" name="password" type="password" placeholder="Enter your password" minlength="6" autocomplete="current-password" required>
-              <button class="show-password" id="togglePassword" type="button" aria-label="Show password">Show</button>
-            </div>
-          </div>
-
-          <div class="field" id="confirmField" hidden>
-            <label for="confirmPassword">Confirm password</label>
-            <input id="confirmPassword" type="password" placeholder="Enter password again" minlength="6" autocomplete="new-password">
-          </div>
-
-          <button class="btn btn-primary submit-btn" id="submitButton" type="submit">Login →</button>
-        </form>
-
-        <div class="auth-message" id="authMessage" role="status"></div>
-        <p class="auth-footnote">
-          <a class="home-link" href="bot-game.html">Play as guest</a>
-          <span> · </span>
-          <a class="home-link" href="multiplayer.html">Multiplayer</a>
-        </p>
-        <p class="auth-footnote">Account security requires a real authentication backend.</p>
+    <!-- Avatar Selection -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wider">Choose Avatar</label>
+      <div class="grid grid-cols-4 gap-3 justify-items-center" id="avatarGrid">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-emerald-400 cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" alt="Avatar 1">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Hikaru" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-transparent cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Hikaru" alt="Avatar 2">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Vishy" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-transparent cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Vishy" alt="Avatar 3">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Kasparov" class="avatar-opt w-14 h-14 rounded-full p-1 border-2 border-transparent cursor-pointer bg-slate-800 transition transform hover:scale-110 active:scale-95" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=Kasparov" alt="Avatar 4">
       </div>
-    </section>
-  </main>
+    </div>
 
-  <script>
-    const loginTab = document.getElementById("loginTab");
-    const signupTab = document.getElementById("signupTab");
-    const formTitle = document.getElementById("formTitle");
-    const formSubtitle = document.getElementById("formSubtitle");
-    const usernameField = document.getElementById("usernameField");
-    const confirmField = document.getElementById("confirmField");
-    const username = document.getElementById("username");
-    const password = document.getElementById("password");
-    const confirmPassword = document.getElementById("confirmPassword");
-    const submitButton = document.getElementById("submitButton");
-    const authMessage = document.getElementById("authMessage");
-    const authForm = document.getElementById("authForm");
+    <!-- Guest Name Input -->
+    <div class="space-y-1 text-left">
+      <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Display Name</label>
+      <input type="text" id="guestName" placeholder="Enter your name..." value="Grandmaster" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl focus:border-emerald-500 text-white font-medium placeholder-slate-500 focus:outline-none transition">
+    </div>
 
-    let mode = "login";
+    <!-- Login Options -->
+    <div class="space-y-3 pt-2">
+      <!-- Guest Play Button -->
+      <button id="btnGuestLogin" class="btn-primary w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2">
+        <span>⚡</span> Play as Guest
+      </button>
 
-    function setMode(nextMode) {
-      mode = nextMode;
-      const signup = mode === "signup";
+      <!-- Google Sign-in -->
+      <button id="btnGoogleLogin" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-3 transition">
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
+          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+          <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/>
+          <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
+        </svg>
+        Sign in with Google
+      </button>
+    </div>
 
-      loginTab.classList.toggle("active", !signup);
-      signupTab.classList.toggle("active", signup);
-      usernameField.hidden = !signup;
-      confirmField.hidden = !signup;
-      username.required = signup;
-      confirmPassword.required = signup;
-      password.autocomplete = signup ? "new-password" : "current-password";
-      formTitle.textContent = signup ? "Create Account" : "Welcome Back";
-      formSubtitle.textContent = signup
-        ? "Create your Chess Universe account."
-        : "Sign in to your Chess Universe account.";
-      submitButton.textContent = signup ? "Create Account →" : "Login →";
-      authMessage.style.display = "none";
-    }
+    <div id="authStatus" class="text-xs text-amber-400 hidden"></div>
+  </div>
 
-    loginTab.addEventListener("click", () => setMode("login"));
-    signupTab.addEventListener("click", () => setMode("signup"));
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    document.getElementById("togglePassword").addEventListener("click", function () {
-      const showing = password.type === "text";
-      password.type = showing ? "password" : "text";
-      this.textContent = showing ? "Show" : "Hide";
-      this.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+      authDomain: "chess-universe-5a7cb.firebaseapp.com",
+      projectId: "chess-universe-5a7cb",
+      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+      messagingSenderId: "145519167856",
+      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let selectedAvatar = "https://api.dicebear.com/7.x/bottts/svg?seed=Magnus";
+
+    // Avatar Selection handling
+    document.querySelectorAll('.avatar-opt').forEach(img => {
+      img.addEventListener('click', () => {
+        document.querySelectorAll('.avatar-opt').forEach(el => el.classList.replace('border-emerald-400', 'border-transparent'));
+        img.classList.replace('border-transparent', 'border-emerald-400');
+        selectedAvatar = img.dataset.avatar;
+      });
     });
 
-    authForm.addEventListener("submit", function (event) {
-      event.preventDefault();
+    const statusEl = document.getElementById('authStatus');
+    function showStatus(msg) {
+      statusEl.innerText = msg;
+      statusEl.classList.remove('hidden');
+    }
 
-      if (mode === "signup" && password.value !== confirmPassword.value) {
-        authMessage.textContent = "Passwords do not match. Please try again.";
-        authMessage.style.display = "block";
-        confirmPassword.focus();
-        return;
+    async function saveUserSession(uid, displayName, photoURL) {
+      const userRef = doc(db, "users", uid);
+      const snap = await getDoc(userRef);
+      let rating = 1200;
+
+      if (snap.exists()) {
+        rating = snap.data().rating || 1200;
+      } else {
+        await setDoc(userRef, {
+          displayName,
+          photoURL,
+          rating: 1200,
+          createdAt: Date.now()
+        });
       }
 
-      authMessage.textContent = mode === "signup"
-        ? "The form is ready, but account creation is not connected yet. Connect Firebase Authentication to enable signup."
-        : "Login is not connected yet. Connect Firebase Authentication to enable real accounts.";
+      localStorage.setItem('chess_uid', uid);
+      localStorage.setItem('chess_name', displayName);
+      localStorage.setItem('chess_avatar', photoURL);
+      localStorage.setItem('chess_rating', rating);
 
-      authMessage.style.display = "block";
-    });
+      window.location.href = "index.html";
+    }
+
+    // Guest Mode
+    document.getElementById('btnGuestLogin').onclick = async () => {
+      showStatus("Creating guest session...");
+      try {
+        const cred = await signInAnonymously(auth);
+        const name = document.getElementById('guestName').value.trim() || "Guest Player";
+        await saveUserSession(cred.user.uid, name, selectedAvatar);
+      } catch (err) {
+        showStatus("Guest login error: " + err.message);
+      }
+    };
+
+    // Google Sign In
+    document.getElementById('btnGoogleLogin').onclick = async () => {
+      showStatus("Connecting to Google...");
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        await saveUserSession(user.uid, user.displayName || "Chess Player", user.photoURL || selectedAvatar);
+      } catch (err) {
+        showStatus("Google login error: " + err.message);
+      }
+    };
   </script>
 </body>
 </html>
