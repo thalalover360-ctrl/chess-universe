@@ -3,152 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chess Universe | The Modern Chess Arena</title>
+  <title>Lobby | Chess Universe</title>
+  
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- Main Navbar -->
+  <!-- Top Navbar -->
   <header class="navbar">
     <div class="nav-brand">
-      <a href="index.html" class="flex items-center gap-2">
+      <a href="index.html">
         <span class="brand-icon">♞</span>
-        <span class="tracking-wide">CHESS UNIVERSE</span>
+        <span>CHESS UNIVERSE</span>
       </a>
     </div>
+
     <div class="nav-links">
       <a href="index.html" class="nav-item active text-emerald-400">Lobby</a>
       <a href="bots.html" class="nav-item">Bots Lounge</a>
-      <a href="multiplayer.html" class="nav-item">Multiplayer</a>
+      <a href="multiplayer.html" class="nav-item">Play Online</a>
     </div>
-    <div class="user-badge" id="userBadge" onclick="window.location.href='login.html'">
-      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="user-avatar" alt="Avatar">
-      <span id="navName" class="text-sm font-semibold text-slate-200">Guest</span>
-      <span id="navElo" class="elo-pill">1200</span>
+
+    <div class="user-badge" id="userBadgeNav">
+      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="user-avatar" alt="Avatar">
+      <div class="hidden sm:block text-left">
+        <div id="navName" class="user-name">Player</div>
+      </div>
+      <span id="navElo" class="elo-pill">?</span>
     </div>
   </header>
 
-  <!-- Main Hub Content -->
-  <main class="hub-main flex-1 max-w-7xl mx-auto w-full p-6 space-y-10">
-    
-    <!-- Hero Section -->
-    <div class="hero-banner flex flex-col lg:flex-row items-center justify-between gap-8 p-10 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/80 shadow-2xl relative overflow-hidden">
-      <div class="hero-content z-10 space-y-5 max-w-2xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-          <span>⚡</span> Next-Gen Real-Time Chess
-        </div>
-        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-          Play Chess. <br><span class="text-emerald-400">Rule The Board.</span>
-        </h1>
-        <p class="text-slate-400 text-base md:text-lg leading-relaxed">
-          Challenge friends via instant WhatsApp links, battle across 10 tiered AI bots culminating with the final boss <b class="text-amber-400">Supremo360</b>, or climb the global Elo ladder in real-time.
-        </p>
-        <div class="flex flex-wrap items-center gap-4 pt-2">
-          <a href="multiplayer.html" class="btn-primary py-3.5 px-6 rounded-2xl font-bold flex items-center gap-2">
-            <span>⚔️</span> Play Online PvP
-          </a>
-          <a href="bots.html" class="btn-secondary py-3.5 px-6 rounded-2xl font-semibold flex items-center gap-2">
-            <span>🤖</span> Challenge Bots
-          </a>
+  <!-- Main Hero & Hub -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-8 flex flex-col justify-center">
+
+    <!-- Player Profile Summary Card -->
+    <div class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-5 text-center sm:text-left">
+        <img id="heroAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player" class="w-20 h-20 rounded-2xl bg-slate-900 border-2 border-emerald-500 shadow-xl" alt="Player">
+        <div>
+          <div class="flex items-center justify-center sm:justify-start gap-2">
+            <h2 id="heroName" class="text-2xl font-black text-white">Grandmaster</h2>
+            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">VERIFIED</span>
+          </div>
+          <p id="heroContact" class="text-xs text-slate-400 font-mono mt-0.5">+91 ••••• •••••</p>
+          
+          <div class="flex items-center gap-2 mt-3 justify-center sm:justify-start">
+            <span class="text-xs text-slate-400 font-bold">Rating:</span>
+            <span id="heroElo" class="text-sm font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/20">Calibrating (?)</span>
+          </div>
         </div>
       </div>
 
-      <!-- Quick Elo Stat Card -->
-      <div class="z-10 w-full lg:w-80 bg-slate-900/90 border border-slate-700 p-6 rounded-2xl space-y-5 shadow-xl">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <span class="text-xs uppercase font-bold text-slate-400">Player Card</span>
-          <a href="login.html" class="text-xs text-emerald-400 hover:underline">Switch Profile</a>
+      <!-- Quick Campaign Stats -->
+      <div class="flex gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 w-full sm:w-auto justify-around">
+        <div class="text-center px-3 border-r border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Campaign</span>
+          <span id="heroTier" class="text-lg font-black text-amber-400">Level 1</span>
         </div>
-        <div class="flex items-center gap-4">
-          <img id="cardAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="w-16 h-16 rounded-full border-2 border-emerald-500/40 bg-slate-800 p-1" alt="Avatar">
-          <div>
-            <h3 id="cardName" class="font-bold text-lg text-slate-100">Guest Player</h3>
-            <span class="text-xs text-slate-400">Rank: Challenger</span>
-          </div>
+        <div class="text-center px-3 border-r border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Placement</span>
+          <span id="heroPlacement" class="text-lg font-black text-blue-400">0 / 5</span>
         </div>
-        <div class="bg-slate-800/80 rounded-xl p-3.5 flex justify-between items-center border border-slate-700">
-          <div>
-            <span class="text-xs text-slate-400 block font-medium">Rating (Elo)</span>
-            <span id="cardElo" class="text-2xl font-black text-emerald-400">1200</span>
-          </div>
-          <button id="btnResetRating" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">Reset</button>
+        <div class="text-center px-3">
+          <button id="btnLogout" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase block mt-1 transition">
+            Sign Out ⎋
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Quick Mode Selector Grid -->
-    <div class="space-y-4">
-      <h2 class="text-2xl font-bold tracking-tight text-slate-200">Choose Your Game Mode</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Quick Play Action Modes -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      
+      <!-- Bots Campaign Card -->
+      <a href="bots.html" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 hover:border-emerald-500/40 transition group block">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-4xl p-3 bg-emerald-500/10 rounded-2xl text-emerald-400 border border-emerald-500/20">🤖</span>
+          <span class="text-xs font-bold text-slate-400 group-hover:text-emerald-400 transition flex items-center gap-1">
+            Explore Tiers <span>→</span>
+          </span>
+        </div>
+        <h3 class="text-xl font-extrabold text-white mb-1 group-hover:text-emerald-400 transition">Bot Championship</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Defeat progressive AI challengers from Noobie Bob to the ultimate boss Supremo360 to unlock medals.
+        </p>
+      </a>
 
-        <!-- 1. Play with WhatsApp Friend -->
-        <a href="multiplayer.html" class="glass-card mode-card p-6 rounded-2xl border border-slate-800 hover:border-emerald-500/50 flex flex-col justify-between group">
-          <div class="space-y-4">
-            <div class="mode-card-icon icon-whatsapp">
-              <span>💬</span>
-            </div>
-            <h3 class="group-hover:text-emerald-400 transition">Play With Friend</h3>
-            <p>One-tap private room generator with instant WhatsApp direct invitation. Zero room codes required.</p>
-          </div>
-          <div class="mt-6 flex items-center text-xs font-bold text-emerald-400 gap-1.5 group-hover:translate-x-1 transition">
-            Launch WhatsApp Room <span>→</span>
-          </div>
-        </a>
+      <!-- Multiplayer Card -->
+      <a href="multiplayer.html" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 hover:border-blue-500/40 transition group block">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-4xl p-3 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">⚔️</span>
+          <span class="text-xs font-bold text-slate-400 group-hover:text-blue-400 transition flex items-center gap-1">
+            Create Arena <span>→</span>
+          </span>
+        </div>
+        <h3 class="text-xl font-extrabold text-white mb-1 group-hover:text-blue-400 transition">Online Multiplayer</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Challenge friends via 1-tap WhatsApp invites in Friendly or Rated matches, or enter live radar matchmaking.
+        </p>
+      </a>
 
-        <!-- 2. Bots Lounge (10 Levels) -->
-        <a href="bots.html" class="glass-card mode-card p-6 rounded-2xl border border-slate-800 hover:border-amber-500/50 flex flex-col justify-between group">
-          <div class="space-y-4">
-            <div class="mode-card-icon icon-bot">
-              <span>🤖</span>
-            </div>
-            <h3 class="group-hover:text-amber-400 transition">Bots Lounge (10 Tiers)</h3>
-            <p>From casual warmups to ruthless tactical engine beasts. Face <b>Supremo360 (2000 Elo)</b>.</p>
-          </div>
-          <div class="mt-6 flex items-center text-xs font-bold text-amber-400 gap-1.5 group-hover:translate-x-1 transition">
-            Browse All 10 Bots <span>→</span>
-          </div>
-        </a>
-
-        <!-- 3. Quick Matchmaking -->
-        <a href="multiplayer.html" class="glass-card mode-card p-6 rounded-2xl border border-slate-800 hover:border-blue-500/50 flex flex-col justify-between group">
-          <div class="space-y-4">
-            <div class="mode-card-icon icon-radar">
-              <span>⚡</span>
-            </div>
-            <h3 class="group-hover:text-blue-400 transition">Quick Matchmaking</h3>
-            <p>Instant radar search against active online opponents stored inside Firestore matchmaking pool.</p>
-          </div>
-          <div class="mt-6 flex items-center text-xs font-bold text-blue-400 gap-1.5 group-hover:translate-x-1 transition">
-            Enter Match Pool <span>→</span>
-          </div>
-        </a>
-
-      </div>
     </div>
 
   </main>
 
   <script>
-    // Sync Local Profile
-    const myName = localStorage.getItem('chess_name') || 'Guest Player';
-    const myAvatar = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Magnus';
-    const myElo = localStorage.getItem('chess_rating') || '1200';
+    // 1. Auth Guard: If not verified via OTP, bounce immediately to login.html
+    if (!localStorage.getItem('chess_auth')) {
+      window.location.href = 'login.html';
+    }
 
-    document.getElementById('navName').innerText = myName;
-    document.getElementById('navAvatar').src = myAvatar;
-    document.getElementById('navElo').innerText = myElo;
+    // 2. Fetch User Profile Data
+    const userName = localStorage.getItem('chess_name') || 'Grandmaster';
+    const userAvatar = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Player';
+    const userContact = localStorage.getItem('chess_contact') || 'Verified User';
+    const userRating = localStorage.getItem('chess_rating') || 'Calibrating (?)';
+    const unlockedTier = localStorage.getItem('chess_max_bot_unlocked') || '1';
+    const calibCount = localStorage.getItem('chess_calibration_games') || '0';
 
-    document.getElementById('cardName').innerText = myName;
-    document.getElementById('cardAvatar').src = myAvatar;
-    document.getElementById('cardElo').innerText = myElo;
+    // 3. Render Profile
+    document.getElementById('navName').innerText = userName;
+    document.getElementById('navAvatar').src = userAvatar;
+    document.getElementById('navElo').innerText = userRating;
 
-    // Reset Elo Option
-    document.getElementById('btnResetRating').onclick = () => {
-      if (confirm("Do you want to reset your Elo back to 1200?")) {
-        localStorage.setItem('chess_rating', '1200');
-        document.getElementById('navElo').innerText = '1200';
-        document.getElementById('cardElo').innerText = '1200';
+    document.getElementById('heroName').innerText = userName;
+    document.getElementById('heroAvatar').src = userAvatar;
+    document.getElementById('heroContact').innerText = userContact;
+    document.getElementById('heroElo').innerText = userRating;
+    document.getElementById('heroTier').innerText = `Tier ${unlockedTier}`;
+    document.getElementById('heroPlacement').innerText = `${calibCount} / 5`;
+
+    // 4. Sign Out Handler
+    document.getElementById('btnLogout').onclick = () => {
+      if (confirm("Do you want to log out of your Chess Universe account?")) {
+        localStorage.removeItem('chess_auth');
+        window.location.href = 'login.html';
       }
     };
   </script>
