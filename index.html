@@ -3,192 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07110e">
-  <meta name="description" content="Chess Universe — play chess against AI or challenge your friends online.">
-  <title>Chess Universe | Rule Your Game</title>
+  <title>Chess Universe | The Modern Chess Arena</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .site-nav {
-      position: sticky;
-      top: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      padding: 16px max(20px, calc((100vw - 1180px)/2));
-      background: rgba(7,17,14,.94);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(231,189,105,.18);
-      z-index: 50;
-    }
-    .nav-links { display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
-    .brand-mark { color:#e7bd69; font-size:1.25rem; font-weight:800; }
-    .nav-links a { color:#a5b5ad; font-size:.9rem; }
-    .nav-links a:hover { color:#00d69a; }
-    .hero { min-height:610px; }
-    .hero-kicker { color:#00d69a; font-weight:800; letter-spacing:2px; font-size:.78rem; }
-    .hero h1 { margin:16px 0; }
-    .hero p { line-height:1.9; }
-    .hero-art { position:relative; display:grid; place-items:center; min-height:360px; }
-    .chess-orb {
-      display:grid; place-items:center; width:min(300px,70vw); aspect-ratio:1;
-      border:1px solid rgba(231,189,105,.4); border-radius:50%;
-      background:radial-gradient(circle,rgba(0,214,154,.14),rgba(13,28,23,.8) 65%);
-      box-shadow:0 0 80px rgba(0,214,154,.08),inset 0 0 50px rgba(231,189,105,.06);
-      font-size:clamp(8rem,22vw,12rem); color:#e7bd69;
-    }
-    .hero-art::before,.hero-art::after {
-      content:""; position:absolute; width:min(340px,82vw); aspect-ratio:1;
-      border:1px solid rgba(0,214,154,.15); border-radius:50%;
-    }
-    .hero-art::after { width:min(390px,94vw); border-color:rgba(231,189,105,.1); }
-    .hero-stats { display:flex; gap:28px; flex-wrap:wrap; margin-top:35px; }
-    .hero-stats strong { display:block; color:#e7bd69; font-size:1.3rem; }
-    .hero-stats span { color:#9aaca3; font-size:.8rem; }
-    .mode-card { display:flex; flex-direction:column; align-items:flex-start; min-height:270px; }
-    .mode-icon { font-size:2.5rem; margin-bottom:12px; }
-    .mode-card .btn { margin-top:auto; }
-    .mode-card p { margin-bottom:22px; }
-    .feature-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
-    .feature-row .card { text-align:center; }
-    .feature-row .feature-icon { margin:0 auto 15px; }
-    .cta-panel {
-      padding:clamp(25px,5vw,55px); border:1px solid rgba(231,189,105,.25);
-      border-radius:24px; text-align:center;
-      background:radial-gradient(ellipse at top,rgba(0,214,154,.1),transparent 65%),#0d1c17;
-    }
-    .cta-panel h2 { margin-top:0; }
-    .section-top { display:flex; justify-content:space-between; align-items:end; gap:15px; margin-bottom:25px; }
-    .section-top h2 { margin:0; }
-    .section-top p { margin-bottom:0; }
-    .site-footer { display:flex; justify-content:space-between; gap:15px; flex-wrap:wrap; }
-    @media(max-width:700px) {
-      .site-nav { align-items:flex-start; flex-direction:column; padding:14px 18px; }
-      .nav-links { gap:15px; }
-      .nav-links a { font-size:.82rem; }
-      .hero { padding-top:40px; }
-      .hero-art { min-height:300px; }
-      .feature-row { grid-template-columns:1fr; }
-      .section-top { align-items:flex-start; flex-direction:column; }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-<header class="site-nav">
-  <a class="brand-mark" href="index.html">♟ CHESS UNIVERSE</a>
-  <nav class="nav-links" aria-label="Main navigation">
-    <a href="#modes">Play</a>
-    <a href="#features">Features</a>
-    <a href="bots.html">Bots</a>
-    <a href="login.html">Account</a>
-    <a class="btn btn-primary" href="bot-game.html">Play Now ↗</a>
-  </nav>
-</header>
+  <!-- Main Navbar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <a href="index.html" class="flex items-center gap-2">
+        <span class="brand-icon">♞</span>
+        <span class="tracking-wide">CHESS UNIVERSE</span>
+      </a>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-item active text-emerald-400">Lobby</a>
+      <a href="bots.html" class="nav-item">Bots Lounge</a>
+      <a href="multiplayer.html" class="nav-item">Multiplayer</a>
+    </div>
+    <div class="user-badge" id="userBadge" onclick="window.location.href='login.html'">
+      <img id="navAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="user-avatar" alt="Avatar">
+      <span id="navName" class="text-sm font-semibold text-slate-200">Guest</span>
+      <span id="navElo" class="elo-pill">1200</span>
+    </div>
+  </header>
 
-<main>
-  <section class="hero">
-    <div class="hero-content">
-      <span class="hero-kicker">♛ YOUR NEXT MOVE STARTS HERE</span>
-      <h1>Think Like a King.<br><span>Play Like a Legend.</span></h1>
-      <p>
-        Enter a world where every move matters. Sharpen your strategy against
-        chess bots or challenge your friends to a battle of minds.
-      </p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="bot-game.html">♟ Play vs Bot</a>
-        <a class="btn btn-gold" href="multiplayer.html">⚔ Play with Friends</a>
+  <!-- Main Hub Content -->
+  <main class="hub-main flex-1 max-w-7xl mx-auto w-full p-6 space-y-10">
+    
+    <!-- Hero Section -->
+    <div class="hero-banner flex flex-col lg:flex-row items-center justify-between gap-8 p-10 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/80 shadow-2xl relative overflow-hidden">
+      <div class="hero-content z-10 space-y-5 max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+          <span>⚡</span> Next-Gen Real-Time Chess
+        </div>
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+          Play Chess. <br><span class="text-emerald-400">Rule The Board.</span>
+        </h1>
+        <p class="text-slate-400 text-base md:text-lg leading-relaxed">
+          Challenge friends via instant WhatsApp links, battle across 10 tiered AI bots culminating with the final boss <b class="text-amber-400">Supremo360</b>, or climb the global Elo ladder in real-time.
+        </p>
+        <div class="flex flex-wrap items-center gap-4 pt-2">
+          <a href="multiplayer.html" class="btn-primary py-3.5 px-6 rounded-2xl font-bold flex items-center gap-2">
+            <span>⚔️</span> Play Online PvP
+          </a>
+          <a href="bots.html" class="btn-secondary py-3.5 px-6 rounded-2xl font-semibold flex items-center gap-2">
+            <span>🤖</span> Challenge Bots
+          </a>
+        </div>
       </div>
-      <div class="hero-stats">
-        <div><strong>♟ 1v1</strong><span>Classic chess battles</span></div>
-        <div><strong>♜ AI</strong><span>Challenge your skills</span></div>
-        <div><strong>♛ FREE</strong><span>Start playing</span></div>
-      </div>
-    </div>
-    <div class="hero-art" aria-label="Chess king artwork">
-      <div class="chess-orb">♚</div>
-    </div>
-  </section>
 
-  <section id="modes" class="container">
-    <div class="section-heading">
-      <span class="eyebrow">CHOOSE YOUR BATTLE</span>
-      <h2>Your Game. Your Rules.</h2>
-      <p>Pick a mode and make your next move count.</p>
-    </div>
-    <div class="features">
-      <article class="card mode-card">
-        <div class="mode-icon">♟</div>
-        <span class="badge">SOLO MODE</span>
-        <h3>Play vs Bot</h3>
-        <p>Practice your openings, improve your tactics and test your decisions against a computer opponent.</p>
-        <a class="btn btn-primary" href="bot-game.html">Start a Match →</a>
-      </article>
-      <article class="card mode-card">
-        <div class="mode-icon">⚔</div>
-        <span class="badge">FRIEND MODE</span>
-        <h3>Multiplayer</h3>
-        <p>Challenge a friend with a room code. Online play requires the multiplayer service to be configured.</p>
-        <a class="btn btn-gold" href="multiplayer.html">Play with a Friend →</a>
-      </article>
-      <article class="card mode-card">
-        <div class="mode-icon">♛</div>
-        <span class="badge">DISCOVER</span>
-        <h3>Meet the Bots</h3>
-        <p>Explore the bot section and choose the opponent you want to challenge.</p>
-        <a class="btn" href="bots.html">Explore Bots →</a>
-      </article>
-    </div>
-  </section>
-
-  <section id="features" class="container">
-    <div class="section-heading">
-      <span class="eyebrow">BUILT FOR CHESS LOVERS</span>
-      <h2>More Than Just a Board</h2>
-      <p>A focused chess experience with room to grow.</p>
-    </div>
-    <div class="feature-row">
-      <article class="card">
-        <div class="feature-icon">🧠</div>
-        <h3>Build Your Strategy</h3>
-        <p>Practice calculating moves and thinking ahead, one game at a time.</p>
-      </article>
-      <article class="card">
-        <div class="feature-icon">♜</div>
-        <h3>Classic Chess</h3>
-        <p>Enjoy the timeless game in a modern, dark royal interface.</p>
-      </article>
-      <article class="card">
-        <div class="feature-icon">🏆</div>
-        <h3>Your Chess Journey</h3>
-        <p>Account profiles and online rankings can be added with a connected backend.</p>
-      </article>
-    </div>
-  </section>
-
-  <section class="container">
-    <div class="cta-panel">
-      <span class="eyebrow">THE BOARD IS WAITING</span>
-      <h2>Every Grandmaster Started Somewhere.</h2>
-      <p>Make your first move today.</p>
-      <div class="hero-actions" style="justify-content:center">
-        <a class="btn btn-primary" href="bot-game.html">Play Chess Now →</a>
-        <a class="btn" href="login.html">Create Account</a>
+      <!-- Quick Elo Stat Card -->
+      <div class="z-10 w-full lg:w-80 bg-slate-900/90 border border-slate-700 p-6 rounded-2xl space-y-5 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <span class="text-xs uppercase font-bold text-slate-400">Player Card</span>
+          <a href="login.html" class="text-xs text-emerald-400 hover:underline">Switch Profile</a>
+        </div>
+        <div class="flex items-center gap-4">
+          <img id="cardAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Magnus" class="w-16 h-16 rounded-full border-2 border-emerald-500/40 bg-slate-800 p-1" alt="Avatar">
+          <div>
+            <h3 id="cardName" class="font-bold text-lg text-slate-100">Guest Player</h3>
+            <span class="text-xs text-slate-400">Rank: Challenger</span>
+          </div>
+        </div>
+        <div class="bg-slate-800/80 rounded-xl p-3.5 flex justify-between items-center border border-slate-700">
+          <div>
+            <span class="text-xs text-slate-400 block font-medium">Rating (Elo)</span>
+            <span id="cardElo" class="text-2xl font-black text-emerald-400">1200</span>
+          </div>
+          <button id="btnResetRating" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">Reset</button>
+        </div>
       </div>
     </div>
-  </section>
-</main>
 
-<footer>
-  <div class="container site-footer">
-    <span>♟ <strong style="color:#e7bd69">Chess Universe</strong></span>
-    <span>Think deeply. Play boldly.</span>
-    <span>© <span id="year"></span> Chess Universe</span>
-  </div>
-</footer>
+    <!-- Quick Mode Selector Grid -->
+    <div class="space-y-4">
+      <h2 class="text-2xl font-bold tracking-tight text-slate-200">Choose Your Game Mode</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
+        <!-- 1. Play with WhatsApp Friend -->
+        <a href="multiplayer.html" class="glass-card mode-card p-6 rounded-2xl border border-slate-800 hover:border-emerald-500/50 flex flex-col justify-between group">
+          <div class="space-y-4">
+            <div class="mode-card-icon icon-whatsapp">
+              <span>💬</span>
+            </div>
+            <h3 class="group-hover:text-emerald-400 transition">Play With Friend</h3>
+            <p>One-tap private room generator with instant WhatsApp direct invitation. Zero room codes required.</p>
+          </div>
+          <div class="mt-6 flex items-center text-xs font-bold text-emerald-400 gap-1.5 group-hover:translate-x-1 transition">
+            Launch WhatsApp Room <span>→</span>
+          </div>
+        </a>
+
+        <!-- 2. Bots Lounge (10 Levels) -->
+        <a href="bots.html" class="glass-card mode-card p-6 rounded-2xl border border-slate-800 hover:border-amber-500/50 flex flex-col justify-between group">
+          <div class="space-y-4">
+            <div class="mode-card-icon icon-bot">
+              <span>🤖</span>
+            </div>
+            <h3 class="group-hover:text-amber-400 transition">Bots Lounge (10 Tiers)</h3>
+            <p>From casual warmups to ruthless tactical engine beasts. Face <b>Supremo360 (2000 Elo)</b>.</p>
+          </div>
+          <div class="mt-6 flex items-center text-xs font-bold text-amber-400 gap-1.5 group-hover:translate-x-1 transition">
+            Browse All 10 Bots <span>→</span>
+          </div>
+        </a>
+
+        <!-- 3. Quick Matchmaking -->
+        <a href="multiplayer.html" class="glass-card mode-card p-6 rounded-2xl border border-slate-800 hover:border-blue-500/50 flex flex-col justify-between group">
+          <div class="space-y-4">
+            <div class="mode-card-icon icon-radar">
+              <span>⚡</span>
+            </div>
+            <h3 class="group-hover:text-blue-400 transition">Quick Matchmaking</h3>
+            <p>Instant radar search against active online opponents stored inside Firestore matchmaking pool.</p>
+          </div>
+          <div class="mt-6 flex items-center text-xs font-bold text-blue-400 gap-1.5 group-hover:translate-x-1 transition">
+            Enter Match Pool <span>→</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Sync Local Profile
+    const myName = localStorage.getItem('chess_name') || 'Guest Player';
+    const myAvatar = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Magnus';
+    const myElo = localStorage.getItem('chess_rating') || '1200';
+
+    document.getElementById('navName').innerText = myName;
+    document.getElementById('navAvatar').src = myAvatar;
+    document.getElementById('navElo').innerText = myElo;
+
+    document.getElementById('cardName').innerText = myName;
+    document.getElementById('cardAvatar').src = myAvatar;
+    document.getElementById('cardElo').innerText = myElo;
+
+    // Reset Elo Option
+    document.getElementById('btnResetRating').onclick = () => {
+      if (confirm("Do you want to reset your Elo back to 1200?")) {
+        localStorage.setItem('chess_rating', '1200');
+        document.getElementById('navElo').innerText = '1200';
+        document.getElementById('cardElo').innerText = '1200';
+      }
+    };
+  </script>
 </body>
 </html>
