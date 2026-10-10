@@ -7,7 +7,6 @@
   
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="script.js" defer></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
@@ -41,34 +40,34 @@
     <!-- Header Intro -->
     <div class="text-center space-y-2">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase">
-        <span>🌐</span> Real-Time Multiplayer Arena
+        <span>🌐</span> Multiplayer Arena
       </div>
       <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Challenge Friends or Find Opponents</h1>
       <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-        Create a custom battle link to challenge on WhatsApp, or hop into live radar matchmaking.
+        Create a 1-tap WhatsApp duel link or invite directly via Player Tag.
       </p>
     </div>
 
-    <!-- Match Options Matrix -->
+    <!-- Match Configuration Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <!-- Box 1: Custom Invite & WhatsApp -->
+      <!-- WhatsApp / Friend Duel Room -->
       <div class="glass-card p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
         <div class="space-y-4">
           <div class="flex items-center gap-3">
             <span class="text-3xl">📱</span>
             <div>
-              <h3 class="text-lg font-extrabold text-white">Create Challenge Room</h3>
-              <p class="text-xs text-slate-400">Direct link to play via WhatsApp or browser</p>
+              <h3 class="text-lg font-extrabold text-white">Create WhatsApp Duel</h3>
+              <p class="text-xs text-slate-400">Instant synced board link for friends</p>
             </div>
           </div>
 
-          <!-- Rated vs Friendly Switch -->
+          <!-- Rated vs Friendly -->
           <div>
-            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Match Rating Mode</label>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Match Type</label>
             <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
               <button id="btnModeRated" class="py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition">
-                ⚡ Rated (Elo Stake)
+                ⚡ Rated (Elo)
               </button>
               <button id="btnModeFriendly" class="py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition">
                 ☕ Friendly (Casual)
@@ -76,45 +75,43 @@
             </div>
           </div>
 
-          <!-- Color Choice -->
+          <!-- Color Chooser -->
           <div>
-            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Your Piece Side</label>
-            <div class="grid grid-cols-3 gap-2">
-              <button data-side="white" class="side-btn py-2 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition">White ♔</button>
-              <button data-side="random" class="side-btn py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition">Random 🎲</button>
-              <button data-side="black" class="side-btn py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition">Black ♚</button>
+            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Your Piece Color</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="btnSideWhite" class="py-2.5 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition">White ♔</button>
+              <button id="btnSideBlack" class="py-2.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition">Black ♚</button>
             </div>
           </div>
         </div>
 
-        <!-- Action Buttons -->
         <div class="space-y-2 pt-2">
-          <button id="btnCreateWhatsApp" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-black py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition">
+          <button id="btnWhatsAppInvite" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-black py-3.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition">
             <span>Invite on WhatsApp</span>
             <span>💬</span>
           </button>
-          <button id="btnCopyRoomLink" class="w-full btn-secondary py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+          <button id="btnCopyLink" class="w-full btn-secondary py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
             <span>📋</span>
-            <span id="copyBtnText">Copy Challenge Link</span>
+            <span id="copyTxt">Copy Direct Game Link</span>
           </button>
         </div>
       </div>
 
-      <!-- Box 2: Radar Live Matchmaking -->
+      <!-- Live Radar Matchmaking -->
       <div class="glass-card p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
         <div class="space-y-4">
           <div class="flex items-center gap-3">
             <span class="text-3xl">📡</span>
             <div>
-              <h3 class="text-lg font-extrabold text-white">Live Radar Matchmaking</h3>
-              <p class="text-xs text-slate-400">Instantly paired with live online players</p>
+              <h3 class="text-lg font-extrabold text-white">Live Radar Search</h3>
+              <p class="text-xs text-slate-400">Match against online players instantly</p>
             </div>
           </div>
 
           <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-3">
             <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-400">Match Pool:</span>
-              <span class="font-bold text-emerald-400">Global Ranked Radar</span>
+              <span class="text-slate-400">Radar Pool:</span>
+              <span class="font-bold text-emerald-400">Global Rapid Queue</span>
             </div>
             <div class="flex justify-between items-center text-xs">
               <span class="text-slate-400">Clock Format:</span>
@@ -122,11 +119,10 @@
             </div>
             <div class="flex justify-between items-center text-xs">
               <span class="text-slate-400">Fair Play Shield:</span>
-              <span class="font-bold text-amber-400">Active</span>
+              <span class="font-bold text-amber-400">Protected</span>
             </div>
           </div>
 
-          <!-- Radar Searching Animation (Initially Hidden) -->
           <div id="radarSearching" class="hidden text-center py-4 space-y-3">
             <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
               <div class="absolute inset-0 rounded-full border-2 border-emerald-500 animate-ping opacity-40"></div>
@@ -134,12 +130,12 @@
                 ♞
               </div>
             </div>
-            <p class="text-xs text-emerald-400 font-bold animate-pulse">Scanning live players on radar...</p>
+            <p class="text-xs text-emerald-400 font-bold animate-pulse">Searching for live opponent...</p>
           </div>
         </div>
 
-        <button id="btnFindMatch" class="w-full btn-primary py-3.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-lg shadow-emerald-500/20">
-          Search Live Match ⚡
+        <button id="btnStartRadar" class="w-full btn-primary py-3.5 rounded-xl text-xs sm:text-sm font-extrabold">
+          Find Match On Radar ⚡
         </button>
       </div>
 
@@ -149,9 +145,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    // Auth verification
     if (!localStorage.getItem('chess_auth')) {
       window.location.href = 'login.html';
     }
@@ -168,110 +163,100 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Profile sync
     const userName = localStorage.getItem('chess_name') || 'Player';
     const userElo = localStorage.getItem('chess_rating') || '?';
     document.getElementById('navName').innerText = userName;
     document.getElementById('navAvatar').src = localStorage.getItem('chess_avatar') || 'https://api.dicebear.com/7.x/bottts/svg?seed=Player';
     document.getElementById('navElo').innerText = userElo;
 
-    let selectedMatchMode = 'rated'; // 'rated' or 'friendly'
+    let selectedMode = 'rated';
     let selectedSide = 'white';
 
     // Mode Toggle
     const btnRated = document.getElementById('btnModeRated');
     const btnFriendly = document.getElementById('btnModeFriendly');
-
     btnRated.onclick = () => {
-      selectedMatchMode = 'rated';
+      selectedMode = 'rated';
       btnRated.className = "py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition";
       btnFriendly.className = "py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition";
     };
-
     btnFriendly.onclick = () => {
-      selectedMatchMode = 'friendly';
+      selectedMode = 'friendly';
       btnFriendly.className = "py-2 rounded-lg text-xs font-extrabold bg-emerald-500 text-slate-950 transition";
       btnRated.className = "py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-slate-200 transition";
     };
 
-    // Side Selection Buttons
-    document.querySelectorAll('.side-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.side-btn').forEach(b => {
-          b.className = "side-btn py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition";
-        });
-        btn.className = "side-btn py-2 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition";
-        selectedSide = btn.getAttribute('data-side');
-      };
-    });
+    // Color Toggle
+    const btnWhite = document.getElementById('btnSideWhite');
+    const btnBlack = document.getElementById('btnSideBlack');
+    btnWhite.onclick = () => {
+      selectedSide = 'white';
+      btnWhite.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition";
+      btnBlack.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition";
+    };
+    btnBlack.onclick = () => {
+      selectedSide = 'black';
+      btnBlack.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-800 border-2 border-emerald-500 text-emerald-400 transition";
+      btnWhite.className = "py-2.5 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 transition";
+    };
 
-    // Helper: Create Room in Firestore
-    async function createRoomDoc() {
+    async function generateRoomLinks() {
       const roomId = 'room_' + Math.random().toString(36).substring(2, 9);
-      let creatorSide = selectedSide;
-      if (creatorSide === 'random') {
-        creatorSide = Math.random() < 0.5 ? 'white' : 'black';
-      }
+      const guestSide = selectedSide === 'white' ? 'black' : 'white';
 
       const matchData = {
         roomId: roomId,
         creator: userName,
-        creatorSide: creatorSide,
-        matchType: selectedMatchMode,
-        white: creatorSide === 'white' ? userName : null,
-        whiteElo: creatorSide === 'white' ? userElo : null,
-        black: creatorSide === 'black' ? userName : null,
-        blackElo: creatorSide === 'black' ? userElo : null,
+        creatorSide: selectedSide,
+        matchType: selectedMode,
+        white: selectedSide === 'white' ? userName : null,
+        whiteElo: selectedSide === 'white' ? userElo : null,
+        black: selectedSide === 'black' ? userName : null,
+        blackElo: selectedSide === 'black' ? userElo : null,
         fen: 'start',
         turn: 'w',
         status: 'waiting',
-        createdAt: Date.now()
+        updatedAt: Date.now()
       };
 
       await setDoc(doc(db, "matches", roomId), matchData);
 
-      const opponentSide = creatorSide === 'white' ? 'black' : 'white';
-      const baseUrl = window.location.origin + window.location.pathname.replace('multiplayer.html', 'game.html');
-      const gameUrl = `${baseUrl}?mode=pvp&room=${roomId}&side=${opponentSide}&matchType=${selectedMatchMode}`;
-      const hostUrl = `${baseUrl}?mode=pvp&room=${roomId}&side=${creatorSide}&matchType=${selectedMatchMode}`;
+      const cleanOrigin = window.location.href.split('multiplayer.html')[0];
+      const hostUrl = `${cleanOrigin}game.html?mode=pvp&room=${roomId}&side=${selectedSide}&matchType=${selectedMode}`;
+      const guestUrl = `${cleanOrigin}game.html?mode=pvp&room=${roomId}&side=${guestSide}&matchType=${selectedMode}`;
 
-      return { roomId, gameUrl, hostUrl };
+      return { hostUrl, guestUrl };
     }
 
-    // 1-Tap WhatsApp Invite
-    document.getElementById('btnCreateWhatsApp').onclick = async () => {
-      const { gameUrl, hostUrl } = await createRoomDoc();
-      const message = `⚔️ Hey! I challenge you to a ${selectedMatchMode.toUpperCase()} Chess Match on Chess Universe!\n\nClick link to join the board:\n${gameUrl}`;
-      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
-      
-      window.open(waUrl, '_blank');
+    // 1-Tap WhatsApp Share
+    document.getElementById('btnWhatsAppInvite').onclick = async () => {
+      const { hostUrl, guestUrl } = await generateRoomLinks();
+      const text = `⚔️ ${userName} has challenged you to a ${selectedMode.toUpperCase()} Chess Match!\n\nTap to join immediately:\n${guestUrl}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
       window.location.href = hostUrl;
     };
 
-    // Copy Link Handler
-    document.getElementById('btnCopyRoomLink').onclick = async () => {
-      const { gameUrl, hostUrl } = await createRoomDoc();
-      navigator.clipboard.writeText(gameUrl).then(() => {
-        const textSpan = document.getElementById('copyBtnText');
-        textSpan.innerText = "Copied! Joining Room...";
+    // Copy Link Button
+    document.getElementById('btnCopyLink').onclick = async () => {
+      const { hostUrl, guestUrl } = await generateRoomLinks();
+      navigator.clipboard.writeText(guestUrl).then(() => {
+        document.getElementById('copyTxt').innerText = "Copied! Launching game...";
         setTimeout(() => {
           window.location.href = hostUrl;
-        }, 800);
+        }, 600);
       });
     };
 
-    // Radar Live Search Simulation
-    document.getElementById('btnFindMatch').onclick = async () => {
+    // Live Radar Button
+    document.getElementById('btnStartRadar').onclick = async () => {
       document.getElementById('radarSearching').classList.remove('hidden');
-      document.getElementById('btnFindMatch').classList.add('hidden');
+      document.getElementById('btnStartRadar').classList.add('hidden');
 
       setTimeout(async () => {
-        // Create quick arena match
-        const { hostUrl } = await createRoomDoc();
+        const { hostUrl } = await generateRoomLinks();
         window.location.href = hostUrl;
-      }, 2500);
+      }, 2000);
     };
   </script>
 </body>
 </html>
-
