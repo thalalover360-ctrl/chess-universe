@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chess Rules & Practice | Chess Universe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #07090e; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.8);
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .demo-tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+    .tile-light { background-color: #ebecd0; }
+    .tile-dark { background-color: #739552; }
+    .tile-selected { background-color: rgba(245, 246, 130, 0.9) !important; }
+    .tile-dot::after {
+      content: '';
+      width: 32%;
+      height: 32%;
+      background: rgba(16, 185, 129, 0.85);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .tile-capture::after {
+      content: '';
+      position: absolute;
+      width: 88%;
+      height: 88%;
+      border-radius: 50%;
+      border: 4px solid rgba(239, 68, 68, 0.9);
+      pointer-events: none;
+    }
+    .piece-img { width: 85%; height: 85%; pointer-events: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased select-none pb-12">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="text-slate-400 hover:text-white text-xl font-bold">←</a>
+      <div>
+        <h1 class="font-black text-sm tracking-wide text-white leading-tight">CHESS RULES & DEMO</h1>
+        <p class="text-[10px] text-emerald-400 font-mono font-bold">INTERACTIVE GUIDE</p>
+      </div>
+    </div>
+    <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-xl border border-slate-700 transition">Hub</a>
+  </header>
+
+  <main class="max-w-md w-full mx-auto p-4 space-y-5">
+
+    <!-- Interactive Board Section -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-black text-white">Tap Piece for Legal Moves</h2>
+          <p class="text-[11px] text-slate-400">Board par piece ko tap karo, uske saare chal dikhenge</p>
+        </div>
+        <button id="btnResetBoard" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold px-2.5 py-1 rounded-lg border border-slate-700">Reset</button>
+      </div>
+
+      <div class="w-full flex justify-center">
+        <div id="demoBoard" class="demo-grid"></div>
+      </div>
+      <p id="moveHintText" class="text-xs text-center text-slate-300 font-medium">Kisi bhi white piece ko tap karo</p>
+    </section>
+
+    <!-- Rule 1: Stalemate -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2 shadow-lg">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🤝</span>
+        <h3 class="text-sm font-black text-white">1. Stalemate (Draw Rules)</h3>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Chess me stalemate match ko <strong>Draw</strong> kar deta hai. Yeh 4 scenarios me hota hai:
+      </p>
+      <ul class="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
+        <li><strong class="text-white">No Legal Move:</strong> King par check <em>nhi hai</em>, par player ke paas koi legal chal bachi hi nahi.</li>
+        <li><strong class="text-white">Insufficient Material:</strong> K vs K, K+B vs K, ya K+N vs K (mate karna namumkin).</li>
+        <li><strong class="text-white">Threefold Repetition:</strong> Same board position 3 baar repeat ho jaye.</li>
+        <li><strong class="text-white">50-Move Rule:</strong> Lagataar 50 chal tak na koi pawn chala na koi piece capture hua.</li>
+      </ul>
+    </div>
+
+    <!-- Rule 2: Pawn Promotion -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2 shadow-lg">
+      <div class="flex items-center gap-2">
+        <span class="text-base">👑</span>
+        <h3 class="text-sm font-black text-white">2. Pawn Promotion</h3>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Jab tera Pawn board ke aakhri square (White ke liye 8th rank, Black ke liye 1st rank) par pahuchta hai, toh wo turant promote hota hai:
+      </p>
+      <div class="grid grid-cols-4 gap-2 text-center text-xs font-bold pt-1">
+        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-amber-300">Queen (♛)</div>
+        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-sky-300">Rook (♜)</div>
+        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-emerald-300">Bishop (♝)</div>
+        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-purple-300">Knight (♞)</div>
+      </div>
+    </div>
+
+    <!-- Rule 3: En Passant -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2 shadow-lg">
+      <div class="flex items-center gap-2">
+        <span class="text-base">⚔️</span>
+        <h3 class="text-sm font-black text-white">3. En Passant (Special Capture)</h3>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Agar opponent ka Pawn apni shuruati jagah se <strong>2 steps</strong> chal kar tere Pawn ke barabar me aata hai, toh tu agle hi move me use diagonally capture kar sakta hai jaise usne sirf 1 step chala ho. Yeh sirf <em>turant agle turn</em> par valid hota hai!
+      </p>
+    </div>
+
+  </main>
+
+  <script>
+    const PIECE_SVGS = {
+      wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
+      wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
+      wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
+      wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
+      wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
+      wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
+      bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
+      bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
+      bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
+      bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
+      bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
+      bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png'
+    };
+
+    const demo = new Chess();
+    let selSquare = null;
+
+    function renderBoard() {
+      const boardEl = document.getElementById('demoBoard');
+      boardEl.innerHTML = '';
+
+      const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
+      const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+      ranks.forEach((r, rIdx) => {
+        files.forEach((f, fIdx) => {
+          const sq = `${f}${r}`;
+          const isDark = (rIdx + fIdx) % 2 === 1;
+          const tile = document.createElement('div');
+          tile.className = `demo-tile ${isDark ? 'tile-dark' : 'tile-light'}`;
+          tile.dataset.square = sq;
+
+          const p = demo.get(sq);
+          if (p) {
+            const img = document.createElement('img');
+            img.src = PIECE_SVGS[p.color + p.type.toUpperCase()];
+            img.className = 'piece-img';
+            tile.appendChild(img);
+          }
+
+          if (selSquare === sq) tile.classList.add('tile-selected');
+          tile.onclick = () => onTileClick(sq);
+          boardEl.appendChild(tile);
+        });
+      });
+
+      highlightMoves();
+    }
+
+    function highlightMoves() {
+      if (!selSquare) return;
+      const moves = demo.moves({ square: selSquare, verbose: true });
+      moves.forEach(m => {
+        const el = document.querySelector(`[data-square="${m.to}"]`);
+        if (el) {
+          if (m.captured) el.classList.add('tile-capture');
+          else el.classList.add('tile-dot');
+        }
+      });
+    }
+
+    function onTileClick(sq) {
+      const p = demo.get(sq);
+      if (selSquare) {
+        if (selSquare === sq) {
+          selSquare = null;
+          document.getElementById('moveHintText').innerText = "Kisi bhi white piece ko tap karo";
+          renderBoard();
+          return;
+        }
+
+        const move = demo.move({ from: selSquare, to: sq, promotion: 'q' });
+        if (move) {
+          selSquare = null;
+          document.getElementById('moveHintText').innerText = `Moved: ${move.san}! Ab agla piece tap karo`;
+          renderBoard();
+          return;
+        }
+      }
+
+      if (p) {
+        selSquare = sq;
+        const moves = demo.moves({ square: sq });
+        document.getElementById('moveHintText').innerText = moves.length > 0 
+          ? `${p.color === 'w' ? 'White' : 'Black'} ${p.type.toUpperCase()}: ${moves.length} legal moves mil gayi`
+          : 'Is piece ke paas koi legal move nahi hai!';
+      } else {
+        selSquare = null;
+        document.getElementById('moveHintText').innerText = "Kisi piece par tap karo legal moves dekhne ke liye";
+      }
+      renderBoard();
+    }
+
+    document.getElementById('btnResetBoard').onclick = () => {
+      demo.reset();
+      selSquare = null;
+      document.getElementById('moveHintText').innerText = "Board reset ho gaya. Kisi bhi piece ko tap karo!";
+      renderBoard();
+    };
+
+    renderBoard();
+  </script>
+</body>
+</html>
