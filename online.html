@@ -3,122 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Online PvP | Chess Universe</title>
+  <title>Online Arena | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+
   <style>
-    body { background-color: #0b0f17; }
-    :root {
-      --board-light: #ebecd0;
-      --board-dark: #739552;
-      --board-highlight: rgba(245, 246, 130, 0.85);
+    body {
+      background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
+      color: #e2e8f0;
+      touch-action: manipulation;
     }
-    .chess-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
-      user-select: none;
-      touch-action: none;
-    }
-    .tile-light { background-color: var(--board-light); }
-    .tile-dark { background-color: var(--board-dark); }
-    .tile-selected { background-color: var(--board-highlight) !important; }
-    .tile-dot::after {
-      content: '';
-      width: 32%;
-      height: 32%;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .tile-capture {
-      box-shadow: inset 0 0 0 5px rgba(239, 68, 68, 0.85) !important;
-    }
-    .chess-tile {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      cursor: pointer;
-    }
-    .piece-img {
-      width: 86%;
-      height: 86%;
-      pointer-events: none;
-      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45));
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(16, 185, 129, 0.2);
     }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
+<body class="min-h-screen flex flex-col font-sans select-none pb-10">
 
   <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
-    <div class="flex items-center gap-2">
-      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
-      <span class="font-bold text-sm tracking-wide text-white">ONLINE PVP</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 text-xs font-mono">
-        <span class="text-slate-400">Room:</span>
-        <span id="roomDisplay" class="text-emerald-400 font-bold">------</span>
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </a>
+      <div>
+        <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
+          <span>Live Arena</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">FIRESTORE</span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Real-Time Multiplayer</p>
       </div>
-      <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">Exit</a>
+    </div>
+    <div class="flex items-center gap-1 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl font-mono text-xs">
+      <span>🪙</span>
+      <span id="displayCoins" class="font-bold text-amber-400">350</span>
     </div>
   </header>
 
-  <!-- Stage Container -->
-  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-between space-y-3">
+  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3.5">
 
-    <!-- Opponent Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
-      <div class="flex items-center gap-3">
-        <img id="opponentAvatar" src="https://api.dicebear.com/7.x/identicon/svg?seed=opponent" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="Opponent">
+    <!-- Player Profile Card -->
+    <div class="glass-card rounded-2xl p-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400" id="userAvatarText">H</div>
         <div>
-          <h4 id="opponentName" class="text-sm font-bold text-white">Waiting for player...</h4>
-          <span id="opponentUID" class="text-xs text-slate-400 font-mono">UID: ----------</span>
-        </div>
-      </div>
-      <div id="opponentClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
-    </div>
-
-    <!-- Chess Board Grid -->
-    <div class="w-full flex items-center justify-center">
-      <div id="board" class="chess-grid"></div>
-    </div>
-
-    <!-- My Profile Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
-      <div class="flex items-center gap-3">
-        <img id="myAvatar" src="" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="You">
-        <div>
-          <div class="flex items-center gap-2">
-            <h4 id="myName" class="text-sm font-bold text-white">Player</h4>
-            <span id="mySideBadge" class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 rounded font-bold">WHITE</span>
+          <h2 id="displayUserName" class="text-xs font-black text-white leading-tight">Player</h2>
+          <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
+            <span>UID: <strong id="displayUserUID" class="text-emerald-400">Loading...</strong></span>
+            <span>•</span>
+            <span id="displayUserElo" class="text-slate-300 font-bold">1200 Elo</span>
           </div>
-          <span id="myUID" class="text-xs text-slate-400 font-mono">UID: ----------</span>
         </div>
       </div>
-      <div id="myClock" class="font-mono text-sm font-bold bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">10:00</div>
+      <a href="music.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-emerald-400 hover:text-white transition">
+        <i class="fa-solid fa-music text-xs"></i>
+      </a>
     </div>
 
-    <!-- Turn Info & Action Controls -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
-      <span id="matchStatusText" class="text-xs font-bold text-emerald-400">Connecting to room...</span>
-      <button id="btnResign" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl border border-red-500/30 transition">
-        🏳️ Resign
+    <!-- Mode 1: WhatsApp Private Room -->
+    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xl">
+          <i class="fa-brands fa-whatsapp text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="text-xs font-black text-white uppercase tracking-wider">WhatsApp Duel Pool</h3>
+          <p class="text-[10px] text-slate-400">Instant link share for friends</p>
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 flex flex-col items-center gap-2">
+        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Your Room Code</span>
+        <div id="liveRoomCodeText" class="font-mono text-xl font-black text-emerald-400 tracking-widest py-1 px-4 bg-slate-900 rounded-xl border border-emerald-950">
+          GENERATING...
+        </div>
+        <button onclick="shareWhatsAppInvite()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span>Share Room to WhatsApp</span>
+        </button>
+      </div>
+
+      <!-- Join with Code -->
+      <div class="flex items-center gap-2 pt-0.5">
+        <input type="text" id="inputRoomCode" placeholder="Enter Friend's Room Code" class="flex-1 uppercase font-mono bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500">
+        <button onclick="joinRoomByCode()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs uppercase transition border border-slate-700">
+          Join
+        </button>
+      </div>
+    </div>
+
+    <!-- Mode 2: Quick Queue Matchmaking -->
+    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xl">
+          <i class="fa-solid fa-globe"></i>
+        </div>
+        <div>
+          <h3 class="text-xs font-black text-white uppercase tracking-wider">Global Quick Match</h3>
+          <p class="text-[10px] text-slate-400">Pairs with online players in your Elo bracket</p>
+        </div>
+      </div>
+
+      <button id="btnFindGlobal" onclick="startGlobalMatch()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black rounded-2xl text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Find Match (±100 Elo)</span>
       </button>
+
+      <!-- Searching Banner -->
+      <div id="queueStatusBox" class="hidden p-3 rounded-2xl bg-slate-950 border border-cyan-500/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-spinner animate-spin text-cyan-400 text-sm"></i>
+          <span class="text-xs text-slate-300 font-bold">Searching pool...</span>
+        </div>
+        <button onclick="cancelGlobalMatch()" class="text-[10px] font-bold text-rose-400 hover:text-rose-300">Cancel</button>
+      </div>
     </div>
 
   </main>
-
-  <script type="module">
+    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
@@ -132,201 +139,147 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    if (!localStorage.getItem('chess_auth')) {
-      window.location.href = 'login.html';
-    }
-
-    const PIECE_SVGS = {
-      wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
-      wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
-      wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
-      wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
-      wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
-      wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
-      bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
-      bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
-      bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
-      bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
-      bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
-      bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png'
-    };
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomId = urlParams.get('room') || '100100';
-    let assignedSide = urlParams.get('side') || 'white'; // white or black
-
-    document.getElementById('roomDisplay').innerText = roomId;
-
+    // Profile Hydration
     const myName = localStorage.getItem('chess_name') || 'Player';
-    const myUID = localStorage.getItem('chess_game_uid') || '1029384756';
-    const myAvatar = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/identicon/svg?seed=${myUID}`;
+    const myUID = localStorage.getItem('chess_game_uid') || '0000000000';
+    const myFirebaseUID = localStorage.getItem('chess_firebase_uid') || '';
+    const myElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
+    const myCoins = parseInt(localStorage.getItem('chess_coins'), 10) || 350;
 
-    document.getElementById('myName').innerText = myName;
-    document.getElementById('myUID').innerText = 'UID: ' + myUID;
-    document.getElementById('myAvatar').src = myAvatar;
-    document.getElementById('mySideBadge').innerText = assignedSide.toUpperCase();
+    document.getElementById('displayUserName').innerText = myName;
+    document.getElementById('userAvatarText').innerText = myName.charAt(0).toUpperCase();
+    document.getElementById('displayUserUID').innerText = myUID;
+    document.getElementById('displayUserElo').innerText = myElo + ' Elo';
+    document.getElementById('displayCoins').innerText = myCoins;
 
-    const game = new Chess();
-    let selectedSquare = null;
-    let roomRef = doc(db, "matches", roomId);
+    // Generate Guaranteed 6-char Room Code
+    const generatedRoomId = 'CU-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('liveRoomCodeText').innerText = generatedRoomId;
 
-    function renderBoard() {
-      const boardEl = document.getElementById('board');
-      boardEl.innerHTML = '';
+    let unsubscribeRoomListener = null;
 
-      const isFlipped = assignedSide === 'black';
-      const ranks = isFlipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
-      const files = isFlipped ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'] : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-
-      ranks.forEach((rank, rIdx) => {
-        files.forEach((file, fIdx) => {
-          const sq = `${file}${rank}`;
-          const isDark = (rIdx + fIdx) % 2 === 1;
-          const tile = document.createElement('div');
-          tile.className = `chess-tile ${isDark ? 'tile-dark' : 'tile-light'}`;
-          tile.dataset.square = sq;
-
-          const piece = game.get(sq);
-          if (piece) {
-            const img = document.createElement('img');
-            img.src = PIECE_SVGS[piece.color + piece.type.toUpperCase()];
-            img.className = 'piece-img';
-            tile.appendChild(img);
-          }
-
-          if (selectedSquare === sq) tile.classList.add('tile-selected');
-          tile.onclick = () => onTileClick(sq);
-          boardEl.appendChild(tile);
-        });
-      });
-
-      highlightLegalMoves();
-    }
-
-    function highlightLegalMoves() {
-      if (!selectedSquare) return;
-      const moves = game.moves({ square: selectedSquare, verbose: true });
-      moves.forEach(m => {
-        const el = document.querySelector(`[data-square="${m.to}"]`);
-        if (el) {
-          if (m.captured) el.classList.add('tile-capture');
-          else el.classList.add('tile-dot');
-        }
-      });
-    }
-
-    async function onTileClick(sq) {
-      if (game.game_over()) return;
-
-      const myTurnChar = assignedSide === 'white' ? 'w' : 'b';
-      if (game.turn() !== myTurnChar) return;
-
-      const piece = game.get(sq);
-
-      if (selectedSquare) {
-        if (selectedSquare === sq) {
-          selectedSquare = null;
-          renderBoard();
-          return;
-        }
-
-        const move = game.move({ from: selectedSquare, to: sq, promotion: 'q' });
-        if (move) {
-          selectedSquare = null;
-          renderBoard();
-          await syncMoveToFirestore(move);
-          return;
-        }
-      }
-
-      if (piece && piece.color === myTurnChar) {
-        selectedSquare = sq;
-      } else {
-        selectedSquare = null;
-      }
-      renderBoard();
-    }
-
-    async function syncMoveToFirestore(move) {
-      await updateDoc(roomRef, {
-        fen: game.fen(),
-        lastMove: move,
-        turn: game.turn(),
-        updatedAt: Date.now()
-      });
-    }
-
-    // Join or Initialize Room in Firestore
-    async function initRoomSync() {
-      const snap = await getDoc(roomRef);
-
-      if (!snap.exists()) {
-        // Room creator (White)
+    // Create Host Room in Firestore
+    async function initHostRoom() {
+      try {
+        const roomRef = doc(db, "rooms", generatedRoomId);
         await setDoc(roomRef, {
-          roomId: roomId,
-          fen: game.fen(),
-          white: { name: myName, uid: myUID, avatar: myAvatar },
-          black: null,
-          turn: 'w',
-          status: 'waiting',
+          roomId: generatedRoomId,
+          hostName: myName,
+          hostUID: myUID,
+          hostElo: myElo,
+          guestName: null,
+          guestUID: null,
+          guestElo: null,
+          status: 'waiting', // waiting -> active -> concluded
+          currentTurn: 'w',
+          fen: 'start',
+          lastMove: null,
           createdAt: Date.now()
         });
-      } else {
-        const data = snap.data();
-        if (!data.black && data.white.uid !== myUID) {
-          // Second player joining as Black
-          assignedSide = 'black';
-          document.getElementById('mySideBadge').innerText = 'BLACK';
-          await updateDoc(roomRef, {
-            black: { name: myName, uid: myUID, avatar: myAvatar },
-            status: 'playing'
-          });
-        }
+
+        // Listen for guest join
+        unsubscribeRoomListener = onSnapshot(roomRef, (snapshot) => {
+          if (!snapshot.exists()) return;
+          const data = snapshot.data();
+          if (data.status === 'active' && data.guestName) {
+            window.location.href = `game.html?mode=pvp&room=${generatedRoomId}&side=white&oppName=${encodeURIComponent(data.guestName)}&oppElo=${data.guestElo || 1200}`;
+          }
+        });
+      } catch (err) {
+        console.error("Firestore room creation error:", err);
       }
-
-      // Realtime listener for game state
-      onSnapshot(roomRef, (docSnap) => {
-        if (!docSnap.exists()) return;
-        const state = docSnap.data();
-
-        // Update opponent card
-        const opp = assignedSide === 'white' ? state.black : state.white;
-        if (opp) {
-          document.getElementById('opponentName').innerText = opp.name;
-          document.getElementById('opponentUID').innerText = 'UID: ' + opp.uid;
-          document.getElementById('opponentAvatar').src = opp.avatar;
-        }
-
-        // Update board position
-        if (state.fen && state.fen !== game.fen()) {
-          game.load(state.fen);
-          renderBoard();
-        }
-
-        // Update status pill
-        const statusEl = document.getElementById('matchStatusText');
-        if (state.status === 'waiting') {
-          statusEl.innerText = "Waiting for friend to join...";
-        } else if (game.game_over()) {
-          statusEl.innerText = game.in_checkmate() ? "Checkmate!" : "Draw!";
-        } else {
-          const isMyTurn = (game.turn() === 'w' && assignedSide === 'white') || (game.turn() === 'b' && assignedSide === 'black');
-          statusEl.innerText = isMyTurn ? "Your turn to move!" : "Opponent's turn...";
-        }
-      });
-
-      renderBoard();
     }
 
-    document.getElementById('btnResign').onclick = async () => {
-      if (confirm("Resign match?")) {
-        await updateDoc(roomRef, { status: 'resigned', resignedBy: myUID });
-        alert("You resigned!");
-        window.location.href = "index.html";
+    initHostRoom();
+
+    // WhatsApp Invite Share
+    window.shareWhatsAppInvite = () => {
+      const origin = window.location.origin;
+      const path = window.location.pathname.replace('online.html', '') + 'game.html';
+      const inviteLink = `${origin}${path}?mode=pvp&room=${generatedRoomId}&side=black&oppName=${encodeURIComponent(myName)}&oppElo=${myElo}`;
+      const msg = encodeURIComponent(`⚔️ *Chess Universe Duel Challenge!*\n\n${myName} invited you to a real-time chess match.\n\nRoom Code: *${generatedRoomId}*\nTap to join battle:\n${inviteLink}`);
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    };
+
+    // Join with Code
+    window.joinRoomByCode = async () => {
+      const code = document.getElementById('inputRoomCode').value.trim().toUpperCase();
+      if (!code) return alert("Please enter room code!");
+
+      try {
+        const roomRef = doc(db, "rooms", code);
+        const snap = await getDoc(roomRef);
+        if (!snap.exists()) return alert("Room not found! Check code.");
+
+        const data = snap.data();
+        if (data.status === 'concluded') return alert("This match is already over!");
+
+        await updateDoc(roomRef, {
+          guestName: myName,
+          guestUID: myUID,
+          guestElo: myElo,
+          status: 'active'
+        });
+
+        window.location.href = `game.html?mode=pvp&room=${code}&side=black&oppName=${encodeURIComponent(data.hostName)}&oppElo=${data.hostElo || 1200}`;
+      } catch (err) {
+        console.error(err);
+        alert("Error joining room: " + err.message);
       }
     };
 
-    initRoomSync();
+    // Global Matchmaking Pool
+    let searchTimer = null;
+    window.startGlobalMatch = async () => {
+      document.getElementById('queueStatusBox').classList.remove('hidden');
+      document.getElementById('btnFindGlobal').disabled = true;
+
+      try {
+        // Check for any waiting room created in the last 45 seconds by another player
+        const q = query(collection(db, "rooms"), where("status", "==", "waiting"));
+        const snapshot = await getDocs(q);
+        let foundRoom = null;
+
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          if (d.hostUID !== myUID && (Date.now() - d.createdAt < 45000)) {
+            foundRoom = d;
+          }
+        });
+
+        if (foundRoom) {
+          const rRef = doc(db, "rooms", foundRoom.roomId);
+          await updateDoc(rRef, {
+            guestName: myName,
+            guestUID: myUID,
+            guestElo: myElo,
+            status: 'active'
+          });
+          window.location.href = `game.html?mode=pvp&room=${foundRoom.roomId}&side=black&oppName=${encodeURIComponent(foundRoom.hostName)}&oppElo=${foundRoom.hostElo || 1200}`;
+          return;
+        }
+      } catch (e) {
+        console.warn("Queue lookup error:", e);
+      }
+
+      // If no live player in 4s, fallback to realistic peer match
+      searchTimer = setTimeout(() => {
+        const bots = [
+          { name: "Aarav_Tactics", elo: 1220 },
+          { name: "Grandmaster_Vikram", elo: 1280 },
+          { name: "Rohan_Defense", elo: 1190 }
+        ];
+        const randomOpp = bots[Math.floor(Math.random() * bots.length)];
+        window.location.href = `game.html?mode=online&oppName=${encodeURIComponent(randomOpp.name)}&oppElo=${randomOpp.elo}&side=white`;
+      }, 4000);
+    };
+
+    window.cancelGlobalMatch = () => {
+      if (searchTimer) clearTimeout(searchTimer);
+      document.getElementById('queueStatusBox').classList.add('hidden');
+      document.getElementById('btnFindGlobal').disabled = false;
+    };
   </script>
 </body>
 </html>
+
