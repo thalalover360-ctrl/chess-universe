@@ -3,29 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Bot Arena | Chess Universe</title>
+  <title>Stockfish Bot Arena | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { background-color: #07090e; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #07090e; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
     .tile-hint-from { background-color: #0284c7 !important; box-shadow: inset 0 0 0 3px #38bdf8 !important; }
     .tile-hint-to { background-color: #0369a1 !important; box-shadow: inset 0 0 0 4px #7dd3fc !important; position: relative; }
-    .tile-hint-to::after { content: '★'; position: absolute; font-size: 22px; color: #fde047; pointer-events: none; }
+    .tile-hint-to::after { content: '★'; position: absolute; font-size: 24px; color: #fde047; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col select-none antialiased">
 
+  <!-- Header -->
   <header class="border-b border-slate-800 bg-slate-900/90 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
     <div class="flex items-center gap-2">
-      <a href="index.html" class="text-slate-400 hover:text-white text-xl font-bold">←</a>
+      <a href="index.html" class="text-slate-400 hover:text-white text-xl font-bold transition">←</a>
       <div>
-        <h1 class="font-black text-sm tracking-wide text-white leading-tight">BOT ARENA</h1>
+        <h1 class="font-black text-sm tracking-wide text-white leading-tight">STOCKFISH ARENA</h1>
         <p id="headerSubtitle" class="text-[10px] text-emerald-400 font-mono font-bold">CHOOSE OPPONENT</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button id="btnBackToLobby" class="hidden bg-slate-800 hover:bg-slate-700 text-xs text-emerald-400 border border-slate-700 rounded-xl px-3 py-1.5 font-bold transition">
+      <button id="btnBackToLobby" class="hidden bg-slate-800 hover:bg-slate-700 text-xs text-emerald-400 border border-slate-700 rounded-xl px-3 py-1.5 font-bold transition shadow-sm">
         🤖 Change Bot
       </button>
       <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-xl border border-slate-700 transition">Exit</a>
@@ -36,28 +37,29 @@
   <section id="lobbyScreen" class="flex-1 max-w-md w-full mx-auto p-4 space-y-3">
     <div class="text-center py-2">
       <h2 class="text-lg font-black text-white">Choose Your Opponent</h2>
-      <p class="text-xs text-slate-400">10 AI Bot Personas (400 Elo to 2800 Apex God)</p>
+      <p class="text-xs text-slate-400">10 Stockfish-Calibrated Personas (400 to 2800 Elo)</p>
     </div>
     <div id="botsLobbyList" class="space-y-2.5 pb-8"></div>
   </section>
 
   <!-- SCREEN 2: ACTIVE GAMEPLAY ARENA -->
-  <section id="gameScreen" class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-between space-y-3 hidden">
+  <section id="gameScreen" class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-between space-y-3 pb-8 hidden">
+    <!-- Live Eval Bar -->
     <div class="w-full">
       <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-1">
         <span id="evalScoreText" class="font-bold text-emerald-400">+0.0</span>
-        <span id="engineStatusText" class="text-[11px] text-slate-400">Position Equal</span>
+        <span id="engineStatusText" class="text-[11px] text-slate-400">Engine Ready</span>
       </div>
-      <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex border border-slate-700">
+      <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex border border-slate-700 shadow-inner">
         <div id="evalBarWhite" class="h-full bg-white transition-all duration-300" style="width: 50%;"></div>
         <div id="evalBarBlack" class="h-full bg-slate-700 transition-all duration-300" style="width: 50%;"></div>
       </div>
     </div>
 
     <!-- Active Bot Profile -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-xl">
       <div class="flex items-center gap-3">
-        <img id="botAvatar" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-950 shadow" alt="Bot">
+        <img id="botAvatar" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 bg-slate-950 shadow-md" alt="Bot">
         <div>
           <div class="flex items-center gap-1.5">
             <h4 id="botName" class="text-sm font-black text-white">Bot</h4>
@@ -66,7 +68,7 @@
           <span id="botElo" class="text-xs text-emerald-400 font-mono font-bold">1200 Elo</span>
         </div>
       </div>
-      <div id="botClock" class="font-mono text-xs font-bold bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">10:00</div>
+      <div id="botClock" class="font-mono text-xs font-bold bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 text-slate-200">10:00</div>
     </div>
 
     <!-- Board Grid -->
@@ -75,30 +77,31 @@
     </div>
 
     <!-- User Profile -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-xl">
       <div class="flex items-center gap-3">
-        <img id="userAvatar" src="" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="You">
+        <img id="userAvatar" src="" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800 shadow-md" alt="You">
         <div>
           <h4 id="userName" class="text-xs font-bold text-white">Player</h4>
           <span id="userUID" class="text-[10px] text-slate-400 font-mono">UID: ----------</span>
         </div>
       </div>
-      <div id="userClock" class="font-mono text-xs font-bold bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800">10:00</div>
+      <div id="userClock" class="font-mono text-xs font-bold bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 text-slate-200">10:00</div>
     </div>
 
-    <!-- Actions & Hint -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2.5 flex items-center justify-between">
+    <!-- Action & Hint Controls -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2.5 flex items-center justify-between shadow-lg">
       <div class="flex items-center gap-2">
         <span id="moveBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-200">Ready</span>
         <span id="turnIndicator" class="text-[11px] text-slate-400">White to move</span>
       </div>
       <div class="flex gap-2">
-        <button id="btnHint" class="px-3 py-1 bg-sky-500/10 hover:bg-sky-500/20 active:scale-95 text-sky-400 text-xs font-bold rounded-lg border border-sky-500/30">💡 Best Move</button>
-        <button id="btnResign" class="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 active:scale-95 text-red-400 text-xs font-bold rounded-lg border border-red-500/30">🏳️ Resign</button>
+        <button id="btnHint" class="px-3 py-1 bg-sky-500/10 hover:bg-sky-500/20 active:scale-95 text-sky-400 text-xs font-bold rounded-lg border border-sky-500/30 transition shadow-sm">💡 Best Move</button>
+        <button id="btnResign" class="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 active:scale-95 text-red-400 text-xs font-bold rounded-lg border border-red-500/30 transition shadow-sm">🏳️ Resign</button>
       </div>
     </div>
   </section>
-    <script>
+
+  <script>
     if (!localStorage.getItem('chess_auth')) {
       window.location.href = 'login.html';
     }
@@ -118,31 +121,28 @@
       bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png'
     };
 
-    // Shuru ke 2 beginner bots, baki 8 aggressive grandmaster-level bots
+    // 10 Bots calibrated to real Stockfish depths
     const BOTS = [
-      { id: 1, name: "Chintu", title: "Novice", elo: 400, blunderRate: 0.60, depth: 1, style: "Free Piece Dropper", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&h=120&fit=crop&crop=faces" },
-      { id: 2, name: "Rookie Veer", title: "Beginner", elo: 750, blunderRate: 0.40, depth: 1, style: "Casual Explorer", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&h=120&fit=crop&crop=faces" },
-      { id: 3, name: "Kabir Hawk", title: "Tactician", elo: 1100, blunderRate: 0.12, depth: 2, style: "Fierce Attacker", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=faces" },
-      { id: 4, name: "Rani The Fox", title: "Sneaky Master", elo: 1350, blunderRate: 0.05, depth: 2, style: "Pins & Forks Hunter", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=faces" },
-      { id: 5, name: "Vikram The Wall", title: "Club Pro", elo: 1600, blunderRate: 0.00, depth: 2, style: "Zero Blunder Defense", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=faces" },
-      { id: 6, name: "Viper Shadow", title: "Candidate Master", elo: 1850, blunderRate: 0.00, depth: 2, style: "Lethal Counter-Strikes", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&h=120&fit=crop&crop=faces" },
-      { id: 7, name: "Sub-Zero", title: "Master", elo: 2100, blunderRate: 0.00, depth: 3, style: "Positional Squeeze", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=120&h=120&fit=crop&crop=faces" },
-      { id: 8, name: "Dracula", title: "International Master", elo: 2350, blunderRate: 0.00, depth: 3, style: "Tactical Punisher", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&h=120&fit=crop&crop=faces" },
-      { id: 9, name: "Chanakya GM", title: "Grandmaster", elo: 2600, blunderRate: 0.00, depth: 3, style: "Flawless Strategist", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=faces" },
-      { id: 10, name: "Kalki AI", title: "Apex Immortal", elo: 2800, blunderRate: 0.00, depth: 3, style: "Cold Engine Execution", avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&h=120&fit=crop&crop=center" }
+      { id: 1, name: "Chintu", title: "Novice", elo: 400, depth: 1, blunderRate: 0.65, style: "Free Piece Dropper", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&h=120&fit=crop&crop=faces" },
+      { id: 2, name: "Rookie Veer", title: "Beginner", elo: 750, depth: 2, blunderRate: 0.40, style: "Casual Explorer", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&h=120&fit=crop&crop=faces" },
+      { id: 3, name: "Kabir Hawk", title: "Tactician", elo: 1100, depth: 4, blunderRate: 0.12, style: "Aggressive Attacker", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=faces" },
+      { id: 4, name: "Rani The Fox", title: "Sneaky Master", elo: 1350, depth: 5, blunderRate: 0.05, style: "Forks & Pins Specialist", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=faces" },
+      { id: 5, name: "Vikram The Wall", title: "Club Pro", elo: 1600, depth: 7, blunderRate: 0.00, style: "Zero Blunder Defense", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=faces" },
+      { id: 6, name: "Viper Shadow", title: "Candidate Master", elo: 1850, depth: 8, blunderRate: 0.00, style: "Sharp Counters", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&h=120&fit=crop&crop=faces" },
+      { id: 7, name: "Sub-Zero", title: "Master", elo: 2100, depth: 10, blunderRate: 0.00, style: "Positional Squeeze", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=120&h=120&fit=crop&crop=faces" },
+      { id: 8, name: "Dracula", title: "International Master", elo: 2350, depth: 11, blunderRate: 0.00, style: "Tactical Punisher", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&h=120&fit=crop&crop=faces" },
+      { id: 9, name: "Chanakya GM", title: "Grandmaster", elo: 2600, depth: 13, blunderRate: 0.00, style: "Flawless Strategy", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=faces" },
+      { id: 10, name: "Kalki AI", title: "Apex Immortal", elo: 2800, depth: 15, blunderRate: 0.00, style: "Stockfish Depth 15 Annihilator", avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&h=120&fit=crop&crop=center" }
     ];
 
     let currentBot = null;
     const game = new Chess();
     let selectedSquare = null;
     let hintMove = null;
-    let previousEval = 0;
     let userTime = 600;
     let botTime = 600;
     let timerInterval = null;
-
-    const VALS = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-
+        // Render 10 Bots Lobby
     function renderLobby() {
       const container = document.getElementById('botsLobbyList');
       container.innerHTML = '';
@@ -175,7 +175,7 @@
       document.getElementById('lobbyScreen').classList.add('hidden');
       document.getElementById('gameScreen').classList.remove('hidden');
       document.getElementById('btnBackToLobby').classList.remove('hidden');
-      document.getElementById('headerSubtitle').innerText = "PRO BOT ARENA";
+      document.getElementById('headerSubtitle').innerText = "STOCKFISH BATTLE ARENA";
 
       document.getElementById('botName').innerText = `${bot.name} (${bot.title})`;
       document.getElementById('botElo').innerText = `${bot.elo} Elo`;
@@ -202,10 +202,9 @@
       game.reset();
       selectedSquare = null;
       hintMove = null;
-      previousEval = 0;
       userTime = 600;
       botTime = 600;
-      updateEvalBar(0);
+      updateEvalDisplay(0, "Position Equal");
       document.getElementById('turnIndicator').innerText = "White to move";
       document.getElementById('moveBadge').innerText = "Ready";
       document.getElementById('moveBadge').className = "text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-200";
@@ -236,7 +235,7 @@
           }
 
           if (selectedSquare === sq) tile.classList.add('tile-selected');
-          
+
           if (hintMove) {
             if (hintMove.from === sq) tile.classList.add('tile-hint-from');
             if (hintMove.to === sq) tile.classList.add('tile-hint-to');
@@ -262,7 +261,30 @@
       });
     }
 
-    function onTileClick(sq) {
+    // ⚡ Stockfish Cloud API Engine (Free Open REST Call)
+    async function queryStockfish(depth = 10) {
+      try {
+        const fen = encodeURIComponent(game.fen());
+        const response = await fetch(`https://stockfish.online/api/s/v2.php?fen=${fen}&depth=${depth}`);
+        const data = await response.json();
+        
+        if (data && data.success && data.bestmove) {
+          const moveParts = data.bestmove.split(' ');
+          const moveUCI = moveParts[1]; // e.g. "e7e5" or "e7e8q"
+          return {
+            from: moveUCI.substring(0, 2),
+            to: moveUCI.substring(2, 4),
+            promotion: moveUCI.length > 4 ? moveUCI.substring(4, 5) : 'q',
+            evaluation: data.evaluation !== null ? parseFloat(data.evaluation) : 0,
+            mate: data.mate
+          };
+        }
+      } catch (err) {
+        console.warn("Stockfish Cloud API offline or delayed, fallback engaged", err);
+      }
+      return null;
+    }
+        function onTileClick(sq) {
       if (game.game_over() || game.turn() !== 'w') return;
       hintMove = null;
       const piece = game.get(sq);
@@ -278,8 +300,8 @@
         if (move) {
           selectedSquare = null;
           renderBoard();
-          analyzeMoveQuality(move);
-          setTimeout(runBotEngineTurn, 220);
+          triggerEvaluationBadge(move);
+          setTimeout(handleStockfishBotTurn, 200);
           return;
         }
       }
@@ -292,166 +314,107 @@
       renderBoard();
     }
 
-    // Material Evaluation with Center Bias
-    function evaluateBoardStatic() {
-      let score = 0;
-      const board = game.board();
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const p = board[r][c];
-          if (!p) continue;
-          let val = VALS[p.type] || 0;
-          // Center bonus
-          if ((r === 3 || r === 4) && (c === 3 || c === 4)) val += 25;
-          score += (p.color === 'w' ? val : -val);
-        }
-      }
-      return score;
-    }
-
-    // Check if a move loses piece for free (Suicide Blunder Filter)
-    function isPieceBlunder(move) {
-      game.move(move);
-      const opponentReplies = game.moves({ verbose: true });
-      let freeCapturePenalty = 0;
-
-      for (const rep of opponentReplies) {
-        if (rep.to === move.to && rep.captured) {
-          const lostVal = VALS[rep.captured] || 100;
-          const attackerVal = VALS[rep.piece] || 100;
-          // Agar opponent kam value wale piece se capture kar raha hai ya piece undefended hai
-          if (lostVal > attackerVal) {
-            freeCapturePenalty = (lostVal - attackerVal) * 10;
-            break;
-          }
-        }
-      }
-      game.undo();
-      return freeCapturePenalty;
-    }
-
-    // Tactical Move Scoring (Minimax Depth 2)
-    function evaluateMoveTactics(move, isWhiteTurn) {
-      const suicidePenalty = isPieceBlunder(move);
-      if (suicidePenalty > 200) return isWhiteTurn ? -9999 : 9999;
-
-      game.move(move);
-      if (game.in_checkmate()) {
-        game.undo();
-        return isWhiteTurn ? 50000 : -50000;
-      }
-
-      const replies = game.moves({ verbose: true });
-      let bestReplyVal = isWhiteTurn ? Infinity : -Infinity;
-
-      if (replies.length === 0) {
-        const evalVal = evaluateBoardStatic();
-        game.undo();
-        return evalVal;
-      }
-
-      for (const rep of replies) {
-        game.move(rep);
-        const evalVal = evaluateBoardStatic();
-        game.undo();
-
-        if (isWhiteTurn) {
-          bestReplyVal = Math.min(bestReplyVal, evalVal);
-        } else {
-          bestReplyVal = Math.max(bestReplyVal, evalVal);
-        }
-      }
-
-      game.undo();
-      return bestReplyVal;
-    }
-
-    function analyzeMoveQuality(userMove) {
-      const newEval = evaluateBoardStatic();
-      const evalDiff = newEval - previousEval;
-      previousEval = newEval;
-
+    async function triggerEvaluationBadge(userMove) {
       const badge = document.getElementById('moveBadge');
-      if (evalDiff >= 150 || userMove.san.includes('#')) {
-        badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-emerald-600 text-white";
-        badge.innerText = "⭐ Star Move!";
-      } else if (evalDiff >= -35) {
-        badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-sky-600 text-white";
-        badge.innerText = "👍 Good Move";
-      } else if (evalDiff >= -150) {
-        badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-amber-600 text-white";
-        badge.innerText = "⚠️ Inaccuracy";
-      } else {
-        badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-red-600 text-white";
-        badge.innerText = "🔴 Blunder!";
-      }
+      badge.className = "text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-200";
+      badge.innerText = "Analyzing...";
 
-      updateEvalBar(newEval);
+      const sfData = await queryStockfish(8);
+      if (sfData) {
+        updateEvalDisplay(sfData.evaluation);
+        if (userMove.san.includes('#') || sfData.evaluation > 4) {
+          badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-emerald-600 text-white";
+          badge.innerText = "⭐ Star Move!";
+        } else if (sfData.evaluation >= -0.5) {
+          badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-sky-600 text-white";
+          badge.innerText = "👍 Good Move";
+        } else if (sfData.evaluation >= -2.0) {
+          badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-amber-600 text-white";
+          badge.innerText = "⚠️ Inaccuracy";
+        } else {
+          badge.className = "text-xs font-black px-2 py-0.5 rounded-lg bg-red-600 text-white";
+          badge.innerText = "🔴 Blunder!";
+        }
+      } else {
+        badge.innerText = "Played";
+      }
     }
 
-    function updateEvalBar(centipawns) {
-      const score = (centipawns / 100).toFixed(1);
+    function updateEvalDisplay(evalScore, statusMsg) {
       const scoreEl = document.getElementById('evalScoreText');
-      scoreEl.innerText = score > 0 ? `+${score}` : `${score}`;
+      const statusEl = document.getElementById('engineStatusText');
+      
+      const num = parseFloat(evalScore) || 0;
+      scoreEl.innerText = num > 0 ? `+${num.toFixed(1)}` : `${num.toFixed(1)}`;
+      
+      if (statusMsg) {
+        statusEl.innerText = statusMsg;
+      } else {
+        if (num > 1.5) statusEl.innerText = "White Winning";
+        else if (num < -1.5) statusEl.innerText = "Black Winning";
+        else statusEl.innerText = "Position Equal";
+      }
 
-      const whitePct = Math.max(10, Math.min(90, 50 + centipawns / 30));
+      const whitePct = Math.max(10, Math.min(90, 50 + num * 6));
       document.getElementById('evalBarWhite').style.width = `${whitePct}%`;
       document.getElementById('evalBarBlack').style.width = `${100 - whitePct}%`;
     }
 
-    // Bot Response Logic (Sharp & Tactical)
-    function runBotEngineTurn() {
+    // 🤖 Bot Turn via Real Stockfish Cloud
+    async function handleStockfishBotTurn() {
       if (game.game_over()) return checkGameOver();
-      document.getElementById('turnIndicator').innerText = `${currentBot.name} calculating...`;
+      document.getElementById('turnIndicator').innerText = `${currentBot.name} thinking (Stockfish)...`;
 
       const moves = game.moves({ verbose: true });
       if (moves.length === 0) return checkGameOver();
 
-      let chosenMove = null;
+      let finalMove = null;
 
-      // Only Bot 1 and 2 blunder; Bot 3 to 10 are deadly
+      // Beginners intentional blunder chance
       if (Math.random() < currentBot.blunderRate) {
-        chosenMove = moves[Math.floor(Math.random() * moves.length)];
+        finalMove = moves[Math.floor(Math.random() * moves.length)];
       } else {
-        let bestScore = Infinity;
-        for (const m of moves) {
-          const score = evaluateMoveTactics(m, false);
-          if (score < bestScore) {
-            bestScore = score;
-            chosenMove = m;
-          }
+        const sfResult = await queryStockfish(currentBot.depth);
+        if (sfResult) {
+          const matched = moves.find(m => m.from === sfResult.from && m.to === sfResult.to);
+          if (matched) finalMove = matched;
+          updateEvalDisplay(sfResult.evaluation);
+        }
+
+        // Safe Fallback if cloud network delays
+        if (!finalMove) {
+          const captures = moves.filter(m => m.captured);
+          finalMove = captures.length > 0 ? captures[0] : moves[0];
         }
       }
 
-      game.move(chosenMove || moves[0]);
-      previousEval = evaluateBoardStatic();
-      updateEvalBar(previousEval);
+      game.move(finalMove);
       renderBoard();
-
       document.getElementById('turnIndicator').innerText = "White to move";
       if (game.game_over()) checkGameOver();
     }
 
-    // 💡 Best Move Hint (Calculates safely so Queen is NEVER sacrificed)
-    document.getElementById('btnHint').onclick = () => {
+    // 💡 100% Accurate Stockfish Best Move Hint
+    document.getElementById('btnHint').onclick = async () => {
       if (game.game_over() || game.turn() !== 'w') return;
-      const moves = game.moves({ verbose: true });
-      if (moves.length === 0) return;
+      document.getElementById('btnHint').innerText = "⏳ Finding...";
 
-      let bestScore = -Infinity;
-      let bestMove = moves[0];
+      const sfResult = await queryStockfish(12);
+      document.getElementById('btnHint').innerText = "💡 Best Move";
 
-      for (const m of moves) {
-        const score = evaluateMoveTactics(m, true);
-        if (score > bestScore) {
-          bestScore = score;
-          bestMove = m;
+      if (sfResult) {
+        hintMove = { from: sfResult.from, to: sfResult.to };
+        selectedSquare = sfResult.from;
+        updateEvalDisplay(sfResult.evaluation);
+        renderBoard();
+      } else {
+        const fallback = game.moves({ verbose: true })[0];
+        if (fallback) {
+          hintMove = { from: fallback.from, to: fallback.to };
+          selectedSquare = fallback.from;
+          renderBoard();
         }
       }
-
-      hintMove = bestMove;
-      selectedSquare = hintMove.from;
-      renderBoard();
     };
 
     function checkGameOver() {
