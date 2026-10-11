@@ -12,6 +12,7 @@
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+  <script src="script.js"></script>
 
   <style>
     :root {
@@ -99,16 +100,11 @@
       background: rgba(16, 185, 129, 0.35);
       border-radius: 4px;
     }
-
-    .stat-badge {
-      background: rgba(2, 6, 23, 0.75);
-      border: 1px solid rgba(30, 41, 59, 0.8);
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans select-none pb-16">
 
-  <!-- Main Navbar & Live Economy Vault -->
+  <!-- Main Navbar & Live Economy -->
   <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
       <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg shadow-md">
@@ -117,22 +113,21 @@
       <div>
         <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
           <span>CHESS UNIVERSE</span>
-          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">TITAN 2.0</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">PRO</span>
         </h1>
-        <p class="text-[10px] text-slate-400 font-medium">Grandmaster Engine & Global PvP</p>
+        <p class="text-[10px] text-slate-400 font-medium">Grandmaster Engine & PvP</p>
       </div>
     </div>
 
-    <!-- Live Economy & Audio Dock -->
+    <!-- Live Economy & Sound Control -->
     <div class="flex items-center gap-1.5 font-mono text-xs">
       <div class="flex items-center gap-1 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl shadow-inner">
         <span>🪙</span>
         <span id="headerCoins" class="font-bold text-amber-400">350</span>
       </div>
-      <div class="flex items-center gap-1 bg-slate-950 border border-cyan-500/40 px-2 py-1 rounded-xl shadow-inner">
-        <span>💎</span>
-        <span id="headerDiamonds" class="font-bold text-cyan-400">12</span>
-      </div>
+      <button onclick="toggleGlobalAudio()" id="btnAudioMuteLobby" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 flex items-center justify-center text-xs hover:text-white transition" title="Sound Control">
+        <i class="fa-solid fa-volume-high" id="lobbyAudioIcon"></i>
+      </button>
       <a href="music.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs hover:text-emerald-400 transition" title="Sound Studio">
         <i class="fa-solid fa-music"></i>
       </a>
@@ -141,7 +136,7 @@
 
   <main class="max-w-md w-full mx-auto px-3.5 pt-3.5 flex flex-col gap-3.5">
 
-    <!-- Player Pass Overview Card -->
+    <!-- Actual User Profile (From Real Storage) -->
     <div class="lobby-glass rounded-3xl p-4 flex items-center justify-between shadow-xl pulse-glow">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-2xl bg-slate-950 border-2 border-emerald-500/40 flex items-center justify-center text-xl font-black text-emerald-400 shadow-md" id="lobbyAvatarInitial">
@@ -149,32 +144,27 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h2 id="lobbyPlayerName" class="text-sm font-black text-white leading-tight">Harsh Singh</h2>
-            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">PRO GM</span>
+            <h2 id="lobbyPlayerName" class="text-sm font-black text-white leading-tight">Player</h2>
+            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">ONLINE</span>
           </div>
           <div class="text-[11px] font-mono text-slate-400 mt-0.5">
-            <span id="lobbyPlayerElo" class="text-emerald-400 font-bold">1200 Elo</span> • UID: <span id="lobbyPlayerUID" class="text-slate-300 font-mono">8830464849</span>
+            <span id="lobbyPlayerElo" class="text-emerald-400 font-bold">1200 Elo</span> • UID: <span id="lobbyPlayerUID" class="text-slate-300 font-mono">0000000000</span>
           </div>
         </div>
       </div>
-      <div class="flex flex-col items-end gap-1">
-        <div class="text-[10px] font-mono text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-          🔥 5 Win Streak
-        </div>
-        <a href="login.html" class="text-[9px] uppercase tracking-wider font-bold text-slate-400 hover:text-white transition">
-          Switch ID
-        </a>
-      </div>
+      <a href="login.html" class="px-3 py-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white transition">
+        Switch ID
+      </a>
     </div>
 
-    <!-- Live Interactive Hero Board Widget -->
+    <!-- Live Interactive Hero Board Widget (Opera Game 1858) -->
     <div class="hero-board-frame p-3 flex flex-col items-center gap-2">
       <div class="w-full flex items-center justify-between px-1">
         <div class="flex items-center gap-1.5 text-[10px] font-black uppercase text-emerald-400">
           <i class="fa-solid fa-satellite-dish animate-pulse"></i>
-          <span>Live Demo Board</span>
+          <span>Immortal Replay</span>
         </div>
-        <span id="demoGameTitle" class="text-[10px] font-mono text-slate-400">Opera Game (1858)</span>
+        <span class="text-[10px] font-mono text-slate-400">Opera Game (1858)</span>
       </div>
 
       <div class="w-[280px] h-[280px] rounded-xl overflow-hidden border border-emerald-950/80 shadow-2xl relative">
@@ -193,27 +183,8 @@
         </button>
       </div>
     </div>
-        <!-- Career Stats Strip -->
-    <div class="grid grid-cols-4 gap-2 text-center">
-      <div class="stat-badge rounded-2xl p-2">
-        <span class="text-[9px] text-slate-500 uppercase font-bold block">Matches</span>
-        <span class="text-xs font-mono font-black text-white">48</span>
-      </div>
-      <div class="stat-badge rounded-2xl p-2">
-        <span class="text-[9px] text-slate-500 uppercase font-bold block">Win Rate</span>
-        <span class="text-xs font-mono font-black text-emerald-400">68%</span>
-      </div>
-      <div class="stat-badge rounded-2xl p-2">
-        <span class="text-[9px] text-slate-500 uppercase font-bold block">Best Elo</span>
-        <span class="text-xs font-mono font-black text-cyan-400">1340</span>
-      </div>
-      <div class="stat-badge rounded-2xl p-2">
-        <span class="text-[9px] text-slate-500 uppercase font-bold block">Badges</span>
-        <span class="text-xs font-mono font-black text-amber-400">7 🏅</span>
-      </div>
-    </div>
 
-    <!-- MODE 1: Stocklite 10-Tier Bot Arena -->
+    <!-- Primary Arena Route 1: Play vs Stocklite Bots -->
     <a href="bots.html" class="lobby-glass rounded-3xl p-4 flex items-center justify-between shadow-xl border-emerald-500/30">
       <div class="flex items-center gap-3.5">
         <div class="w-13 h-13 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-3xl shadow-lg">
@@ -232,7 +203,7 @@
       </div>
     </a>
 
-    <!-- MODE 2: Online Arena & WhatsApp Private Rooms -->
+    <!-- Primary Arena Route 2: Online Human Multiplayer -->
     <a href="online.html" class="lobby-glass rounded-3xl p-4 flex items-center justify-between shadow-xl">
       <div class="flex items-center gap-3.5">
         <div class="w-13 h-13 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-2xl shadow-lg">
@@ -241,17 +212,16 @@
         <div>
           <div class="flex items-center gap-2">
             <h3 class="text-sm font-black text-white uppercase tracking-wider">Online Multiplayer</h3>
-            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">LIVE POOL</span>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">LIVE</span>
           </div>
-          <p class="text-[11px] text-slate-400 mt-0.5">1-Tap WhatsApp Duel link & Firestore Realtime Relay</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Real Human Pool & 1-Tap WhatsApp Duel Challenge</p>
         </div>
       </div>
       <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400">
         <i class="fa-solid fa-chevron-right text-xs"></i>
       </div>
     </a>
-
-    <!-- Sub-Hub 2-Column Grid: Pass & Play & Friends Network -->
+        <!-- Grid 2-Column: Pass & Play & Friends Network -->
     <div class="grid grid-cols-2 gap-3">
       <!-- Pass & Play -->
       <a href="multiplayer.html" class="lobby-glass rounded-3xl p-3.5 flex flex-col gap-2 shadow-lg">
@@ -263,11 +233,11 @@
         </div>
         <div>
           <h4 class="text-xs font-black text-white uppercase tracking-wider">Pass & Play</h4>
-          <p class="text-[10px] text-slate-400 mt-0.5">Same phone battle with auto clock flips</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">2-Player battle on same screen</p>
         </div>
       </a>
 
-      <!-- Friends Hub by 10-Digit UID -->
+      <!-- Friends Network (10-Digit UID) -->
       <a href="friend.html" class="lobby-glass rounded-3xl p-3.5 flex flex-col gap-2 shadow-lg">
         <div class="flex items-center justify-between">
           <div class="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-lg">
@@ -277,7 +247,7 @@
         </div>
         <div>
           <h4 class="text-xs font-black text-white uppercase tracking-wider">Friends Network</h4>
-          <p class="text-[10px] text-slate-400 mt-0.5">Direct UID search, friend list & live requests</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Add 10-Digit Game UID & Duel</p>
         </div>
       </a>
     </div>
@@ -289,144 +259,68 @@
           <i class="fa-solid fa-chart-line"></i>
         </div>
         <div>
-          <h4 class="text-xs font-black text-white uppercase tracking-wider">Game Review 2.0</h4>
-          <p class="text-[10px] text-slate-400 mt-0.5">Centipawn graph, move cards, accuracy & coach</p>
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">Game Review</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">Centipawn graph, mistakes & blunder coach</p>
         </div>
       </div>
       <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400">
         Review ⚡
       </span>
     </a>
-        <!-- Daily Tactical Puzzle Widget (Mate in 2) -->
-    <div class="lobby-glass rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-base">
-            <i class="fa-solid fa-puzzle-piece"></i>
-          </div>
-          <div>
-            <h4 class="text-xs font-black text-white uppercase tracking-wider">Daily Tactical Drill</h4>
-            <p class="text-[10px] text-slate-400">White to move • Mate in 2</p>
-          </div>
-        </div>
-        <span class="text-[10px] font-mono text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-          +25 🪙 Bonus
-        </span>
-      </div>
 
-      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-between">
-        <div class="text-[11px] font-mono text-slate-300">
-          FEN: <span class="text-emerald-400 font-bold">r1b2rk1/pp3ppp/...</span>
-        </div>
-        <button onclick="launchDailyPuzzle()" class="px-3.5 py-1.5 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-black text-[11px] uppercase rounded-xl tracking-wider shadow transition">
-          Solve 🧩
-        </button>
-      </div>
-    </div>
-
-    <!-- Rank Divisions Ladder Showcase -->
-    <div class="lobby-glass rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
-      <div class="flex items-center justify-between">
-        <h4 class="text-xs font-black uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group text-cyan-400"></i>
-          <span>Division Tiers</span>
-        </h4>
-        <span class="text-[9px] font-mono text-emerald-400 font-bold">SILVER TIER III</span>
-      </div>
-      
-      <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
-        <div class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full" style="width: 65%;"></div>
-      </div>
-      
-      <div class="flex justify-between items-center text-[10px] font-mono text-slate-400">
-        <span>1200 Current</span>
-        <span class="text-emerald-400 font-bold">+100 Elo to Gold Division</span>
-        <span>1300 Goal</span>
-      </div>
-    </div>
-
-    <!-- Global Grandmaster Leaderboard Ticker -->
-    <div class="lobby-glass rounded-3xl p-4 flex flex-col gap-2.5 shadow-xl">
-      <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-        <h4 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-trophy text-amber-400"></i>
-          <span>Global Leaderboard</span>
-        </h4>
-        <span class="text-[9px] font-mono text-slate-500">OCTOBER SEASON</span>
-      </div>
-
-      <div class="flex flex-col gap-1.5 font-mono text-xs">
-        <!-- Rank 1 -->
-        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/70 border border-amber-500/30">
-          <div class="flex items-center gap-2">
-            <span class="w-5 text-center font-black text-amber-400">#1</span>
-            <span class="text-white font-bold">Magnus_Carlsen_AI</span>
-          </div>
-          <span class="text-emerald-400 font-black">2850 Elo</span>
-        </div>
-        <!-- Rank 2 -->
-        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/70 border border-slate-800">
-          <div class="flex items-center gap-2">
-            <span class="w-5 text-center font-black text-slate-300">#2</span>
-            <span class="text-white font-bold">Hikaru_Speed_Bot</span>
-          </div>
-          <span class="text-emerald-400 font-black">2795 Elo</span>
-        </div>
-        <!-- Rank 3 -->
-        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/70 border border-slate-800">
-          <div class="flex items-center gap-2">
-            <span class="w-5 text-center font-black text-amber-700">#3</span>
-            <span class="text-white font-bold">The Immortal Engine</span>
-          </div>
-          <span class="text-emerald-400 font-black">2600 Elo</span>
-        </div>
-        <!-- Rank 4 -->
-        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/70 border border-slate-800">
-          <div class="flex items-center gap-2">
-            <span class="w-5 text-center font-black text-slate-500">#4</span>
-            <span class="text-white font-bold">Grandmaster Arya</span>
-          </div>
-          <span class="text-emerald-400 font-black">2000 Elo</span>
-        </div>
-        <!-- User Rank Placement -->
-        <div class="flex items-center justify-between p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mt-0.5">
-          <div class="flex items-center gap-2">
-            <span class="w-5 text-center font-black text-emerald-400">#14</span>
-            <span class="text-white font-black" id="leaderboardPlayerName">Harsh Singh (You)</span>
-          </div>
-          <span class="text-emerald-400 font-black" id="leaderboardPlayerElo">1200 Elo</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Play Action Button -->
+    <!-- Quick Action Launcher -->
     <button onclick="startQuickBotDuel()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-950/60 flex items-center justify-center gap-2">
       <i class="fa-solid fa-swords text-sm"></i>
       <span>Quick Duel (Coach Vikram • 1300)</span>
     </button>
 
   </main>
-    <script>
+
+  <script>
     // ============================================================
-    // PROFILE HYDRATION FROM LOCALSTORAGE
+    // REAL PROFILE HYDRATION FROM LOCALSTORAGE
     // ============================================================
     const localName = localStorage.getItem('chess_name') || 'Harsh Singh';
-    const localUID = localStorage.getItem('chess_game_uid') || '8830464849';
+    const localUID = localStorage.getItem('chess_game_uid') || '0000000000';
     const localElo = localStorage.getItem('chess_rating') || '1200';
     const localCoins = localStorage.getItem('chess_coins') || '350';
-    const localDiamonds = localStorage.getItem('chess_diamonds') || '12';
 
     document.getElementById('lobbyPlayerName').innerText = localName;
     document.getElementById('lobbyAvatarInitial').innerText = localName.charAt(0).toUpperCase();
     document.getElementById('lobbyPlayerElo').innerText = localElo + ' Elo';
     document.getElementById('lobbyPlayerUID').innerText = localUID;
     document.getElementById('headerCoins').innerText = localCoins;
-    document.getElementById('headerDiamonds').innerText = localDiamonds;
-    document.getElementById('leaderboardPlayerName').innerText = `${localName} (You)`;
-    document.getElementById('leaderboardPlayerElo').innerText = `${localElo} Elo`;
 
     // ============================================================
-    // INTERACTIVE HERO DEMO BOARD (MORPHY'S OPERA GAME 1858)
+    // CINEMATIC BGMI AUDIO TRIGGER ON FIRST INTERACTION
+    // ============================================================
+    let isMuted = false;
+
+    function triggerLobbyHypeAudio() {
+      if (typeof SoundEngine !== 'undefined') {
+        SoundEngine.startLobbyTheme();
+      }
+    }
+
+    window.toggleGlobalAudio = () => {
+      isMuted = !isMuted;
+      const icon = document.getElementById('lobbyAudioIcon');
+      if (typeof SoundEngine !== 'undefined') {
+        if (isMuted) {
+          SoundEngine.stopLobbyTheme();
+          icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+        } else {
+          SoundEngine.startLobbyTheme();
+          icon.className = 'fa-solid fa-volume-high text-emerald-400';
+        }
+      }
+    };
+
+    window.addEventListener('click', () => { triggerLobbyHypeAudio(); }, { once: true });
+    window.addEventListener('touchstart', () => { triggerLobbyHypeAudio(); }, { once: true });
+
+    // ============================================================
+    // INTERACTIVE HERO REPLAY BOARD (OPERA GAME 1858)
     // ============================================================
     const operaGamePGN = [
       "e4", "e5", "Nf3", "d6", "d4", "Bg4", "dxe5", "Bxf3", "Qxf3", "dxe5", 
@@ -455,6 +349,7 @@
         demoSim.move(operaGamePGN[demoIndex]);
         demoBoard.position(demoSim.fen());
         demoIndex++;
+        if (typeof SoundEngine !== 'undefined') SoundEngine.playMove();
       } else {
         demoSim.reset();
         demoBoard.position('start');
@@ -470,6 +365,7 @@
           demoSim.move(operaGamePGN[i]);
         }
         demoBoard.position(demoSim.fen());
+        if (typeof SoundEngine !== 'undefined') SoundEngine.playMove();
       }
     }
 
@@ -508,27 +404,16 @@
       window.location.href = 'game.html?mode=bot&botId=5&side=white&botName=Coach%20Vikram&oppElo=1300';
     }
 
-    function launchDailyPuzzle() {
-      window.location.href = 'game.html?mode=bot&botId=4&side=white&puzzle=daily';
-    }
-
-    // Auto-sync credentials if updated in other tabs
+    // Storage update event across tabs
     window.addEventListener('storage', function(e) {
-      if (e.key === 'chess_rating') {
-        document.getElementById('lobbyPlayerElo').innerText = e.newValue + ' Elo';
-        document.getElementById('leaderboardPlayerElo').innerText = e.newValue + ' Elo';
-      }
-      if (e.key === 'chess_coins') {
-        document.getElementById('headerCoins').innerText = e.newValue;
-      }
+      if (e.key === 'chess_rating') document.getElementById('lobbyPlayerElo').innerText = e.newValue + ' Elo';
+      if (e.key === 'chess_coins') document.getElementById('headerCoins').innerText = e.newValue;
       if (e.key === 'chess_name') {
         document.getElementById('lobbyPlayerName').innerText = e.newValue;
         document.getElementById('lobbyAvatarInitial').innerText = e.newValue.charAt(0).toUpperCase();
-        document.getElementById('leaderboardPlayerName').innerText = `${e.newValue} (You)`;
       }
     });
   </script>
 </body>
 </html>
 
-    
