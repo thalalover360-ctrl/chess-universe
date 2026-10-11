@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chess Universe - Sound & Music Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: radial-gradient(circle at top, #14241b 0%, #080f0c 100%);
+      color: #e2e8f0;
+      touch-action: manipulation;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans select-none pb-8">
+
+  <!-- Header -->
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2">
+          <span>Audio Studio</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">SYNTH</span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Procedural Music & Move Sound FX</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-md w-full mx-auto px-4 pt-4 flex flex-col gap-4">
+
+    <!-- Live Master Audio Control -->
+    <div class="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-5 shadow-xl flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-black text-white">Procedural Lo-Fi Engine</h2>
+          <p class="text-xs text-slate-400">Self-generating chess ambient harmony</p>
+        </div>
+        <button id="btnToggleSynth" onclick="toggleSynthMusic()" class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl shadow-lg transition">
+          <i class="fa-solid fa-play" id="synthPlayIcon"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-800">
+        <div class="flex justify-between text-xs font-mono">
+          <span class="text-slate-400">Master Volume</span>
+          <span id="volText" class="text-emerald-400 font-bold">50%</span>
+        </div>
+        <input type="range" id="volSlider" min="0" max="100" value="50" oninput="changeVolume(this.value)" class="w-full accent-emerald-500 h-1.5 bg-slate-950 rounded-lg cursor-pointer">
+      </div>
+    </div>
+
+    <!-- Music Mood Selection -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
+      <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+        <i class="fa-solid fa-compact-disc"></i>
+        <span>Soundtrack Moods</span>
+      </h3>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="setThemeTrack('lofi')" id="btn-lofi" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-emerald-500 flex flex-col items-start gap-1 text-left">
+          <span class="text-xs font-black text-white">♟️ Grandmaster Lo-Fi</span>
+          <span class="text-[10px] text-slate-400">Soft Rhodes chords & calm focus</span>
+        </button>
+
+        <button onclick="setThemeTrack('ambient')" id="btn-ambient" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-emerald-500/50 flex flex-col items-start gap-1 text-left">
+          <span class="text-xs font-black text-white">🌌 Deep Space Fog</span>
+          <span class="text-[10px] text-slate-400">Slow atmospheric pad resonance</span>
+        </button>
+
+        <button onclick="setThemeTrack('cyber')" id="btn-cyber" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-emerald-500/50 flex flex-col items-start gap-1 text-left">
+          <span class="text-xs font-black text-white">⚡ Cyber Attack</span>
+          <span class="text-[10px] text-slate-400">Fast tactical sequencer pulses</span>
+        </button>
+
+        <button onclick="setThemeTrack('wood')" id="btn-wood" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-emerald-500/50 flex flex-col items-start gap-1 text-left">
+          <span class="text-xs font-black text-white">☕ Coffeehouse Blitz</span>
+          <span class="text-[10px] text-slate-400">Acoustic warm acoustic vibe</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Move Sound FX Presets -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
+      <h3 class="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+        <i class="fa-solid fa-chess-pawn"></i>
+        <span>Move Sound FX Pack</span>
+      </h3>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="previewSfx('wood')" class="py-2.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center flex flex-col items-center gap-1">
+          <span class="text-xs font-bold text-white">Wood Piece</span>
+          <span class="text-[9px] text-emerald-400 font-mono">Test 🔊</span>
+        </button>
+        <button onclick="previewSfx('glass')" class="py-2.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center flex flex-col items-center gap-1">
+          <span class="text-xs font-bold text-white">Glass Bell</span>
+          <span class="text-[9px] text-cyan-400 font-mono">Test 🔊</span>
+        </button>
+        <button onclick="previewSfx('tactical')" class="py-2.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center flex flex-col items-center gap-1">
+          <span class="text-xs font-bold text-white">Heavy Drop</span>
+          <span class="text-[9px] text-amber-400 font-mono">Test 🔊</span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let audioCtx = null;
+    let isPlaying = false;
+    let timerLoop = null;
+    let masterGain = null;
+    let currentTheme = localStorage.getItem('chess_music_theme') || 'lofi';
+    let currentVol = parseFloat(localStorage.getItem('chess_music_vol') || '0.3');
+
+    document.getElementById('volSlider').value = currentVol * 100;
+    document.getElementById('volText').innerText = Math.round(currentVol * 100) + '%';
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(currentVol, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    // Procedural Synth Scales (Notes in Hz)
+    const chords = {
+      lofi: [ [261.63, 329.63, 392.00], [220.00, 261.63, 329.63], [174.61, 220.00, 261.63], [196.00, 246.94, 293.66] ],
+      ambient: [ [130.81, 196.00, 261.63], [110.00, 164.81, 220.00], [98.00, 146.83, 196.00], [87.31, 130.81, 174.61] ],
+      cyber: [ [146.83, 220.00, 329.63], [174.61, 261.63, 392.00], [130.81, 196.00, 293.66], [164.81, 246.94, 329.63] ],
+      wood: [ [220.00, 277.18, 329.63], [196.00, 246.94, 293.66], [164.81, 207.65, 246.94], [220.00, 261.63, 329.63] ]
+    };
+
+    let step = 0;
+    function playChordStep() {
+      if (!isPlaying || !audioCtx) return;
+      const progression = chords[currentTheme] || chords.lofi;
+      const curNotes = progression[step % progression.length];
+      step++;
+
+      curNotes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = currentTheme === 'cyber' ? 'sawtooth' : 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.08 / (i + 1), audioCtx.currentTime + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 2.2);
+      });
+    }
+
+    function toggleSynthMusic() {
+      initAudio();
+      const icon = document.getElementById('synthPlayIcon');
+      if (isPlaying) {
+        clearInterval(timerLoop);
+        isPlaying = false;
+        icon.className = "fa-solid fa-play";
+      } else {
+        isPlaying = true;
+        icon.className = "fa-solid fa-pause text-amber-400";
+        playChordStep();
+        timerLoop = setInterval(playChordStep, 2400);
+      }
+    }
+
+    function changeVolume(v) {
+      currentVol = v / 100;
+      document.getElementById('volText').innerText = v + '%';
+      localStorage.setItem('chess_music_vol', currentVol);
+      if (masterGain && audioCtx) {
+        masterGain.gain.setValueAtTime(currentVol, audioCtx.currentTime);
+      }
+    }
+
+    function setThemeTrack(th) {
+      currentTheme = th;
+      localStorage.setItem('chess_music_theme', th);
+      document.querySelectorAll('.theme-card').forEach(b => {
+        b.classList.remove('border-emerald-500');
+        b.classList.add('border-slate-800');
+      });
+      document.getElementById('btn-' + th).classList.add('border-emerald-500');
+      document.getElementById('btn-' + th).classList.remove('border-slate-800');
+      if (isPlaying) {
+        clearInterval(timerLoop);
+        playChordStep();
+        timerLoop = setInterval(playChordStep, 2400);
+      }
+    }
+
+    function previewSfx(type) {
+      initAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      if (type === 'wood') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } else if (type === 'glass') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } else {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.18);
+      }
+      osc.connect(gain);
+      gain.connect(masterGain);
+    }
+  </script>
+</body>
+</html>
