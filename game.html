@@ -19,17 +19,14 @@
       touch-action: manipulation;
     }
     
-    /* Classic Forest Green Board */
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
-    /* Piece Container Lock - No Floating */
     .piece-417db {
       pointer-events: none !important;
       user-select: none !important;
     }
 
-    /* Move Highlights */
     .highlight-yellow {
       background-color: rgba(247, 230, 80, 0.65) !important;
     }
@@ -37,11 +34,10 @@
       background-color: rgba(247, 230, 80, 0.75) !important;
     }
 
-    /* Legal Move Dots & Capture Rings */
     .hint-dot {
       width: 28%;
       height: 28%;
-      background: rgba(30, 30, 30, 0.42);
+      background: rgba(30, 30, 30, 0.45);
       border-radius: 50%;
       position: absolute;
       top: 36%;
@@ -52,7 +48,7 @@
     .hint-capture-ring {
       width: 82%;
       height: 82%;
-      border: 4px solid rgba(30, 30, 30, 0.45);
+      border: 4px solid rgba(30, 30, 30, 0.5);
       border-radius: 50%;
       position: absolute;
       top: 9%;
@@ -61,7 +57,6 @@
       z-index: 20;
     }
 
-    /* Pulsing Clock */
     .active-clock {
       border-color: #10b981 !important;
       background: rgba(16, 185, 129, 0.2) !important;
@@ -86,7 +81,7 @@
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs" id="oppAvatar">🤖</div>
           <div>
-            <h2 id="oppName" class="text-xs font-black text-white leading-tight">Opponent</h2>
+            <h2 id="oppName" class="text-xs font-black text-white leading-tight">Master Bot</h2>
             <span id="oppElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1400</span>
           </div>
         </div>
@@ -97,7 +92,7 @@
     </div>
   </header>
 
-  <!-- Green Chessboard Container -->
+  <!-- Chessboard Container -->
   <main class="w-full max-w-md px-2 flex flex-col items-center justify-center my-auto">
     <div id="boardContainer" class="w-full max-w-[360px] rounded-2xl overflow-hidden border-4 border-emerald-950 shadow-2xl relative">
       <div id="chessBoard" class="w-full"></div>
@@ -131,7 +126,7 @@
     </div>
   </footer>
 
-  <!-- Highlighted Dynamic Game Over Modal -->
+  <!-- Highlighted Game Over Victory Modal -->
   <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border-2 border-emerald-500/50 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-3.5">
       
@@ -195,7 +190,7 @@
     let lastMove = { from: null, to: null };
 
     // Dynamic Profiles
-    const localPlayerName = localStorage.getItem('chess_name') || 'Player 1';
+    const localPlayerName = localStorage.getItem('chess_name') || 'Harsh Singh';
     let savedElo = parseInt(localStorage.getItem('chess_rating'), 10);
     if (isNaN(savedElo) || !savedElo) savedElo = 1200;
     localStorage.setItem('chess_rating', savedElo);
@@ -395,12 +390,13 @@
         const winnerColor = game.turn() === 'b' ? 'White' : 'Black';
         concludeMatch(winnerColor, 'Checkmate');
       } else if (game.in_draw()) {
-        concludeMatch('Draw', 'Stalemate / Insufficient Material');
+        concludeMatch('Draw', 'Stalemate / Draw');
       }
     }
 
-    // Dynamic Winner Resolution
+    // Dynamic Winner Resolution & Guaranteed LocalStorage Save
     function concludeMatch(winnerColor, reason) {
+      if (isGameOver) return;
       isGameOver = true;
       clearInterval(timerInterval);
       removeHints();
@@ -452,14 +448,18 @@
         rewardCoins: rewardCoins
       };
 
-      localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
+      // Guaranteed Save
+      try {
+        localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
+        let historyList = JSON.parse(localStorage.getItem('chess_match_history') || '[]');
+        historyList.unshift(matchReport);
+        if (historyList.length > 20) historyList.pop();
+        localStorage.setItem('chess_match_history', JSON.stringify(historyList));
+      } catch (err) {
+        console.error("Match save error:", err);
+      }
 
-      let historyList = [];
-      try { historyList = JSON.parse(localStorage.getItem('chess_match_history') || '[]'); } catch (e) {}
-      historyList.unshift(matchReport);
-      if (historyList.length > 20) historyList.pop();
-      localStorage.setItem('chess_match_history', JSON.stringify(historyList));
-
+      // Display Modal
       document.getElementById('highlightWinnerTitle').innerText = winnerText;
       document.getElementById('subReasonText').innerText = `By ${reason}`;
       document.getElementById('modalRatingDelta').innerText = `${delta >= 0 ? '+' : ''}${delta} (${newElo})`;
@@ -488,7 +488,7 @@
     }
 
     function resignGame() {
-      if (confirm('Kya sach me resign karna chahte ho?')) {
+      if (confirm('Are you sure you want to resign?')) {
         const winnerColor = playerSide === 'white' ? 'Black' : 'White';
         concludeMatch(winnerColor, 'Resignation');
       }
@@ -499,4 +499,3 @@
   </script>
 </body>
 </html>
-
