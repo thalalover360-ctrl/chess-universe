@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Pro Arena</title>
+  <title>Chess Universe - Arena</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Board Dependencies -->
   <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
@@ -19,23 +18,40 @@
       color: #e2e8f0;
       touch-action: manipulation;
     }
-    /* Chess.com Authentic Forest Green Board */
+    /* Chess.com Classic Forest Green */
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
     /* Yellow Last Move Highlight */
     .highlight-yellow {
       background-color: rgba(247, 230, 80, 0.65) !important;
-      box-shadow: inset 0 0 4px 1px rgba(234, 179, 8, 0.9) !important;
+      box-shadow: inset 0 0 3px 1px rgba(234, 179, 8, 0.8) !important;
     }
 
-    /* Premove Blue Highlight */
-    .highlight-premove {
-      background-color: rgba(59, 130, 246, 0.6) !important;
-      box-shadow: inset 0 0 4px 1px rgba(37, 99, 235, 0.9) !important;
+    /* Legal Move Hint Dots */
+    .legal-dot {
+      position: absolute;
+      width: 32%;
+      height: 32%;
+      background: rgba(20, 20, 20, 0.28);
+      border-radius: 50%;
+      top: 34%;
+      left: 34%;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .legal-ring {
+      position: absolute;
+      width: 90%;
+      height: 90%;
+      border: 4px solid rgba(20, 20, 20, 0.35);
+      border-radius: 50%;
+      top: 5%;
+      left: 5%;
+      pointer-events: none;
+      z-index: 5;
     }
 
-    /* Active Glowing Timer */
     .active-clock {
       border-color: #10b981 !important;
       background: rgba(16, 185, 129, 0.2) !important;
@@ -98,17 +114,14 @@
         <i class="fa-solid fa-repeat"></i>
         <span>Flip</span>
       </button>
-      <button onclick="cancelPremove()" id="btnCancelPremove" class="hidden flex-1 py-2 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-800/80 rounded-xl text-xs font-bold transition items-center justify-center gap-1.5 text-amber-300">
-        <i class="fa-solid fa-ban"></i>
-        <span>Cancel Premove</span>
-      </button>
       <button onclick="resignGame()" class="flex-1 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-rose-300">
         <i class="fa-regular fa-flag"></i>
         <span>Resign</span>
       </button>
     </div>
   </footer>
-    <script>
+
+  <script>
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode') || 'bot';
     const playerSide = (urlParams.get('side') || 'white').toLowerCase();
@@ -120,35 +133,44 @@
     let blackTime = 600;
     let timerInterval = null;
     let isGameOver = false;
-    let currentPremove = null;
 
-    // Web Audio Synthesizer (Instant sounds, no external mp3 lag)
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playTone(freq, duration, type = 'sine') {
+    // Mobile Safe Sound System
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playTone(freq, dur, type = 'sine') {
       try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
         osc.type = type;
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        g.gain.setValueAtTime(0.12, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
         osc.start();
-        osc.stop(audioCtx.currentTime + duration);
+        osc.stop(ctx.currentTime + dur);
       } catch (e) {}
     }
 
-    const sndMove = () => playTone(480, 0.08);
-    const sndCapture = () => playTone(820, 0.12, 'triangle');
-    const sndCheck = () => playTone(240, 0.25, 'sawtooth');
+    const sndMove = () => playTone(520, 0.08);
+    const sndCapture = () => playTone(880, 0.12, 'triangle');
+    const sndCheck = () => playTone(260, 0.25, 'sawtooth');
 
-    // Profile Load
+    // Profile & Elo Sanitization (No NaN)
     const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
-    const myElo = parseInt(localStorage.getItem('chess_rating') || '1200', 10);
+    let savedElo = parseInt(localStorage.getItem('chess_rating'), 10);
+    if (isNaN(savedElo) || !savedElo) savedElo = 1200;
+    localStorage.setItem('chess_rating', savedElo);
+
     document.getElementById('playerName').innerText = myName;
     document.getElementById('playerAvatar').innerText = myName.charAt(0);
-    document.getElementById('playerElo').innerText = 'Rating: ' + myElo;
+    document.getElementById('playerElo').innerText = 'Rating: ' + savedElo;
 
     if (mode === 'pass') {
       document.getElementById('oppName').innerText = 'Player 2';
@@ -156,26 +178,29 @@
       document.getElementById('oppElo').innerText = 'Local PvP';
     }
 
-    function clearHighlights() {
-      $('#chessBoard .square-55d63').removeClass('highlight-yellow highlight-premove');
+    // Legal Dots & Highlights
+    function removeGreyDots() {
+      $('#chessBoard .legal-dot, #chessBoard .legal-ring').remove();
     }
 
-    function setYellowHighlight(source, target) {
-      clearHighlights();
-      if (source) $('#chessBoard .square-' + source).addClass('highlight-yellow');
-      if (target) $('#chessBoard .square-' + target).addClass('highlight-yellow');
+    function greySquare(square, isCapture) {
+      const $square =$('#chessBoard .square-' + square);
+      if ($square.length === 0) return;
+      const el = isCapture ? '<div class="legal-ring"></div>' : '<div class="legal-dot"></div>';
+      $square.append(el);
     }
 
-    function setPremoveHighlight(source, target) {
-      clearHighlights();
-      if (source) $('#chessBoard .square-' + source).addClass('highlight-premove');
-      if (target) $('#chessBoard .square-' + target).addClass('highlight-premove');
+    function setYellowHighlight(s, t) {
+      $('#chessBoard .square-55d63').removeClass('highlight-yellow');
+      if (s) $('#chessBoard .square-' + s).addClass('highlight-yellow');
+      if (t) $('#chessBoard .square-' + t).addClass('highlight-yellow');
     }
 
-    function cancelPremove() {
-      currentPremove = null;
-      document.getElementById('btnCancelPremove').classList.add('hidden');
-      clearHighlights();
+    // Neo High-Res SVGs for Pro Feel
+    function getPieceUrl(piece) {
+      const color = piece[0]; // 'w' ya 'b'
+      const type = piece[1].toUpperCase(); // 'P', 'N', etc.
+      return `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${color}${type.toLowerCase()}.png`;
     }
 
     // Board Configuration
@@ -183,36 +208,25 @@
       draggable: true,
       position: 'start',
       orientation: playerSide === 'black' ? 'black' : 'white',
-      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+      pieceTheme: getPieceUrl,
       onDragStart: (source, piece) => {
+        getAudioCtx(); // unlock audio on tap
         if (game.game_over() || isGameOver) return false;
+        
         const turn = game.turn();
-        const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b');
-
-        // Agar apni turn nahi hai, toh premove ke liye piece pick karne do
-        if (!isMyTurn) {
-          if (playerSide === 'white' && piece.search(/^w/) === -1) return false;
-          if (playerSide === 'black' && piece.search(/^b/) === -1) return false;
-          return true;
-        }
-
         if (mode === 'bot') {
-          if (playerSide === 'white' && piece.search(/^b/) !== -1) return false;
-          if (playerSide === 'black' && piece.search(/^w/) !== -1) return false;
+          if (playerSide === 'white' && (turn !== 'w' || piece.search(/^w/) === -1)) return false;
+          if (playerSide === 'black' && (turn !== 'b' || piece.search(/^b/) === -1)) return false;
         }
+
+        // Show Legal Dots
+        removeGreyDots();
+        const moves = game.moves({ square: source, verbose: true });
+        if (moves.length === 0) return;
+        moves.forEach(m => greySquare(m.to, !!m.captured));
       },
       onDrop: (source, target) => {
-        const turn = game.turn();
-        const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b');
-
-        // Premove queue karo agar opponent ki turn chal rahi hai
-        if (!isMyTurn && mode === 'bot') {
-          currentPremove = { source, target };
-          setPremoveHighlight(source, target);
-          document.getElementById('btnCancelPremove').classList.remove('hidden');
-          return;
-        }
-
+        removeGreyDots();
         const move = game.move({ from: source, to: target, promotion: 'q' });
         if (move === null) return 'snapback';
 
@@ -228,9 +242,12 @@
           return;
         }
 
-        if (mode === 'bot') window.setTimeout(botTurn, 400);
+        if (mode === 'bot') window.setTimeout(botTurn, 350);
       },
-      onSnapEnd: () => board.position(game.fen())
+      onSnapEnd: () => {
+        removeGreyDots();
+        board.position(game.fen());
+      }
     };
 
     board = Chessboard('chessBoard', boardConfig);
@@ -259,28 +276,6 @@
 
       if (game.game_over()) {
         endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
-        return;
-      }
-
-      // Agar player ka premove set hai toh turant execute karo
-      if (currentPremove) {
-        const pMove = currentPremove;
-        cancelPremove();
-        const executed = game.move({ from: pMove.source, to: pMove.target, promotion: 'q' });
-        if (executed) {
-          board.position(game.fen());
-          setYellowHighlight(pMove.source, pMove.target);
-          if (executed.captured) sndCapture();
-          else if (game.in_check()) sndCheck();
-          else sndMove();
-          updateClocksUI();
-
-          if (game.game_over()) {
-            endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
-            return;
-          }
-          window.setTimeout(botTurn, 400);
-        }
       }
     }
 
@@ -321,17 +316,15 @@
     function endGame(res) {
       isGameOver = true;
       clearInterval(timerInterval);
-      cancelPremove();
 
       const won = res.toLowerCase().includes(playerSide);
       const delta = won ? 16 : -14;
-      const newElo = Math.max(100, myElo + delta);
+      const newElo = Math.max(100, savedElo + delta);
 
       localStorage.setItem('chess_rating', newElo);
       if (won) localStorage.setItem('chess_won', parseInt(localStorage.getItem('chess_won') || '0', 10) + 1);
       else localStorage.setItem('chess_lost', parseInt(localStorage.getItem('chess_lost') || '0', 10) + 1);
 
-      // Match summary package
       const matchReport = {
         outcome: res,
         won: won,
@@ -344,7 +337,6 @@
         playedSide: playerSide
       };
 
-      // Store in Last Match & Match History
       localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
 
       let historyList = [];
@@ -355,7 +347,6 @@
       if (historyList.length > 20) historyList.pop();
       localStorage.setItem('chess_match_history', JSON.stringify(historyList));
 
-      // Redirect directly to dedicated analysis page
       window.location.href = 'analysis.html';
     }
 
@@ -368,3 +359,4 @@
   </script>
 </body>
 </html>
+
