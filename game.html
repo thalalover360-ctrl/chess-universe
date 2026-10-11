@@ -13,76 +13,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
   <script src="script.js"></script>
-
-  <style>
-    body {
-      background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
-      color: #e2e8f0;
-      touch-action: manipulation;
-    }
-    .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
-    .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
-
-    .piece-417db {
-      pointer-events: none !important;
-      user-select: none !important;
-      filter: drop-shadow(0 7px 5px rgba(0, 0, 0, 0.65)) drop-shadow(0 2px 2px rgba(0,0,0,0.4)) !important;
-      transform: translateZ(0);
-      transition: transform 0.12s ease-out;
-    }
-
-    #boardContainer {
-      position: relative;
-      width: 100%;
-      max-width: 360px;
-      margin: 0 auto;
-      padding: 6px;
-      border-radius: 1.35rem;
-      background: linear-gradient(145deg, #1b3524 0%, #07100a 100%);
-      border: 1px solid rgba(16, 185, 129, 0.28);
-      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.95);
-    }
-    #chessBoard {
-      width: 100% !important;
-      border-radius: 0.95rem;
-      overflow: hidden;
-      border: 2px solid rgba(0,0,0,0.55);
-    }
-
-    .highlight-yellow { background-color: rgba(247, 230, 80, 0.5) !important; }
-    .square-selected { background-color: rgba(247, 230, 80, 0.72) !important; }
-
-    .hint-dot {
-      width: 26%; height: 26%;
-      background: rgba(14, 26, 19, 0.5);
-      border-radius: 50%;
-      position: absolute; top: 37%; left: 37%;
-      pointer-events: none; z-index: 20;
-    }
-    .hint-capture-ring {
-      width: 82%; height: 82%;
-      border: 4px solid rgba(14, 26, 19, 0.5);
-      border-radius: 50%;
-      position: absolute; top: 9%; left: 9%;
-      pointer-events: none; z-index: 20;
-    }
-
-    .active-clock {
-      border-color: #10b981 !important;
-      background: rgba(16, 185, 129, 0.2) !important;
-      color: #6ee7b7 !important;
-      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
-    }
-
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 4px; }
-  </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans select-none items-center justify-between pb-4">
 
   <!-- Opponent Bar -->
-  <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-2">
-    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+  <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-1.5">
+    <div class="glass-panel px-3 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
         <a href="bots.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
           <i class="fa-solid fa-chevron-left text-xs"></i>
@@ -93,17 +29,17 @@
             <h2 id="oppName" class="text-xs font-black text-white leading-tight">Master Bot</h2>
             <div class="flex items-center gap-1.5 mt-0.5">
               <span id="oppElo" class="text-[10px] text-emerald-400 font-mono font-bold">1400 Elo</span>
-              <span id="oppMaterialDiff" class="text-[9px] font-mono font-bold text-slate-400"></span>
+              <span id="oppMaterialDiff" class="material-lead-badge text-slate-400"></span>
             </div>
           </div>
         </div>
       </div>
-      <div id="oppClock" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono font-black text-sm text-slate-300 transition">
-        10:00
+      <div class="flex items-center gap-2">
+        <div id="oppClock" class="clock-display text-sm">10:00</div>
       </div>
     </div>
     <!-- Opponent Captured Pieces Tray -->
-    <div id="oppCapturedTray" class="flex items-center gap-1 px-3 min-h-[20px] text-xs opacity-80"></div>
+    <div id="oppCapturedTray" class="captured-tray px-3"></div>
   </header>
 
   <!-- Chessboard View -->
@@ -116,26 +52,30 @@
   <!-- Player Bar & Controls -->
   <footer class="w-full max-w-md px-3 flex flex-col gap-2">
     <!-- Player Captured Pieces Tray -->
-    <div id="playerCapturedTray" class="flex items-center gap-1 px-3 min-h-[20px] text-xs opacity-80"></div>
+    <div id="playerCapturedTray" class="captured-tray px-3"></div>
 
-    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+    <div class="glass-panel px-3 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-emerald-400" id="playerAvatar">P</div>
         <div>
           <h2 id="playerName" class="text-xs font-black text-white leading-tight">Player</h2>
           <div class="flex items-center gap-1.5 mt-0.5">
             <span id="playerElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1200</span>
-            <span id="playerMaterialDiff" class="text-[9px] font-mono font-bold text-emerald-400"></span>
+            <span id="playerMaterialDiff" class="material-lead-badge text-emerald-400"></span>
           </div>
         </div>
       </div>
-      <div id="playerClock" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono font-black text-sm text-slate-300 transition">
-        10:00
+      <div class="flex items-center gap-2">
+        <button onclick="toggleInGameChat()" id="btnChatToggle" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 flex items-center justify-center text-xs hover:text-white transition relative">
+          <i class="fa-regular fa-comment-dots"></i>
+          <span id="chatUnreadDot" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400"></span>
+        </button>
+        <div id="playerClock" class="clock-display text-sm">10:00</div>
       </div>
     </div>
 
     <!-- Move History Strip -->
-    <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl px-2.5 py-1.5 flex items-center gap-2 overflow-x-auto custom-scroll text-[11px] font-mono" id="moveHistoryStrip">
+    <div class="history-strip" id="moveHistoryStrip">
       <span class="text-slate-500 text-[10px] uppercase font-bold shrink-0">Moves:</span>
       <span id="emptyHistoryNotice" class="text-slate-600 text-[10px]">Game start</span>
     </div>
@@ -161,20 +101,46 @@
   </footer>
 
   <!-- Promotion Selection Modal -->
-  <div id="promotionModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl p-4 flex flex-col items-center gap-3 shadow-2xl">
+  <div id="promotionModal" class="hidden modal-overlay">
+    <div class="modal-dialog-box flex flex-col items-center gap-3">
       <h3 class="text-xs font-black uppercase text-emerald-400 tracking-wider">Promote Pawn</h3>
       <div class="grid grid-cols-4 gap-2">
-        <button onclick="confirmPromotion('q')" class="w-14 h-14 rounded-2xl bg-slate-950 hover:bg-emerald-500/20 border border-slate-800 text-2xl flex items-center justify-center transition">♛</button>
-        <button onclick="confirmPromotion('r')" class="w-14 h-14 rounded-2xl bg-slate-950 hover:bg-emerald-500/20 border border-slate-800 text-2xl flex items-center justify-center transition">♜</button>
-        <button onclick="confirmPromotion('b')" class="w-14 h-14 rounded-2xl bg-slate-950 hover:bg-emerald-500/20 border border-slate-800 text-2xl flex items-center justify-center transition">♝</button>
-        <button onclick="confirmPromotion('n')" class="w-14 h-14 rounded-2xl bg-slate-950 hover:bg-emerald-500/20 border border-slate-800 text-2xl flex items-center justify-center transition">♞</button>
+        <button onclick="confirmPromotion('q')" class="promo-piece-option">♛</button>
+        <button onclick="confirmPromotion('r')" class="promo-piece-option">♜</button>
+        <button onclick="confirmPromotion('b')" class="promo-piece-option">♝</button>
+        <button onclick="confirmPromotion('n')" class="promo-piece-option">♞</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-Game Chat Drawer -->
+  <div id="inGameChatModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-end p-2">
+    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-md mx-auto rounded-3xl p-4 shadow-2xl flex flex-col gap-3 h-[60vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span class="text-xs font-black uppercase text-white tracking-wider">Match Chat</span>
+        <button onclick="toggleInGameChat()" class="w-7 h-7 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="inGameMessagesContainer" class="flex-1 overflow-y-auto custom-scroll flex flex-col gap-1.5 p-1 text-xs">
+        <div class="text-center text-[10px] text-slate-500 my-auto">Chat with opponent during match</div>
+      </div>
+      <!-- Quick Emotes -->
+      <div class="flex gap-1 overflow-x-auto custom-scroll pb-1">
+        <button onclick="sendQuickChatMessage('Good luck! ♟️')" class="px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-[10px] text-slate-300 shrink-0">GL! ♟️</button>
+        <button onclick="sendQuickChatMessage('Well played! 👏')" class="px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-[10px] text-slate-300 shrink-0">WP! 👏</button>
+        <button onclick="sendQuickChatMessage('Nice move! 🔥')" class="px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-[10px] text-slate-300 shrink-0">Nice move! 🔥</button>
+        <button onclick="sendQuickChatMessage('Oops! 😅')" class="px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-[10px] text-slate-300 shrink-0">Oops! 😅</button>
+      </div>
+      <div class="flex items-center gap-2 pt-1 border-t border-slate-800">
+        <input type="text" id="inputInGameMsg" placeholder="Type message..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" onkeydown="if(event.key==='Enter') sendCustomInGameMessage()">
+        <button onclick="sendCustomInGameMessage()" class="px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs">Send</button>
       </div>
     </div>
   </div>
     <!-- End Game Modal -->
-  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-3">
+  <div id="gameOverModal" class="hidden modal-overlay">
+    <div class="modal-dialog-box flex flex-col items-center text-center gap-3">
       <div id="modalIcon" class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">🏆</div>
       <div>
         <h2 id="highlightWinnerTitle" class="text-base font-black uppercase tracking-wider text-emerald-400">Match Concluded</h2>
@@ -210,13 +176,14 @@
     const mode = urlParams.get('mode') || 'bot';
     const playerSide = (urlParams.get('side') || 'white').toLowerCase();
     const botId = parseInt(urlParams.get('botId') || '5', 10);
+    const roomId = urlParams.get('room') || null;
 
     const BOTS_DATABASE = [
       { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣", depth: 1, blunderRate: 0.60 },
       { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 2, blunderRate: 0.40 },
       { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 3, blunderRate: 0.25 },
       { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 4, blunderRate: 0.15 },
-      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 6, blunderRate: 0.05 },
+      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 6, blunderRate: 0.04 },
       { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 8, blunderRate: 0.02 },
       { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 10, blunderRate: 0.0 },
       { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 12, blunderRate: 0.0 },
@@ -243,7 +210,7 @@
     let isPeekingPrevious = false;
     let pendingPromotionMove = null;
 
-    const localPlayerName = localStorage.getItem('chess_name') || 'Harsh Singh';
+    const localPlayerName = localStorage.getItem('chess_name') || 'Harsh';
     let savedElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
 
     let oppDisplayName = currentBot.name;
@@ -313,25 +280,149 @@
     function appendMoveToHistory(move) {
       document.getElementById('emptyHistoryNotice')?.remove();
       const strip = document.getElementById('moveHistoryStrip');
-      const pill = document.createElement('span');
-      pill.className = "px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 font-bold shrink-0";
-      pill.innerText = move.san;
-      strip.appendChild(pill);
+      const token = document.createElement('span');
+      token.className = "move-token latest-move";
+      token.innerText = move.san;
+      
+      const previousLatest = strip.querySelector('.latest-move');
+      if (previousLatest) previousLatest.classList.remove('latest-move');
+
+      strip.appendChild(token);
       strip.scrollLeft = strip.scrollWidth;
     }
-            // ============================================================
-    // REAL ENGINE CALCULATION (CLOUD STOCKFISH + ALPHABETA FALLBACK)
+
     // ============================================================
+    // POSITIONAL PIECE-SQUARE TABLES (PST) FOR ALPHA-BETA
+    // ============================================================
+    const PST = {
+      p: [
+        [0,  0,  0,  0,  0,  0,  0,  0],
+        [50, 50, 50, 50, 50, 50, 50, 50],
+        [10, 10, 20, 30, 30, 20, 10, 10],
+        [5,  5, 10, 25, 25, 10,  5,  5],
+        [0,  0,  0, 20, 20,  0,  0,  0],
+        [5, -5,-10,  0,  0,-10, -5,  5],
+        [5, 10, 10,-20,-20, 10, 10,  5],
+        [0,  0,  0,  0,  0,  0,  0,  0]
+      ],
+      n: [
+        [-50,-40,-30,-30,-30,-30,-40,-50],
+        [-40,-20,  0,  0,  0,  0,-20,-40],
+        [-30,  0, 10, 15, 15, 10,  0,-30],
+        [-30,  5, 15, 20, 20, 15,  5,-30],
+        [-30,  0, 15, 20, 20, 15,  0,-30],
+        [-30,  5, 10, 15, 15, 10,  5,-30],
+        [-40,-20,  0,  5,  5,  0,-20,-40],
+        [-50,-40,-30,-30,-30,-30,-40,-50]
+      ],
+      b: [
+        [-20,-10,-10,-10,-10,-10,-10,-20],
+        [-10,  0,  0,  0,  0,  0,  0,-10],
+        [-10,  0,  5, 10, 10,  5,  0,-10],
+        [-10,  5,  5, 10, 10,  5,  5,-10],
+        [-10,  0, 10, 10, 10, 10,  0,-10],
+        [-10, 10, 10, 10, 10, 10, 10,-10],
+        [-10,  5,  0,  0,  0,  0,  5,-10],
+        [-20,-10,-10,-10,-10,-10,-10,-20]
+      ],
+      r: [
+        [0,  0,  0,  0,  0,  0,  0,  0],
+        [5, 10, 10, 10, 10, 10, 10,  5],
+        [-5,  0,  0,  0,  0,  0,  0, -5],
+        [-5,  0,  0,  0,  0,  0,  0, -5],
+        [-5,  0,  0,  0,  0,  0,  0, -5],
+        [-5,  0,  0,  0,  0,  0,  0, -5],
+        [-5,  0,  0,  0,  0,  0,  0, -5],
+        [0,  0,  0,  5,  5,  0,  0,  0]
+      ],
+      q: [
+        [-20,-10,-10, -5, -5,-10,-10,-20],
+        [-10,  0,  0,  0,  0,  0,  0,-10],
+        [-10,  0,  5,  5,  5,  5,  0,-10],
+        [-5,  0,  5,  5,  5,  5,  0, -5],
+        [0,  0,  5,  5,  5,  5,  0, -5],
+        [-10,  5,  5,  5,  5,  5,  0,-10],
+        [-10,  0,  5,  0,  0,  0,  0,-10],
+        [-20,-10,-10, -5, -5,-10,-10,-20]
+      ],
+      k: [
+        [-30,-40,-40,-50,-50,-40,-40,-30],
+        [-30,-40,-40,-50,-50,-40,-40,-30],
+        [-30,-40,-40,-50,-50,-40,-40,-30],
+        [-30,-40,-40,-50,-50,-40,-40,-30],
+        [-20,-30,-30,-40,-40,-30,-30,-20],
+        [-10,-20,-20,-20,-20,-20,-20,-10],
+        [20, 20,  0,  0,  0,  0, 20, 20],
+        [20, 30, 10,  0,  0, 10, 30, 20]
+      ]
+    };
+        function evaluateBoardStatic(simBoard, turnColor) {
+      const vals = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+      let score = 0;
+
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const piece = simBoard[r][c];
+          if (!piece) continue;
+
+          let val = vals[piece.type] || 0;
+          let table = PST[piece.type];
+          let posVal = 0;
+          if (table) {
+            posVal = piece.color === 'w' ? table[r][c] : table[7 - r][c];
+          }
+
+          let total = val + posVal;
+          if (piece.color === turnColor) score += total;
+          else score -= total;
+        }
+      }
+      return score;
+    }
+
+    function minimaxAlphaBeta(sim, depth, alpha, beta, isMaximizing, botTurn) {
+      if (depth === 0 || sim.game_over()) {
+        return evaluateBoardStatic(sim.board(), botTurn);
+      }
+
+      const legal = sim.moves({ verbose: true });
+      if (isMaximizing) {
+        let maxEval = -999999;
+        for (let i = 0; i < legal.length; i++) {
+          sim.move(legal[i]);
+          let ev = minimaxAlphaBeta(sim, depth - 1, alpha, beta, false, botTurn);
+          sim.undo();
+          maxEval = Math.max(maxEval, ev);
+          alpha = Math.max(alpha, ev);
+          if (beta <= alpha) break;
+        }
+        return maxEval;
+      } else {
+        let minEval = 999999;
+        for (let i = 0; i < legal.length; i++) {
+          sim.move(legal[i]);
+          let ev = minimaxAlphaBeta(sim, depth - 1, alpha, beta, true, botTurn);
+          sim.undo();
+          minEval = Math.min(minEval, ev);
+          beta = Math.min(beta, ev);
+          if (beta <= alpha) break;
+        }
+        return minEval;
+      }
+    }
+
     async function runBotEngineTurn() {
       if (game.game_over() || isGameOver) return;
       const moves = game.moves({ verbose: true });
       if (moves.length === 0) return;
 
+      // 1. Blunder dice roll for lower bots
       if (currentBot.blunderRate > 0 && Math.random() < currentBot.blunderRate) {
         executeBotMove(moves[Math.floor(Math.random() * moves.length)]);
         return;
       }
 
+      // 2. High-tier Stockfish Cloud API (depth 10-16)
       if (currentBot.elo >= 1500) {
         try {
           const fenParam = encodeURIComponent(game.fen());
@@ -361,38 +452,23 @@
         }
       }
 
-      executeBotMove(getBestLocalTacticalMove(moves));
-    }
-
-    function getBestLocalTacticalMove(moves) {
-      const vals = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+      // 3. Fallback Tactical 3-Ply Alpha-Beta Search
+      const botTurn = game.turn();
       let bestMove = moves[0];
       let bestScore = -999999;
 
       for (let i = 0; i < moves.length; i++) {
-        const sim = new Chess(game.fen());
-        sim.move(moves[i]);
-
-        let score = 0;
-        if (moves[i].captured) score += (vals[moves[i].captured] || 0) * 1.5;
-        if (['d4', 'e4', 'd5', 'e5'].includes(moves[i].to)) score += 25;
-
-        const oppMoves = sim.moves({ verbose: true });
-        let maxOppThreat = 0;
-        for (let j = 0; j < oppMoves.length; j++) {
-          if (oppMoves[j].captured) {
-            const threatVal = vals[oppMoves[j].captured] || 0;
-            if (threatVal > maxOppThreat) maxOppThreat = threatVal;
-          }
-        }
-        score -= maxOppThreat * 1.7;
+        game.move(moves[i]);
+        let score = minimaxAlphaBeta(game, 2, -999999, 999999, false, botTurn);
+        game.undo();
 
         if (score > bestScore) {
           bestScore = score;
           bestMove = moves[i];
         }
       }
-      return bestMove;
+
+      executeBotMove(bestMove);
     }
 
     function executeBotMove(mObj) {
@@ -420,9 +496,22 @@
     }
 
     function renderHighlights() {
-      $('#chessBoard .square-55d63').removeClass('highlight-yellow');
+      $('#chessBoard .square-55d63').removeClass('highlight-yellow square-in-check');
       if (lastMove.from) $('#chessBoard .square-' + lastMove.from).addClass('highlight-yellow');
       if (lastMove.to) $('#chessBoard .square-' + lastMove.to).addClass('highlight-yellow');
+
+      if (game.in_check()) {
+        const turn = game.turn();
+        game.board().forEach((row, rIdx) => {
+          row.forEach((sq, cIdx) => {
+            if (sq && sq.type === 'k' && sq.color === turn) {
+              const file = String.fromCharCode(97 + cIdx);
+              const rank = 8 - rIdx;
+              $('#chessBoard .square-' + file + rank).addClass('square-in-check');
+            }
+          });
+        });
+      }
     }
 
     function showHints(sq) {
@@ -483,6 +572,10 @@
 
       updateClocksUI();
 
+      if (mode === 'pvp' && roomId && window.syncMoveToFirestore) {
+        window.syncMoveToFirestore(move);
+      }
+
       if (game.game_over()) {
         checkGameResult();
         return true;
@@ -492,11 +585,14 @@
       return true;
     }
 
+    // 100% Reliable 3D Neo Pieces from Chess.com
     board = Chessboard('chessBoard', {
       draggable: false,
       position: 'start',
       orientation: playerSide === 'black' ? 'black' : 'white',
-      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+      pieceTheme: function (piece) {
+        return 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/' + piece.toLowerCase() + '.png';
+      }
     });
 
     $(window).resize(board.resize);
@@ -527,8 +623,7 @@
         legalMovesList = [];
       }
     });
-
-    function togglePeekPreviousMove() {
+                function togglePeekPreviousMove() {
       const history = game.history();
       if (history.length === 0) return alert("No moves played yet!");
       const btnText = document.getElementById('peekBtnText');
@@ -582,7 +677,10 @@
     function formatClock(id, s) {
       const m = Math.floor(s / 60);
       const sec = s % 60;
-      document.getElementById(id).innerText = `${m}:${sec < 10 ? '0' : ''}${sec}`;
+      const el = document.getElementById(id);
+      el.innerText = `${m}:${sec < 10 ? '0' : ''}${sec}`;
+      if (s <= 30) el.classList.add('clock-low-time');
+      else el.classList.remove('clock-low-time');
     }
 
     function checkGameResult() {
@@ -644,9 +742,106 @@
       }
     }
 
+    window.toggleInGameChat = () => {
+      const modal = document.getElementById('inGameChatModal');
+      modal.classList.toggle('hidden');
+      document.getElementById('chatUnreadDot').classList.add('hidden');
+    };
+
     if (mode === 'bot' && playerSide === 'black') setTimeout(runBotEngineTurn, 600);
     updateClocksUI();
     updateMaterialAndTrays();
+  </script>
+
+  <!-- FIREBASE FIRESTORE REALTIME SYNC (PVP & IN-GAME CHAT) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, addDoc, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    if (mode === 'pvp' && roomId) {
+      const firebaseConfig = {
+        apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+        authDomain: "chess-universe-5a7cb.firebaseapp.com",
+        projectId: "chess-universe-5a7cb",
+        storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+        messagingSenderId: "145519167856",
+        appId: "1:145519167856:web:bf124bc275895447fd27b5"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Listen for remote moves
+      const roomRef = doc(db, "rooms", roomId);
+      onSnapshot(roomRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data.lastMoveBy && data.lastMoveBy !== playerSide && data.fen) {
+            if (data.fen !== game.fen()) {
+              game.load(data.fen);
+              board.position(game.fen());
+              lastMove = data.lastMoveCoord || { from: null, to: null };
+              renderHighlights();
+              updateClocksUI();
+              updateMaterialAndTrays();
+              if (data.lastMoveSan) {
+                appendMoveToHistory({ san: data.lastMoveSan });
+              }
+              playAudio(data.lastMoveType || 'move');
+              if (game.game_over()) checkGameResult();
+            }
+          }
+        }
+      });
+
+      // Move sync function
+      window.syncMoveToFirestore = async (move) => {
+        try {
+          await updateDoc(roomRef, {
+            fen: game.fen(),
+            lastMoveBy: playerSide,
+            lastMoveCoord: { from: move.from, to: move.to },
+            lastMoveSan: move.san,
+            lastMoveType: move.captured ? 'capture' : (game.in_check() ? 'check' : 'move'),
+            updatedAt: Date.now()
+          });
+        } catch(err) {
+          console.error("Move sync error:", err);
+        }
+      };
+
+      // In-game live chat listener
+      const chatCol = collection(db, "rooms", roomId, "messages");
+      const q = query(chatCol, orderBy("timestamp", "asc"));
+      onSnapshot(q, (snap) => {
+        const box = document.getElementById('inGameMessagesContainer');
+        box.innerHTML = '';
+        snap.forEach(d => {
+          const m = d.data();
+          const isMe = m.senderSide === playerSide;
+          const bubble = document.createElement('div');
+          bubble.className = `p-2 rounded-2xl max-w-[80%] ${isMe ? 'ml-auto bg-emerald-500 text-slate-950 font-bold' : 'mr-auto bg-slate-950 border border-slate-800 text-slate-200'}`;
+          bubble.innerText = m.text;
+          box.appendChild(bubble);
+        });
+        box.scrollTop = box.scrollHeight;
+        if (document.getElementById('inGameChatModal').classList.contains('hidden')) {
+          document.getElementById('chatUnreadDot').classList.remove('hidden');
+        }
+      });
+
+      window.sendCustomInGameMessage = async () => {
+        const inp = document.getElementById('inputInGameMsg');
+        const txt = inp.value.trim();
+        if (!txt) return;
+        inp.value = '';
+        await addDoc(chatCol, { text: txt, senderSide: playerSide, timestamp: Date.now() });
+      };
+
+      window.sendQuickChatMessage = async (txt) => {
+        await addDoc(chatCol, { text: txt, senderSide: playerSide, timestamp: Date.now() });
+      };
+    }
   </script>
 </body>
 </html>
