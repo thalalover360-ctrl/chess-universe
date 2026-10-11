@@ -42,7 +42,7 @@
         <span>Add Friend by UID</span>
       </h2>
       <div class="flex gap-2">
-        <input id="inputSearchUid" type="text" placeholder="Enter 10-digit UID (e.g. 7334255286)" class="flex-1 bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition font-mono tracking-wider">
+        <input id="inputSearchUid" type="text" placeholder="Enter 10-digit UID" class="flex-1 bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition font-mono tracking-wider">
         <button id="btnSearchFriend" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-1.5">
           <i class="fa-solid fa-magnifying-glass"></i>
           <span>Search</span>
@@ -82,7 +82,6 @@
   <!-- Real-Time Chat Modal -->
   <div id="chatModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl flex flex-col h-[520px] shadow-2xl overflow-hidden">
-      <!-- Chat Header -->
       <div class="p-3 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <img id="chatFriendAvatar" src="" class="w-8 h-8 rounded-lg bg-slate-800 object-cover border border-slate-700" alt="">
@@ -102,10 +101,8 @@
         </div>
       </div>
 
-      <!-- Messages Body -->
       <div id="chatMessages" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2.5"></div>
 
-      <!-- Chat Input Footer -->
       <div class="p-2.5 border-t border-slate-800 bg-slate-950 flex gap-2">
         <input id="inputChatMessage" type="text" placeholder="Type a message..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-500 transition">
         <button id="btnSendChatMessage" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-black transition">
@@ -115,17 +112,38 @@
     </div>
   </div>
 
-  <!-- Realtime Script -->
   <script>
-    // Local identity fallback
-    const myUID = localStorage.getItem('chess_game_uid') || localStorage.getItem('chess_uid') || '7334255286';
-    const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
-    const myRating = localStorage.getItem('chess_rating') || '1200';
-    const myAvatar = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/identicon/svg?seed=${myUID}`;
+    // 1. Unique Dynamic UID Generation (No Hardcoded Fallback)
+    let storedUser = null;
+    try {
+      storedUser = JSON.parse(localStorage.getItem('chess_user') || '{}');
+    } catch (e) {}
+
+    let myUID = localStorage.getItem('chess_game_uid') 
+             || localStorage.getItem('chess_uid') 
+             || (storedUser && (storedUser.uid || storedUser.id));
+
+    // Agar device par pehle se UID nahi hai toh new random 10-digit number generate karo
+    if (!myUID) {
+      myUID = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+      localStorage.setItem('chess_game_uid', myUID);
+    }
+
+    const myName = localStorage.getItem('chess_name') 
+                || (storedUser && storedUser.name) 
+                || ('Player_' + myUID.slice(-4));
+
+    const myRating = localStorage.getItem('chess_rating') 
+                  || (storedUser && storedUser.rating) 
+                  || '1200';
+
+    const myAvatar = localStorage.getItem('chess_avatar') 
+                  || (storedUser && storedUser.avatar) 
+                  || `https://api.dicebear.com/7.x/identicon/svg?seed=${myUID}`;
 
     document.getElementById('myUidHeader').innerText = 'MY UID: ' + myUID;
 
-    // Config with Singapore regional RTDB URL
+    // Firebase Credentials
     const firebaseConfig = {
       apiKey: "AIzaSyBx79cUd4hX7XzCeBaCPIeqLss1d5nNzaM",
       authDomain: "chess-universe-5a7cb.firebaseapp.com",
@@ -141,7 +159,7 @@
     }
     const db = firebase.database();
 
-    // 1. Force Register Current User into DB Pool
+    // 2. Register / Sync User on Realtime Database
     db.ref('users/' + myUID).set({
       uid: myUID,
       name: myName,
@@ -155,7 +173,7 @@
 
     let currentChatFriend = null;
 
-    // Tab Switching
+    // Tab Toggle
     const tabBtnFriends = document.getElementById('tabBtnFriends');
     const tabBtnRequests = document.getElementById('tabBtnRequests');
     const viewFriends = document.getElementById('viewFriends');
@@ -181,7 +199,7 @@
       alert('UID copied: ' + myUID);
     };
 
-    // 2. Search Friend
+    // 3. Search UID Logic
     document.getElementById('btnSearchFriend').onclick = async () => {
       const searchVal = document.getElementById('inputSearchUid').value.trim();
       const resBox = document.getElementById('searchResultBox');
@@ -191,7 +209,7 @@
         return;
       }
       if (searchVal === myUID) {
-        alert("Yeh tumhara apna UID hai! Dusre player ka UID daalo.");
+        alert("Yeh aapka apna UID hai! Dusre player ka UID daalein.");
         return;
       }
 
@@ -203,7 +221,7 @@
         const user = snap.val();
 
         if (!user) {
-          resBox.innerHTML = `<p class="text-xs text-rose-400 py-1">Player nahi mila! Dusre mobile me ek baar link refresh karo taaki UID sync ho sake.</p>`;
+          resBox.innerHTML = `<p class="text-xs text-rose-400 py-1">Player nahi mila! Dusre mobile me link open karke refresh karein.</p>`;
           return;
         }
 
@@ -229,7 +247,7 @@
             fromAvatar: myAvatar,
             timestamp: Date.now()
           }).then(() => {
-            alert('Friend request bhej di gayi!');
+            alert('Friend request sent!');
             resBox.classList.add('hidden');
             document.getElementById('inputSearchUid').value = '';
           });
@@ -239,7 +257,7 @@
       }
     };
 
-    // 3. Listen Incoming Requests
+    // 4. Realtime Request Listener
     db.ref('requests/' + myUID).on('value', (snap) => {
       const data = snap.val();
       const container = document.getElementById('requestsListContainer');
@@ -295,7 +313,7 @@
       });
     });
 
-    // 4. Listen Friends List
+    // 5. Realtime Friends List Listener
     db.ref('friends/' + myUID).on('value', (snap) => {
       const data = snap.val();
       const container = document.getElementById('friendsListContainer');
@@ -303,7 +321,7 @@
 
       if (!data) {
         countEl.innerText = '0';
-        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Abhi koi friend add nahi kiya. Upar UID search karke add karo!</p>`;
+        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Abhi koi friend add nahi kiya. Upar UID search karke add karein!</p>`;
         return;
       }
 
@@ -340,7 +358,7 @@
       return uidA < uidB ? `${uidA}_${uidB}` : `${uidB}_${uidA}`;
     }
 
-    // 5. Chat & Duel
+    // 6. Chat and Duel Handler
     function openChatWith(friend) {
       currentChatFriend = friend;
       document.getElementById('chatFriendName').innerText = friend.name;
@@ -416,4 +434,5 @@
     };
   </script>
 </body>
-</html>
+          </html>
+
