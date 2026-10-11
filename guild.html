@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - 7-Player Guild Squad</title>
+  <title>Chess Universe - 7-Player Clan & Missions</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -16,9 +16,9 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none pb-6">
+<body class="min-h-screen flex flex-col font-sans select-none pb-8">
 
-  <!-- हेडर -->
+  <!-- Header -->
   <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <a href="index.html" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
@@ -26,48 +26,52 @@
       </a>
       <div>
         <h1 class="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2">
-          <span>7-Player Clan Hub</span>
-          <span class="text-[9px] bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded-full border border-amber-500/30">GUILD</span>
+          <span>Clan Hub & Missions</span>
+          <span class="text-[9px] bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded-full border border-amber-500/30">7-SQUAD</span>
         </h1>
-        <p class="text-[10px] text-slate-400 font-medium">7-Member Squad Battles & Elo</p>
+        <p class="text-[10px] text-slate-400 font-medium">Earn Loot, Chat & Climb Squad Elo</p>
       </div>
+    </div>
+    <div class="flex items-center gap-2 font-mono text-xs">
+      <span class="text-amber-400 font-bold" id="topBarCoins">🪙 250</span>
+      <span class="text-cyan-400 font-bold" id="topBarDiamonds">💎 5</span>
     </div>
   </header>
 
   <main class="max-w-md w-full mx-auto px-4 pt-4 flex flex-col gap-4">
 
-    <!-- जब गिल्ड जॉइन नहीं है (Create / Join Panel) -->
+    <!-- When User Has No Clan (Create / Join View) -->
     <div id="noGuildPanel" class="flex flex-col gap-3.5">
       <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl text-center flex flex-col items-center gap-2">
         <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-lg">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
-        <h2 class="text-base font-black text-white mt-1">आप किसी गिल्ड में नहीं हैं</h2>
+        <h2 class="text-base font-black text-white mt-1">No Clan Joined</h2>
         <p class="text-xs text-slate-400 max-w-xs leading-relaxed">
-          अपनी 7-खिलाड़ियों की टीम बनाएँ या अपने दोस्त का 6-अक्षरों वाला गिल्ड कोड डालकर जॉइन करें।
+          Create a 7-player clan or enter a 6-character code from your squad leader to join.
         </p>
       </div>
 
-      <!-- गिल्ड बनाएँ कार्ड -->
+      <!-- Create Clan Card -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
         <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
           <i class="fa-solid fa-plus-circle"></i>
           <span>Create 7-Player Clan</span>
         </h3>
-        <input type="text" id="inputGuildName" placeholder="गिल्ड का नाम (उदा. Knight Kings)" maxlength="20" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+        <input type="text" id="inputGuildName" placeholder="Clan Name (e.g. Knight Kings)" maxlength="20" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
         <button onclick="createGuild()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-          Create Guild (Max 7) 🛡️
+          Create Clan (Max 7) 🛡️
         </button>
       </div>
 
-      <!-- गिल्ड जॉइन करें कार्ड -->
+      <!-- Join Clan Card -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
         <h3 class="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
           <i class="fa-solid fa-right-to-bracket"></i>
           <span>Join Existing Clan</span>
         </h3>
         <div class="flex gap-2">
-          <input type="text" id="inputJoinCode" placeholder="6-अक्षर का कोड दर्ज करें" maxlength="6" class="flex-1 uppercase bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white tracking-widest focus:outline-none focus:border-cyan-500 font-mono">
+          <input type="text" id="inputJoinCode" placeholder="Enter 6-char code" maxlength="6" class="flex-1 uppercase bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white tracking-widest focus:outline-none focus:border-cyan-500 font-mono">
           <button onclick="joinGuild()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
             Join
           </button>
@@ -75,10 +79,10 @@
       </div>
     </div>
 
-    <!-- जब गिल्ड जॉइन हो चुकी है (Active Clan Hub) -->
+    <!-- When Clan Is Active -->
     <div id="activeGuildPanel" class="hidden flex flex-col gap-3.5">
       
-      <!-- गिल्ड सारांश कार्ड -->
+      <!-- Clan Banner -->
       <div class="bg-slate-900/90 border border-amber-500/30 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
         <div class="flex items-center justify-between">
           <div>
@@ -96,37 +100,48 @@
         </div>
 
         <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-[11px]">
-          <span class="text-slate-400">स्लॉट सीमा:</span>
+          <span class="text-slate-400">Slot Status:</span>
           <span id="memberCountRatio" class="font-bold text-amber-400 font-mono">1 / 7 Members</span>
         </div>
       </div>
 
-      <!-- 7 सदस्यों की सूची -->
+      <!-- SQUAD MISSIONS & BOUNTIES -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-scroll"></i>
+            <span>Clan Missions (Earn Loot)</span>
+          </h3>
+          <span class="text-[10px] text-slate-500 font-mono">Daily Reset</span>
+        </div>
+
+        <div id="missionsList" class="flex flex-col gap-2">
+          <!-- Dynamic Missions Injected Here -->
+        </div>
+      </div>
+
+      <!-- 7 Member Squad Roster -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-2.5">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center justify-between">
           <span>Squad Roster (7 Slots)</span>
           <span class="text-[10px] text-emerald-400 font-mono font-normal">Active</span>
         </h3>
-        <div id="rosterList" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
-          <!-- डायनेमिक रोस्टर लोड होगा -->
-        </div>
+        <div id="rosterList" class="flex flex-col gap-1.5 max-h-44 overflow-y-auto"></div>
       </div>
 
-      <!-- क्लैन चैट -->
+      <!-- Private Clan Chat -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-2.5">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">Clan Chat</h3>
-        <div id="clanChatBox" class="h-32 bg-slate-950 rounded-2xl p-2.5 overflow-y-auto flex flex-col gap-1.5 border border-slate-800/80 font-sans text-xs">
-          <!-- मैसेज यहाँ आएँगे -->
-        </div>
+        <div id="clanChatBox" class="h-32 bg-slate-950 rounded-2xl p-2.5 overflow-y-auto flex flex-col gap-1.5 border border-slate-800/80 font-sans text-xs"></div>
         <div class="flex gap-2">
-          <input type="text" id="chatInput" placeholder="टीम के साथ चैट करें..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+          <input type="text" id="chatInput" placeholder="Message squad..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
           <button onclick="sendChatMessage()" class="w-9 h-9 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl flex items-center justify-center text-xs">
             <i class="fa-solid fa-paper-plane"></i>
           </button>
         </div>
       </div>
 
-      <!-- गिल्ड छोड़ें बटन -->
+      <!-- Leave Clan -->
       <button onclick="leaveGuild()" class="w-full py-2.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 rounded-xl text-xs font-bold text-rose-300 transition">
         Leave Clan 🚪
       </button>
@@ -139,9 +154,29 @@
     const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
     const myElo = parseInt(localStorage.getItem('chess_rating') || '1200', 10);
 
+    function updateTopCurrency() {
+      const c = localStorage.getItem('chess_coins') || '250';
+      const d = localStorage.getItem('chess_diamonds') || '5';
+      document.getElementById('topBarCoins').innerText = `🪙 ${c}`;
+      document.getElementById('topBarDiamonds').innerText = `💎 ${d}`;
+    }
+    updateTopCurrency();
+
     let currentGuild = null;
     try {
       currentGuild = JSON.parse(localStorage.getItem('user_guild_data') || 'null');
+    } catch(e) {}
+
+    // Clan Missions Data with local progress
+    let missions = [
+      { id: 'm1', title: 'Win 2 Matches in Arena', current: parseInt(localStorage.getItem('chess_won') || '0', 10), target: 2, coins: 100, diamonds: 2, claimed: false },
+      { id: 'm2', title: 'Deliver 1 Tactical Checkmate', current: 1, target: 1, coins: 60, diamonds: 1, claimed: false },
+      { id: 'm3', title: 'Play 3 Games with Clan Squad', current: 1, target: 3, coins: 75, diamonds: 1, claimed: false }
+    ];
+
+    try {
+      const savedClaimed = JSON.parse(localStorage.getItem('guild_missions_claimed') || '{}');
+      missions.forEach(m => { if (savedClaimed[m.id]) m.claimed = true; });
     } catch(e) {}
 
     function updateView() {
@@ -149,6 +184,7 @@
         document.getElementById('noGuildPanel').classList.add('hidden');
         document.getElementById('activeGuildPanel').classList.remove('hidden');
         renderGuildDetails();
+        renderMissions();
       } else {
         document.getElementById('noGuildPanel').classList.remove('hidden');
         document.getElementById('activeGuildPanel').classList.add('hidden');
@@ -158,7 +194,7 @@
     function createGuild() {
       const name = document.getElementById('inputGuildName').value.trim();
       if (!name) {
-        alert('कृपया गिल्ड का नाम दर्ज करें!');
+        alert('Please enter a clan name!');
         return;
       }
 
@@ -172,7 +208,7 @@
           { uid: myUID, name: myName, role: 'Leader', elo: myElo }
         ],
         chat: [
-          { sender: 'System', text: `${name} गिल्ड बनाई गई। कोड शेयर करें!` }
+          { sender: 'System', text: `${name} squad created! Share code to invite teammates.` }
         ]
       };
 
@@ -183,17 +219,10 @@
     function joinGuild() {
       const code = document.getElementById('inputJoinCode').value.trim().toUpperCase();
       if (code.length < 4) {
-        alert('अमान्य गिल्ड कोड!');
+        alert('Please enter a valid 6-char code!');
         return;
       }
 
-      // अगर कोड वर्तमान गिल्ड या टेस्ट कोड से मेल खाता है
-      if (currentGuild && currentGuild.code === code) {
-        alert('आप पहले से इस गिल्ड में हैं!');
-        return;
-      }
-
-      // 7-प्लेयर नई टीम जॉइन सिमुलेशन
       currentGuild = {
         name: 'Vanguard Elite',
         code: code,
@@ -204,12 +233,62 @@
           { uid: myUID, name: myName, role: 'Member', elo: myElo }
         ],
         chat: [
-          { sender: 'Ayush Bhaiya', text: 'Welcome to the 7-player clan!' }
+          { sender: 'Ayush Bhaiya', text: 'Welcome to the 7-player squad!' }
         ]
       };
 
       localStorage.setItem('user_guild_data', JSON.stringify(currentGuild));
       updateView();
+    }
+
+    function renderMissions() {
+      const container = document.getElementById('missionsList');
+      container.innerHTML = '';
+
+      missions.forEach(m => {
+        const isDone = m.current >= m.target;
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-2.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs";
+        item.innerHTML = `
+          <div>
+            <h4 class="font-bold text-white">${m.title}</h4>
+            <div class="flex items-center gap-2 mt-0.5 font-mono text-[10px]">
+              <span class="text-amber-400">+${m.coins}🪙</span>
+              <span class="text-cyan-400">+${m.diamonds}💎</span>
+              <span class="text-slate-500">(${Math.min(m.current, m.target)}/${m.target})</span>
+            </div>
+          </div>
+          <div>
+            ${m.claimed 
+              ? `<span class="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-[10px] text-slate-500 font-bold">Claimed</span>`
+              : isDone 
+                ? `<button onclick="claimMission('${m.id}')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[10px] uppercase shadow">Claim</button>`
+                : `<span class="px-2 py-1 rounded-xl bg-slate-900 text-[10px] text-slate-500 font-mono">In Progress</span>`
+            }
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function claimMission(id) {
+      const mission = missions.find(m => m.id === id);
+      if (!mission || mission.claimed) return;
+
+      let curCoins = parseInt(localStorage.getItem('chess_coins') || '250', 10) + mission.coins;
+      let curDiamonds = parseInt(localStorage.getItem('chess_diamonds') || '5', 10) + mission.diamonds;
+      localStorage.setItem('chess_coins', curCoins);
+      localStorage.setItem('chess_diamonds', curDiamonds);
+
+      let savedClaimed = {};
+      try { savedClaimed = JSON.parse(localStorage.getItem('guild_missions_claimed') || '{}'); } catch(e) {}
+      savedClaimed[id] = true;
+      localStorage.setItem('guild_missions_claimed', JSON.stringify(savedClaimed));
+
+      mission.claimed = true;
+      updateTopCurrency();
+      renderMissions();
+      alert(`🎉 Claimed +${mission.coins} Coins & +${mission.diamonds} Diamonds!`);
     }
 
     function renderGuildDetails() {
@@ -219,12 +298,10 @@
       document.getElementById('guildCodeDisplay').innerText = currentGuild.code;
       document.getElementById('memberCountRatio').innerText = `${currentGuild.members.length} / 7 Members`;
 
-      // औसत रेटिंग
       const totalElo = currentGuild.members.reduce((acc, m) => acc + (m.elo || 1200), 0);
       const avgElo = Math.round(totalElo / currentGuild.members.length);
       document.getElementById('guildAvgElo').innerText = avgElo;
 
-      // रोस्टर सूची
       const rosterContainer = document.getElementById('rosterList');
       rosterContainer.innerHTML = '';
       currentGuild.members.forEach((m, idx) => {
@@ -273,12 +350,12 @@
     function copyGuildCode() {
       if (currentGuild) {
         navigator.clipboard.writeText(currentGuild.code);
-        alert('गिल्ड कोड कॉपी किया गया: ' + currentGuild.code);
+        alert('Guild code copied: ' + currentGuild.code);
       }
     }
 
     function leaveGuild() {
-      if (confirm('क्या आप सच में यह क्लैन छोड़ना चाहते हैं?')) {
+      if (confirm('Are you sure you want to leave this clan?')) {
         currentGuild = null;
         localStorage.removeItem('user_guild_data');
         updateView();
@@ -289,4 +366,3 @@
   </script>
 </body>
 </html>
-
