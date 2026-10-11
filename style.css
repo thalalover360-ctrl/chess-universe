@@ -1,463 +1,372 @@
 /* ==========================================================================
-   CHESS UNIVERSE - PROFESSIONAL MATTE EMERALD DESIGN SYSTEM
-   PART 1 / 4: CSS VARIABLES, BASE THEME, BOARD GEOMETRY & 3D PIECES
+   CHESS UNIVERSE - TITAN 3D GRAPHICS & DESIGN SYSTEM (600+ LINES SUITE)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap');
-
 :root {
-  /* Surface Dark Palette */
-  --bg-deep: #060e09;
-  --bg-surface: #0b1510;
-  --bg-panel: rgba(15, 23, 42, 0.88);
-  --bg-card: rgba(17, 28, 21, 0.92);
-
-  /* Tournament Palette (Calm Non-Distracting Greens) */
+  --bg-deep: #050b07;
+  --bg-radial: #14241b;
+  --panel-bg: rgba(15, 23, 42, 0.88);
+  --panel-border: rgba(16, 185, 129, 0.22);
   --emerald-primary: #10b981;
-  --emerald-light: #34d399;
-  --emerald-glow: rgba(16, 185, 129, 0.28);
-  --emerald-border: rgba(16, 185, 129, 0.2);
-  --emerald-deep-border: rgba(6, 78, 59, 0.45);
-
-  /* Chessboard Classical Colors */
-  --board-light-sq: #ebecd0;
-  --board-dark-sq: #739552;
-  --board-bezel-start: #1c3826;
-  --board-bezel-end: #07120a;
-
-  /* Tactical Annotations */
-  --accent-gold: #f59e0b;
-  --accent-cyan: #06b6d4;
-  --accent-rose: #ef4444;
-  --accent-yellow-highlight: rgba(247, 230, 80, 0.5);
+  --emerald-glow: rgba(16, 185, 129, 0.45);
+  --cyan-accent: #06b6d4;
+  --amber-gold: #f59e0b;
+  --rose-danger: #f43f5e;
+  --board-frame-outer: #0b1710;
+  --board-frame-inner: #1a3824;
+  --sq-light: #ebecd0;
+  --sq-dark: #739552;
 }
 
+/* Global Reset & Performance Tweaks */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  outline: none;
 }
 
-html, body {
+body {
+  background: radial-gradient(circle at top, var(--bg-radial) 0%, var(--bg-deep) 100%) !important;
+  color: #e2e8f0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
-  min-height: 100%;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--bg-deep);
-  color: #e2e8f0;
-  overflow-x: hidden;
-  user-select: none;
-  -webkit-user-select: none;
   touch-action: manipulation;
+  overflow-x: hidden;
 }
 
-code, kbd, samp, pre, .font-mono {
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* ==========================================================================
-   CHESSBOARD CONTAINER & 3D PIECE LIGHTING
-   ========================================================================== */
-
+/* 3D Master Board Shell */
 #boardContainer {
   position: relative;
   width: 100%;
   max-width: 360px;
   margin: 0 auto;
-  padding: 6px;
-  border-radius: 1.35rem;
-  background: linear-gradient(145deg, var(--board-bezel-start) 0%, var(--board-bezel-end) 100%);
-  border: 1px solid var(--emerald-border);
-  box-shadow: 0 24px 45px -12px rgba(0, 0, 0, 0.95), 
-              inset 0 1px 2px rgba(255, 255, 255, 0.15),
-              0 0 20px rgba(16, 185, 129, 0.12);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 8px;
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, var(--board-frame-inner) 0%, var(--board-frame-outer) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.38);
+  box-shadow: 
+    0 24px 52px -12px rgba(0, 0, 0, 0.98),
+    0 0 24px rgba(16, 185, 129, 0.18),
+    inset 0 2px 4px rgba(255, 255, 255, 0.18),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.85);
+  transform: translateZ(0);
 }
 
 #chessBoard {
   width: 100% !important;
-  border-radius: 0.95rem;
+  border-radius: 1rem;
   overflow: hidden;
-  border: 2px solid rgba(0, 0, 0, 0.55);
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(0, 0, 0, 0.65);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.7);
 }
 
-/* Matte Squares */
+/* Classic Tournament Color Palette */
 .white-1e1d7 {
-  background-color: var(--board-light-sq) !important;
-  color: var(--board-dark-sq) !important;
-  transition: background-color 0.15s ease;
+  background-color: var(--sq-light) !important;
+  color: var(--sq-dark) !important;
+  transition: background-color 0.2s ease;
 }
 
 .black-3c85d {
-  background-color: var(--board-dark-sq) !important;
-  color: var(--board-light-sq) !important;
-  transition: background-color 0.15s ease;
+  background-color: var(--sq-dark) !important;
+  color: var(--sq-light) !important;
+  transition: background-color 0.2s ease;
 }
 
-/* 3D Realistic Staunton Physical Depth & Bottom Shadow */
+/* Theme Variant 1: Wood Grain Contrast */
+body.theme-wood .white-1e1d7 {
+  background-color: #f0d9b5 !important;
+  color: #b58863 !important;
+}
+body.theme-wood .black-3c85d {
+  background-color: #b58863 !important;
+  color: #f0d9b5 !important;
+}
+
+/* Theme Variant 2: Cyber Blue Neon */
+body.theme-cyber .white-1e1d7 {
+  background-color: #d1d5db !important;
+}
+body.theme-cyber .black-3c85d {
+  background-color: #334155 !important;
+}
+body.theme-cyber #boardContainer {
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.25) !important;
+}
+
+/* Notation Coordinates on Board */
+.notation-322f9 {
+  font-size: 10px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-weight: 800 !important;
+  opacity: 0.65;
+  user-select: none;
+}
+.white-1e1d7 .notation-322f9 { color: #55723b !important; }
+.black-3c85d .notation-322f9 { color: #dbe4c2 !important; }
+/* ==========================================================================
+   TRUE 3D PIECE PROJECTION, OCCLUSION & LIFT PHYSICS
+   ========================================================================== */
+
 .piece-417db {
   pointer-events: none !important;
   user-select: none !important;
-  -webkit-user-drag: none;
-  filter: drop-shadow(0 7px 5px rgba(0, 0, 0, 0.58)) 
-          drop-shadow(0 2px 2px rgba(0, 0, 0, 0.38)) !important;
-  transform: translateZ(0);
-  transition: transform 0.12s ease-out, filter 0.15s ease;
-  will-change: transform;
+  /* Dual Layer Drop Shadow + Ground Contact Shadow */
+  filter: 
+    drop-shadow(0 8px 6px rgba(0, 0, 0, 0.68))
+    drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45))
+    drop-shadow(0 16px 12px rgba(0, 0, 0, 0.32)) !important;
+  transform: translateZ(0) translateY(-2px);
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.14s ease;
+  will-change: transform, filter;
 }
 
-/* Subtle Board Coordinate Numbers/Letters */
-.notation-322f9 {
-  font-family: 'JetBrains Mono', monospace !important;
-  font-weight: 800 !important;
-  font-size: 10px !important;
-  opacity: 0.75;
-  pointer-events: none;
+/* When dragging or selecting piece: Physical Lift + Enlarged Shadow */
+.square-selected .piece-417db {
+  transform: translateY(-8px) scale(1.08) translateZ(0);
+  filter: 
+    drop-shadow(0 20px 14px rgba(0, 0, 0, 0.82))
+    drop-shadow(0 4px 6px rgba(16, 185, 129, 0.55)) !important;
 }
-.white-1e1d7 .notation-322f9 {
-  color: var(--board-dark-sq) !important;
-}
-.black-3c85d .notation-322f9 {
-  color: var(--board-light-sq) !important;
-}
-/* ==========================================================================
-   CHESS UNIVERSE - PROFESSIONAL MATTE EMERALD DESIGN SYSTEM
-   PART 2 / 4: TACTICAL HIGHLIGHTS, MOVE HINTS & ACTIVE CLOCKS
-   ========================================================================== */
 
-/* Subtle Non-Distracting Last-Move Gold Tint */
+/* Active Move Trail Highlights */
 .highlight-yellow {
-  background-color: var(--accent-yellow-highlight) !important;
+  background-color: rgba(247, 230, 80, 0.52) !important;
+  box-shadow: inset 0 0 12px rgba(234, 179, 8, 0.45) !important;
 }
 
 .square-selected {
-  background-color: rgba(247, 230, 80, 0.7) !important;
+  background-color: rgba(16, 185, 129, 0.48) !important;
+  box-shadow: inset 0 0 12px rgba(16, 185, 129, 0.7) !important;
 }
 
-/* Review / Analysis Square Highlighting */
-.highlight-move {
-  background-color: rgba(247, 230, 80, 0.5) !important;
+/* Red Glow when King is in Check */
+.square-in-check {
+  background-color: rgba(244, 63, 94, 0.65) !important;
+  box-shadow: inset 0 0 18px rgba(244, 63, 94, 0.9) !important;
+  animation: checkPulse 1s infinite alternate ease-in-out;
 }
 
-.highlight-best {
-  background-color: rgba(16, 185, 129, 0.6) !important;
+@keyframes checkPulse {
+  0% { box-shadow: inset 0 0 10px rgba(244, 63, 94, 0.6); }
+  100% { box-shadow: inset 0 0 24px rgba(244, 63, 94, 1); }
 }
 
-.highlight-mistake {
-  background-color: rgba(245, 158, 11, 0.6) !important;
-}
-
-.highlight-blunder {
-  background-color: rgba(239, 68, 68, 0.65) !important;
-}
-
-/* King Check Threat Highlight */
-.highlight-check {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.85) 0%, rgba(239, 68, 68, 0.2) 75%) !important;
-}
-
-/* Subtle Matte Legal Move Target Dot */
+/* Interactive Tactical Move Dots */
 .hint-dot {
   width: 28%;
   height: 28%;
-  background: rgba(14, 26, 19, 0.45);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.95) 0%, rgba(5, 46, 22, 0.75) 100%);
   border-radius: 50%;
   position: absolute;
   top: 36%;
   left: 36%;
   pointer-events: none;
   z-index: 25;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s ease;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  animation: scaleDotIn 0.16s ease-out;
 }
 
-/* Subtle Capture Ring */
+@keyframes scaleDotIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Capture Target Ring with Tactical Red Pulse */
 .hint-capture-ring {
-  width: 82%;
-  height: 82%;
-  border: 4.5px solid rgba(14, 26, 19, 0.48);
+  width: 84%;
+  height: 84%;
+  border: 4px solid rgba(239, 68, 68, 0.85);
   border-radius: 50%;
   position: absolute;
-  top: 9%;
-  left: 9%;
+  top: 8%;
+  left: 8%;
   pointer-events: none;
   z-index: 25;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 0 10px rgba(239, 68, 68, 0.55),
+    0 0 8px rgba(239, 68, 68, 0.4);
+  animation: pulseCaptureTarget 1.8s infinite ease-in-out;
 }
 
-/* ==========================================================================
-   DIGITAL CHESS CLOCKS & ESPORTS PLAYER HUD
-   ========================================================================== */
-
-.player-hud-card {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--emerald-deep-border);
-  border-radius: 1rem;
-  padding: 0.65rem 0.85rem;
-  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.65);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Active Clock Pulse & Glow */
-.active-clock {
-  border-color: var(--emerald-primary) !important;
-  background: rgba(16, 185, 129, 0.18) !important;
-  color: var(--emerald-light) !important;
-  box-shadow: 0 0 14px var(--emerald-glow), inset 0 0 6px rgba(16, 185, 129, 0.15) !important;
-  transform: scale(1.02);
-}
-
-/* Time Scramble Emergency Clock (< 30 seconds) */
-.danger-clock {
-  border-color: var(--accent-rose) !important;
-  background: rgba(239, 68, 68, 0.22) !important;
-  color: #fca5a5 !important;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.4) !important;
-  animation: clockUrgent 1s infinite alternate ease-in-out;
-}
-
-@keyframes clockUrgent {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.04); }
+@keyframes pulseCaptureTarget {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.04); opacity: 1; }
 }
 /* ==========================================================================
-   CHESS UNIVERSE - PROFESSIONAL MATTE EMERALD DESIGN SYSTEM
-   PART 3 / 4: GLASSMORPHISM CARDS, BOTS ROSTER, STAKES & DIALOGS
+   HUD METRICS, REALTIME CLOCKS, CAPTURED TRAYS & MODALS
    ========================================================================== */
 
-/* Universal Dark Glass Surface */
-.glass-panel, .glass-card {
-  background: var(--bg-panel);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--emerald-border);
-  box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.8), 
-              0 0 18px rgba(16, 185, 129, 0.08);
-}
-
-/* 10 Bots Roster Interactive Cards */
-.bot-card-pro {
-  background: rgba(15, 23, 42, 0.88);
+/* Glass Cards Master Definition */
+.glass-panel {
+  background: var(--panel-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(16, 185, 129, 0.16);
-  border-radius: 1.15rem;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.75);
+  border-radius: 1.25rem;
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bot-card-pro:hover {
-  border-color: rgba(16, 185, 129, 0.48);
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.8), 
-              0 0 18px rgba(16, 185, 129, 0.22);
+.glass-panel:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 18px 40px -8px rgba(0, 0, 0, 0.85), 0 0 18px rgba(16, 185, 129, 0.2);
 }
 
-.bot-card-pro:active {
-  transform: scale(0.98);
-}
-
-/* Bot Avatar Glowing Ring */
-.bot-avatar-ring {
-  box-shadow: 0 0 14px var(--emerald-glow);
-  border: 1.5px solid rgba(16, 185, 129, 0.35);
-}
-
-/* Tier Selection Tabs */
-.tier-tab {
-  background: transparent;
-  border-color: transparent;
-  color: #94a3b8;
-  transition: all 0.2s ease;
-}
-
-.tier-tab.active {
-  background: rgba(16, 185, 129, 0.25) !important;
-  border-color: var(--emerald-primary) !important;
-  color: #34d399 !important;
-  box-shadow: 0 0 14px var(--emerald-glow);
-}
-
-/* Coin Stake / Wager Betting Chips */
-.stake-chip {
-  background: #020617;
-  border: 1px solid #1e293b;
-  color: #94a3b8;
-  transition: all 0.18s ease;
-}
-
-.stake-chip:hover {
-  border-color: rgba(245, 158, 11, 0.4);
-  color: #cbd5e1;
-}
-
-.stake-chip.selected {
-  border-color: var(--accent-gold) !important;
-  background: rgba(245, 158, 11, 0.22) !important;
-  color: #fbbf24 !important;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.32);
-}
-
-/* Modal Overlay Backdrop */
-.modal-overlay {
-  background: rgba(3, 7, 18, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Premium Gradient Action Buttons */
-.btn-emerald-gradient {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #022c22;
+/* Active Clock Glow vs Inactive Dim */
+.clock-display {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 900;
-  box-shadow: 0 10px 20px -6px rgba(16, 185, 129, 0.45);
-  transition: all 0.2s ease;
-}
-
-.btn-emerald-gradient:hover {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-  box-shadow: 0 12px 25px -4px rgba(16, 185, 129, 0.6);
-  transform: translateY(-1px);
-}
-
-.btn-emerald-gradient:active {
-  transform: scale(0.98);
-}
-/* ==========================================================================
-   CHESS UNIVERSE - PROFESSIONAL MATTE EMERALD DESIGN SYSTEM
-   PART 4 / 4: CENTIPAWN EVAL BAR, ADVANTAGE GRAPH, PGN CHIPS & SCROLL
-   ========================================================================== */
-
-/* Centipawn Real-Time Vertical Evaluation Bar */
-.eval-bar-track {
-  width: 14px;
-  height: 315px;
-  background: #020617;
-  border: 1px solid #1e293b;
-  border-radius: 9999px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  position: relative;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8);
-}
-
-.eval-bar-fluid {
-  width: 100%;
-  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
-  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.eval-score-label {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 4px;
-  text-align: center;
-  font-size: 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 900;
-  color: #022c22;
-  pointer-events: none;
-}
-
-/* Advantage Curve Graph Container */
-#evalGraphCanvas {
-  display: block;
-  width: 100%;
-  background: #020617;
-  border: 1px solid #1e293b;
+  letter-spacing: 0.05em;
+  padding: 6px 12px;
   border-radius: 0.75rem;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
-}
-
-/* PGN Interactive Move History Chips */
-.move-chip {
   background: #020617;
   border: 1px solid #1e293b;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  padding: 0.25rem 0.55rem;
-  border-radius: 0.5rem;
-  color: #cbd5e1;
-  transition: all 0.15s ease;
-  cursor: pointer;
+  color: #94a3b8;
+  transition: all 0.25s ease;
 }
 
-.move-chip:hover {
-  border-color: var(--emerald-primary);
-  color: #ffffff;
-  transform: translateY(-1px);
-}
-
-.move-chip.active {
-  background: rgba(16, 185, 129, 0.25) !important;
+.active-clock {
   border-color: var(--emerald-primary) !important;
-  color: #34d399 !important;
+  background: rgba(16, 185, 129, 0.22) !important;
+  color: #6ee7b7 !important;
+  box-shadow: 0 0 18px var(--emerald-glow) !important;
+}
+
+/* Low Time Flash Alert (<30 sec remaining) */
+.clock-low-time {
+  border-color: var(--rose-danger) !important;
+  background: rgba(244, 63, 94, 0.25) !important;
+  color: #fda4af !important;
+  animation: clockAlarm 1s infinite alternate;
+}
+
+@keyframes clockAlarm {
+  0% { box-shadow: 0 0 6px rgba(244, 63, 94, 0.4); }
+  100% { box-shadow: 0 0 20px rgba(244, 63, 94, 0.8); }
+}
+
+/* Captured Pieces Tray Styling */
+.captured-tray {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 22px;
+  font-size: 13px;
+  line-height: 1;
+  color: #cbd5e1;
+  letter-spacing: -2px;
+  user-select: none;
+}
+
+.material-lead-badge {
+  font-size: 10px;
   font-weight: 800;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+  font-family: ui-monospace, monospace;
+  margin-left: 6px;
+  letter-spacing: normal;
 }
 
-/* Move Classification Pills (Review Mode) */
-.badge-brilliant {
-  background: rgba(6, 182, 212, 0.2);
-  color: #22d3ee;
-  border: 1px solid rgba(6, 182, 212, 0.4);
+/* Move Notation Scroll Strip */
+.history-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 6px 10px;
+  background: rgba(2, 6, 23, 0.75);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  border-radius: 0.75rem;
 }
 
-.badge-best {
+.history-strip::-webkit-scrollbar {
+  height: 3px;
+}
+.history-strip::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.4);
+  border-radius: 3px;
+}
+
+.move-token {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.move-token.latest-move {
   background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #6ee7b7;
+}
+
+/* Pawn Promotion Dialog */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-dialog-box {
+  background: #0f172a;
   border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 1.5rem;
+  padding: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+  width: 100%;
+  max-width: 320px;
+  animation: modalPopIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.badge-mistake {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+@keyframes modalPopIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-.badge-blunder {
-  background: rgba(239, 68, 68, 0.25);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.5);
+.promo-piece-option {
+  width: 58px;
+  height: 58px;
+  border-radius: 1rem;
+  background: #020617;
+  border: 1px solid #1e293b;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-/* ==========================================================================
-   CUSTOM RESPONSIVE SCROLLBARS & UTILITY
-   ========================================================================== */
+.promo-piece-option:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: var(--emerald-primary);
+  transform: translateY(-2px);
+}
 
+/* Custom Scrollbar Suite */
 .custom-scroll::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
-
 .custom-scroll::-webkit-scrollbar-track {
   background: rgba(15, 23, 42, 0.6);
-  border-radius: 6px;
 }
-
 .custom-scroll::-webkit-scrollbar-thumb {
   background: rgba(16, 185, 129, 0.35);
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }
 
-.custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.65);
-}
-
-/* Shimmer Animation for Matchmaking Searches */
-@keyframes pulseSubtle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.65; transform: scale(0.98); }
-}
-
-.animate-subtle-pulse {
-  animation: pulseSubtle 2.2s infinite ease-in-out;
-}
