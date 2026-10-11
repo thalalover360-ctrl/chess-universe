@@ -18,23 +18,41 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans select-none pb-8">
 
-  <!-- Header -->
-  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2.5">
+  <!-- Header with Currency Counters -->
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-2">
       <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
         <i class="fa-solid fa-chess-knight text-base"></i>
       </div>
-      <h1 class="text-base font-black tracking-wider uppercase text-white">Chess Universe</h1>
+      <h1 class="text-sm font-black tracking-wider uppercase text-white hidden sm:block">Chess Universe</h1>
     </div>
-    <button onclick="resetAccount()" class="px-3 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-[11px] font-bold text-slate-300 border border-slate-800">
-      Reset UID
-    </button>
+
+    <!-- Currency Counters & Free Reward Button -->
+    <div class="flex items-center gap-1.5">
+      <!-- Coins -->
+      <div class="flex items-center gap-1 bg-slate-900 border border-amber-500/40 px-2.5 py-1 rounded-xl shadow">
+        <span class="text-xs">🪙</span>
+        <span id="userCoins" class="text-xs font-black font-mono text-amber-400">250</span>
+      </div>
+
+      <!-- Diamonds -->
+      <div class="flex items-center gap-1 bg-slate-900 border border-cyan-500/40 px-2.5 py-1 rounded-xl shadow">
+        <span class="text-xs">💎</span>
+        <span id="userDiamonds" class="text-xs font-black font-mono text-cyan-400">5</span>
+      </div>
+
+      <!-- Claim / Watch Ad Button -->
+      <button onclick="openRewardModal()" class="flex items-center gap-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 px-2 py-1 rounded-xl text-emerald-400 text-xs font-bold transition">
+        <i class="fa-solid fa-gift"></i>
+        <span>Free</span>
+      </button>
+    </div>
   </header>
 
-  <main class="max-w-md w-full mx-auto px-4 pt-4 flex flex-col gap-4">
+  <main class="max-w-md w-full mx-auto px-4 pt-3 flex flex-col gap-3.5">
 
     <!-- Profile & Live Stats -->
-    <section class="bg-slate-900/90 border border-emerald-950 rounded-3xl p-4 shadow-xl flex flex-col gap-3.5">
+    <section class="bg-slate-900/90 border border-emerald-950 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div id="playerAvatar" class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-black text-xl text-emerald-400">
@@ -84,13 +102,13 @@
           </div>
           <div>
             <h3 class="text-base font-black uppercase tracking-wide leading-tight">Play vs Bot</h3>
-            <p class="text-[11px] font-bold text-emerald-950/80">Choose White / Black & Difficulty</p>
+            <p class="text-[11px] font-bold text-emerald-950/80">Earn Coins & Diamonds on Victory</p>
           </div>
         </div>
         <i class="fa-solid fa-chevron-right text-lg text-emerald-950/60"></i>
       </button>
 
-      <!-- 2. Pass & Play (Local 2 Players) -->
+      <!-- 2. Pass & Play -->
       <a href="game.html?mode=pass" class="card-tap w-full p-4 rounded-3xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 flex items-center justify-between shadow-xl transition">
         <div class="flex items-center gap-3.5">
           <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl">
@@ -104,7 +122,7 @@
         <i class="fa-solid fa-arrow-right text-sm text-slate-500"></i>
       </a>
 
-      <!-- 3. Friends & Social Hub -->
+      <!-- 3. Friends & Duels -->
       <a href="friend.html" class="card-tap w-full p-4 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 flex items-center justify-between shadow-xl transition">
         <div class="flex items-center gap-3.5">
           <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">
@@ -116,6 +134,23 @@
               <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded font-bold">ONLINE</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium">Friend Requests, Live Chat & Matches</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-arrow-right text-sm text-slate-500"></i>
+      </a>
+
+      <!-- 4. Guild / Clan Hub -->
+      <a href="guild.html" class="card-tap w-full p-4 rounded-3xl bg-slate-900 border border-amber-500/30 hover:border-amber-500/60 flex items-center justify-between shadow-xl transition">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-black text-white uppercase tracking-wide leading-tight">Clan & Guilds (7 Squad)</h3>
+              <span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.2 rounded font-bold">CLAN WARS</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium">Create 7-Player Clan, Group Chat & Elo</p>
           </div>
         </div>
         <i class="fa-solid fa-arrow-right text-sm text-slate-500"></i>
@@ -171,12 +206,49 @@
     </div>
   </div>
 
+  <!-- Rewarded Ad / Free Rewards Modal -->
+  <div id="rewardModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-4 text-center">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+          <span>Free Loot Box</span>
+        </h3>
+        <button onclick="closeRewardModal()" class="w-7 h-7 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="py-2">
+        <div class="text-4xl mb-2">🎁</div>
+        <h4 class="text-sm font-black text-white">Watch Sponsor Video</h4>
+        <p class="text-xs text-slate-400 mt-1">Get <span class="text-amber-400 font-bold">+100 Coins</span> & <span class="text-cyan-400 font-bold">+3 Diamonds</span> instantly!</p>
+      </div>
+
+      <button id="btnWatchAd" onclick="claimAdReward()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider shadow-lg">
+        Watch Ad (Earn Loot) 📺
+      </button>
+    </div>
+  </div>
+
   <script>
-    let myUID = localStorage.getItem('chess_game_uid') || localStorage.getItem('chess_uid') || localStorage.getItem('uid');
-    if (!myUID) {
-      myUID = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-      localStorage.setItem('chess_game_uid', myUID);
+    // UID persistence (Fallbacks to main permanent account)
+    let myUID = localStorage.getItem('chess_game_uid') || localStorage.getItem('chess_uid') || '8830464849';
+    localStorage.setItem('chess_game_uid', myUID);
+
+    // Currency Initialization
+    let coins = parseInt(localStorage.getItem('chess_coins'), 10);
+    if (isNaN(coins)) coins = 250;
+    localStorage.setItem('chess_coins', coins);
+
+    let diamonds = parseInt(localStorage.getItem('chess_diamonds'), 10);
+    if (isNaN(diamonds)) diamonds = 5;
+    localStorage.setItem('chess_diamonds', diamonds);
+
+    function updateCurrencyUI() {
+      document.getElementById('userCoins').innerText = localStorage.getItem('chess_coins') || '250';
+      document.getElementById('userDiamonds').innerText = localStorage.getItem('chess_diamonds') || '5';
     }
+    updateCurrencyUI();
 
     const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
     const myRating = localStorage.getItem('chess_rating') || '1200';
@@ -198,24 +270,33 @@
       alert('UID Copied: ' + myUID);
     }
 
-    function resetAccount() {
-      if (confirm('Kya naya UID banana chahte ho?')) {
-        localStorage.removeItem('chess_game_uid');
-        location.reload();
-      }
-    }
-
-    function openColorModal() {
-      document.getElementById('botColorModal').classList.remove('hidden');
-    }
-
-    function closeColorModal() {
-      document.getElementById('botColorModal').classList.add('hidden');
-    }
-
-    function startBotMatch(color) {
+    function openColorModal() { document.getElementById('botColorModal').classList.remove('hidden'); }
+    function closeColorModal() { document.getElementById('botColorModal').classList.add('hidden'); }
+    function startBotMatch(c) {
       closeColorModal();
-      window.location.href = `game.html?mode=bot&side=${color}`;
+      window.location.href = `game.html?mode=bot&side=${c}`;
+    }
+
+    // Reward / Ad System
+    function openRewardModal() { document.getElementById('rewardModal').classList.remove('hidden'); }
+    function closeRewardModal() { document.getElementById('rewardModal').classList.add('hidden'); }
+
+    function claimAdReward() {
+      const btn = document.getElementById('btnWatchAd');
+      btn.disabled = true;
+      btn.innerText = "Watching Sponsor Video (3s)...";
+
+      setTimeout(() => {
+        let curC = parseInt(localStorage.getItem('chess_coins') || '250', 10) + 100;
+        let curD = parseInt(localStorage.getItem('chess_diamonds') || '5', 10) + 3;
+        localStorage.setItem('chess_coins', curC);
+        localStorage.setItem('chess_diamonds', curD);
+        updateCurrencyUI();
+        btn.disabled = false;
+        btn.innerText = "Watch Ad (Earn Loot) 📺";
+        closeRewardModal();
+        alert("🎉 Reward Claimed: +100 Coins & +3 Diamonds!");
+      }, 3000);
     }
 
     // Render Match History Feed
@@ -246,7 +327,7 @@
             </div>
             <div>
               <h4 class="text-xs font-bold text-white">${m.opponent || 'Match'}</h4>
-              <p class="text-[10px] text-slate-500 font-mono">${m.moves ? m.moves.length : 0} moves • ${m.playedSide || 'white'}</p>
+              <p class="text-[10px] text-slate-500 font-mono">${m.moves ? m.moves.length : 0} moves • ${m.rewardCoins ? '+' + m.rewardCoins + '🪙' : ''}</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
