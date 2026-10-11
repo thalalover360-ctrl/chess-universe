@@ -113,25 +113,28 @@
   </div>
 
   <script>
-    // 1. Unique Dynamic UID Generation (No Hardcoded Fallback)
+    // 1. Storage & UID Sync (Dashboard se match karne ke liye)
     let storedUser = null;
     try {
-      storedUser = JSON.parse(localStorage.getItem('chess_user') || '{}');
+      storedUser = JSON.parse(localStorage.getItem('chess_user') || localStorage.getItem('chess_auth') || '{}');
     } catch (e) {}
 
     let myUID = localStorage.getItem('chess_game_uid') 
-             || localStorage.getItem('chess_uid') 
-             || (storedUser && (storedUser.uid || storedUser.id));
+             || localStorage.getItem('chess_uid')
+             || localStorage.getItem('user_uid')
+             || localStorage.getItem('chess_player_uid')
+             || localStorage.getItem('uid')
+             || (storedUser && (storedUser.uid || storedUser.id || storedUser.playerUid));
 
-    // Agar device par pehle se UID nahi hai toh new random 10-digit number generate karo
+    // Agar storage me UID na mile toh Dashboard wali ID set karo
     if (!myUID) {
-      myUID = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-      localStorage.setItem('chess_game_uid', myUID);
+      myUID = '1029384756';
     }
+    localStorage.setItem('chess_game_uid', myUID);
 
     const myName = localStorage.getItem('chess_name') 
                 || (storedUser && storedUser.name) 
-                || ('Player_' + myUID.slice(-4));
+                || 'Harsh Singh';
 
     const myRating = localStorage.getItem('chess_rating') 
                   || (storedUser && storedUser.rating) 
@@ -143,7 +146,7 @@
 
     document.getElementById('myUidHeader').innerText = 'MY UID: ' + myUID;
 
-    // Firebase Credentials
+    // Firebase Config (Singapore RTDB)
     const firebaseConfig = {
       apiKey: "AIzaSyBx79cUd4hX7XzCeBaCPIeqLss1d5nNzaM",
       authDomain: "chess-universe-5a7cb.firebaseapp.com",
@@ -159,7 +162,7 @@
     }
     const db = firebase.database();
 
-    // 2. Register / Sync User on Realtime Database
+    // 2. Realtime Database Pool me user register karo
     db.ref('users/' + myUID).set({
       uid: myUID,
       name: myName,
@@ -173,7 +176,7 @@
 
     let currentChatFriend = null;
 
-    // Tab Toggle
+    // Tab Toggle Controls
     const tabBtnFriends = document.getElementById('tabBtnFriends');
     const tabBtnRequests = document.getElementById('tabBtnRequests');
     const viewFriends = document.getElementById('viewFriends');
@@ -199,7 +202,7 @@
       alert('UID copied: ' + myUID);
     };
 
-    // 3. Search UID Logic
+    // 3. Search Friend Logic
     document.getElementById('btnSearchFriend').onclick = async () => {
       const searchVal = document.getElementById('inputSearchUid').value.trim();
       const resBox = document.getElementById('searchResultBox');
@@ -221,7 +224,7 @@
         const user = snap.val();
 
         if (!user) {
-          resBox.innerHTML = `<p class="text-xs text-rose-400 py-1">Player nahi mila! Dusre mobile me link open karke refresh karein.</p>`;
+          resBox.innerHTML = `<p class="text-xs text-rose-400 py-1">Player nahi mila! Dusre phone me link open karke refresh karein.</p>`;
           return;
         }
 
@@ -257,7 +260,7 @@
       }
     };
 
-    // 4. Realtime Request Listener
+    // 4. Inbound Requests Listener
     db.ref('requests/' + myUID).on('value', (snap) => {
       const data = snap.val();
       const container = document.getElementById('requestsListContainer');
@@ -313,7 +316,7 @@
       });
     });
 
-    // 5. Realtime Friends List Listener
+    // 5. Friends List Listener
     db.ref('friends/' + myUID).on('value', (snap) => {
       const data = snap.val();
       const container = document.getElementById('friendsListContainer');
@@ -358,7 +361,7 @@
       return uidA < uidB ? `${uidA}_${uidB}` : `${uidB}_${uidA}`;
     }
 
-    // 6. Chat and Duel Handler
+    // 6. Chat and Duel Operations
     function openChatWith(friend) {
       currentChatFriend = friend;
       document.getElementById('chatFriendName').innerText = friend.name;
@@ -434,5 +437,4 @@
     };
   </script>
 </body>
-          </html>
-
+</html>
