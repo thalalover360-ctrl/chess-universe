@@ -3,237 +3,297 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Sound & Music Studio</title>
+  <title>Audio Studio | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+
   <style>
     body {
-      background: radial-gradient(circle at top, #14241b 0%, #080f0c 100%);
+      background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
       color: #e2e8f0;
       touch-action: manipulation;
     }
+    .mood-card.active {
+      border-color: #10b981 !important;
+      background: rgba(16, 185, 129, 0.15) !important;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+    }
+    .mood-card {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(16, 185, 129, 0.18);
+      transition: all 0.2s ease;
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none pb-8">
+<body class="min-h-screen flex flex-col font-sans select-none pb-12">
 
   <!-- Header -->
-  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
-        <i class="fa-solid fa-arrow-left"></i>
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
       </a>
       <div>
-        <h1 class="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2">
+        <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
           <span>Audio Studio</span>
-          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">SYNTH</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">SYNTH</span>
         </h1>
         <p class="text-[10px] text-slate-400 font-medium">Procedural Music & Move Sound FX</p>
       </div>
     </div>
   </header>
 
-  <main class="max-w-md w-full mx-auto px-4 pt-4 flex flex-col gap-4">
+  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3.5">
 
-    <!-- Live Master Audio Control -->
-    <div class="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-5 shadow-xl flex flex-col gap-3">
+    <!-- Master Audio Player Deck -->
+    <div class="p-4 rounded-3xl bg-slate-900/90 border border-emerald-500/30 shadow-2xl flex flex-col gap-3.5">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-base font-black text-white">Procedural Lo-Fi Engine</h2>
-          <p class="text-xs text-slate-400">Self-generating chess ambient harmony</p>
+          <h2 class="text-sm font-black text-white leading-tight">Procedural Lo-Fi Engine</h2>
+          <p class="text-[10px] text-slate-400 mt-0.5">Self-generating chess ambient harmony</p>
         </div>
-        <button id="btnToggleSynth" onclick="toggleSynthMusic()" class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xl shadow-lg transition">
-          <i class="fa-solid fa-play" id="synthPlayIcon"></i>
+        <button id="btnTogglePlayback" onclick="togglePlayback()" class="w-12 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center text-lg font-bold shadow-lg transition">
+          <i class="fa-solid fa-play" id="playIcon"></i>
         </button>
       </div>
 
-      <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-800">
-        <div class="flex justify-between text-xs font-mono">
-          <span class="text-slate-400">Master Volume</span>
-          <span id="volText" class="text-emerald-400 font-bold">50%</span>
+      <!-- Volume Slider -->
+      <div class="flex flex-col gap-1.5 pt-1">
+        <div class="flex justify-between items-center text-xs font-mono">
+          <span class="text-slate-400 font-bold uppercase text-[10px]">Master Volume</span>
+          <span id="volumeValueText" class="text-emerald-400 font-bold">75%</span>
         </div>
-        <input type="range" id="volSlider" min="0" max="100" value="50" oninput="changeVolume(this.value)" class="w-full accent-emerald-500 h-1.5 bg-slate-950 rounded-lg cursor-pointer">
+        <input type="range" id="volumeSlider" min="0" max="100" value="75" oninput="changeMasterVolume(this.value)" class="w-full accent-emerald-500 bg-slate-950 h-2 rounded-lg cursor-pointer">
       </div>
     </div>
 
-    <!-- Music Mood Selection -->
-    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
-      <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+    <!-- Soundtrack Moods Grid -->
+    <div class="flex flex-col gap-2">
+      <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5 px-1">
         <i class="fa-solid fa-compact-disc"></i>
         <span>Soundtrack Moods</span>
       </h3>
 
       <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="setThemeTrack('lofi')" id="btn-lofi" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-emerald-500 flex flex-col items-start gap-1 text-left">
-          <span class="text-xs font-black text-white">♟️ Grandmaster Lo-Fi</span>
-          <span class="text-[10px] text-slate-400">Soft Rhodes chords & calm focus</span>
-        </button>
+        <!-- Mood 1: Grandmaster Lo-Fi -->
+        <div onclick="selectMood('lofi')" id="mood-lofi" class="mood-card active p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
+          <span class="text-xl">♟️</span>
+          <h4 class="text-xs font-black text-white leading-tight">Grandmaster Lo-Fi</h4>
+          <p class="text-[9px] text-slate-400 leading-tight">Soft Rhodes chords & calm focus</p>
+        </div>
 
-        <button onclick="setThemeTrack('ambient')" id="btn-ambient" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-emerald-500/50 flex flex-col items-start gap-1 text-left">
-          <span class="text-xs font-black text-white">🌌 Deep Space Fog</span>
-          <span class="text-[10px] text-slate-400">Slow atmospheric pad resonance</span>
-        </button>
+        <!-- Mood 2: Deep Space Fog -->
+        <div onclick="selectMood('space')" id="mood-space" class="mood-card p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
+          <span class="text-xl">🌌</span>
+          <h4 class="text-xs font-black text-white leading-tight">Deep Space Fog</h4>
+          <p class="text-[9px] text-slate-400 leading-tight">Slow atmospheric pad resonance</p>
+        </div>
 
-        <button onclick="setThemeTrack('cyber')" id="btn-cyber" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-emerald-500/50 flex flex-col items-start gap-1 text-left">
-          <span class="text-xs font-black text-white">⚡ Cyber Attack</span>
-          <span class="text-[10px] text-slate-400">Fast tactical sequencer pulses</span>
-        </button>
+        <!-- Mood 3: Cyber Attack -->
+        <div onclick="selectMood('cyber')" id="mood-cyber" class="mood-card p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
+          <span class="text-xl">⚡</span>
+          <h4 class="text-xs font-black text-white leading-tight">Cyber Attack</h4>
+          <p class="text-[9px] text-slate-400 leading-tight">Fast tactical sequencer pulses</p>
+        </div>
 
-        <button onclick="setThemeTrack('wood')" id="btn-wood" class="theme-card p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-emerald-500/50 flex flex-col items-start gap-1 text-left">
-          <span class="text-xs font-black text-white">☕ Coffeehouse Blitz</span>
-          <span class="text-[10px] text-slate-400">Acoustic warm acoustic vibe</span>
-        </button>
+        <!-- Mood 4: Coffeehouse Blitz -->
+        <div onclick="selectMood('coffee')" id="mood-coffee" class="mood-card p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
+          <span class="text-xl">☕</span>
+          <h4 class="text-xs font-black text-white leading-tight">Coffeehouse Blitz</h4>
+          <p class="text-[9px] text-slate-400 leading-tight">Warm acoustic vibe for blitz</p>
+        </div>
       </div>
     </div>
 
-    <!-- Move Sound FX Presets -->
-    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex flex-col gap-3">
-      <h3 class="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+    <!-- Move Sound FX Pack Audition -->
+    <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md flex flex-col gap-2.5">
+      <h3 class="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
         <i class="fa-solid fa-chess-pawn"></i>
         <span>Move Sound FX Pack</span>
       </h3>
-
       <div class="grid grid-cols-3 gap-2">
-        <button onclick="previewSfx('wood')" class="py-2.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center flex flex-col items-center gap-1">
-          <span class="text-xs font-bold text-white">Wood Piece</span>
+        <button onclick="auditionSfx('wood')" class="py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center transition flex flex-col items-center gap-0.5">
+          <span class="text-xs font-bold text-slate-200">Wood Piece</span>
           <span class="text-[9px] text-emerald-400 font-mono">Test 🔊</span>
         </button>
-        <button onclick="previewSfx('glass')" class="py-2.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center flex flex-col items-center gap-1">
-          <span class="text-xs font-bold text-white">Glass Bell</span>
+        <button onclick="auditionSfx('bell')" class="py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center transition flex flex-col items-center gap-0.5">
+          <span class="text-xs font-bold text-slate-200">Glass Bell</span>
           <span class="text-[9px] text-cyan-400 font-mono">Test 🔊</span>
         </button>
-        <button onclick="previewSfx('tactical')" class="py-2.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center flex flex-col items-center gap-1">
-          <span class="text-xs font-bold text-white">Heavy Drop</span>
+        <button onclick="auditionSfx('drop')" class="py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center transition flex flex-col items-center gap-0.5">
+          <span class="text-xs font-bold text-slate-200">Heavy Drop</span>
           <span class="text-[9px] text-amber-400 font-mono">Test 🔊</span>
         </button>
       </div>
     </div>
 
   </main>
-
-  <script>
-    let audioCtx = null;
+    <script>
     let isPlaying = false;
-    let timerLoop = null;
-    let masterGain = null;
-    let currentTheme = localStorage.getItem('chess_music_theme') || 'lofi';
-    let currentVol = parseFloat(localStorage.getItem('chess_music_vol') || '0.3');
+    let currentMood = 'lofi';
+    let audioCtx = null;
+    let musicLoopTimer = null;
+    let masterGainNode = null;
+    let masterVolume = 0.75;
+    let chordIndex = 0;
 
-    document.getElementById('volSlider').value = currentVol * 100;
-    document.getElementById('volText').innerText = Math.round(currentVol * 100) + '%';
-
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGain = audioCtx.createGain();
-        masterGain.gain.setValueAtTime(currentVol, audioCtx.currentTime);
-        masterGain.connect(audioCtx.destination);
+    // Mood Chord Progressions
+    const MOOD_DATA = {
+      lofi: {
+        chords: [
+          [261.63, 329.63, 392.00], // C Maj
+          [220.00, 261.63, 329.63], // A Min
+          [174.61, 220.00, 261.63], // F Maj
+          [196.00, 246.94, 293.66]  // G Maj
+        ],
+        interval: 2200,
+        type: 'sine'
+      },
+      space: {
+        chords: [
+          [130.81, 196.00, 293.66],
+          [110.00, 164.81, 246.94],
+          [146.83, 220.00, 329.63]
+        ],
+        interval: 3200,
+        type: 'triangle'
+      },
+      cyber: {
+        chords: [
+          [164.81, 196.00, 246.94],
+          [220.00, 261.63, 329.63],
+          [146.83, 174.61, 220.00],
+          [196.00, 246.94, 293.66]
+        ],
+        interval: 1400,
+        type: 'sawtooth'
+      },
+      coffee: {
+        chords: [
+          [261.63, 329.63, 440.00],
+          [196.00, 246.94, 329.63],
+          [220.00, 277.18, 329.63]
+        ],
+        interval: 2000,
+        type: 'sine'
       }
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-
-    // Procedural Synth Scales (Notes in Hz)
-    const chords = {
-      lofi: [ [261.63, 329.63, 392.00], [220.00, 261.63, 329.63], [174.61, 220.00, 261.63], [196.00, 246.94, 293.66] ],
-      ambient: [ [130.81, 196.00, 261.63], [110.00, 164.81, 220.00], [98.00, 146.83, 196.00], [87.31, 130.81, 174.61] ],
-      cyber: [ [146.83, 220.00, 329.63], [174.61, 261.63, 392.00], [130.81, 196.00, 293.66], [164.81, 246.94, 329.63] ],
-      wood: [ [220.00, 277.18, 329.63], [196.00, 246.94, 293.66], [164.81, 207.65, 246.94], [220.00, 261.63, 329.63] ]
     };
 
-    let step = 0;
-    function playChordStep() {
-      if (!isPlaying || !audioCtx) return;
-      const progression = chords[currentTheme] || chords.lofi;
-      const curNotes = progression[step % progression.length];
-      step++;
+    function initAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGainNode = audioCtx.createGain();
+        masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+        masterGainNode.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
 
-      curNotes.forEach((freq, i) => {
+    function playChord() {
+      if (!isPlaying || !audioCtx) return;
+      const config = MOOD_DATA[currentMood];
+      const notes = config.chords[chordIndex % config.chords.length];
+      chordIndex++;
+
+      notes.forEach((freq, idx) => {
         const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = currentTheme === 'cyber' ? 'sawtooth' : 'sine';
+        const noteGain = audioCtx.createGain();
+
+        osc.type = config.type;
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-        gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.08 / (i + 1), audioCtx.currentTime + 0.3);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
+        noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        noteGain.gain.linearRampToValueAtTime(0.2 / (idx + 1), audioCtx.currentTime + 0.3);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (config.interval / 1000));
 
-        osc.connect(gain);
-        gain.connect(masterGain);
+        osc.connect(noteGain);
+        noteGain.connect(masterGainNode);
 
         osc.start();
-        osc.stop(audioCtx.currentTime + 2.2);
+        osc.stop(audioCtx.currentTime + (config.interval / 1000));
       });
     }
 
-    function toggleSynthMusic() {
-      initAudio();
-      const icon = document.getElementById('synthPlayIcon');
+    function togglePlayback() {
+      initAudioContext();
+      isPlaying = !isPlaying;
+
+      const btn = document.getElementById('btnTogglePlayback');
+      const icon = document.getElementById('playIcon');
+
       if (isPlaying) {
-        clearInterval(timerLoop);
-        isPlaying = false;
-        icon.className = "fa-solid fa-play";
+        icon.className = 'fa-solid fa-pause';
+        btn.classList.add('bg-amber-400');
+        playChord();
+        musicLoopTimer = setInterval(playChord, MOOD_DATA[currentMood].interval);
       } else {
-        isPlaying = true;
-        icon.className = "fa-solid fa-pause text-amber-400";
-        playChordStep();
-        timerLoop = setInterval(playChordStep, 2400);
+        icon.className = 'fa-solid fa-play';
+        btn.classList.remove('bg-amber-400');
+        if (musicLoopTimer) clearInterval(musicLoopTimer);
       }
     }
 
-    function changeVolume(v) {
-      currentVol = v / 100;
-      document.getElementById('volText').innerText = v + '%';
-      localStorage.setItem('chess_music_vol', currentVol);
-      if (masterGain && audioCtx) {
-        masterGain.gain.setValueAtTime(currentVol, audioCtx.currentTime);
-      }
-    }
+    function selectMood(mood) {
+      currentMood = mood;
+      chordIndex = 0;
 
-    function setThemeTrack(th) {
-      currentTheme = th;
-      localStorage.setItem('chess_music_theme', th);
-      document.querySelectorAll('.theme-card').forEach(b => {
-        b.classList.remove('border-emerald-500');
-        b.classList.add('border-slate-800');
-      });
-      document.getElementById('btn-' + th).classList.add('border-emerald-500');
-      document.getElementById('btn-' + th).classList.remove('border-slate-800');
+      document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
+      document.getElementById('mood-' + mood).classList.add('active');
+
       if (isPlaying) {
-        clearInterval(timerLoop);
-        playChordStep();
-        timerLoop = setInterval(playChordStep, 2400);
+        if (musicLoopTimer) clearInterval(musicLoopTimer);
+        playChord();
+        musicLoopTimer = setInterval(playChord, MOOD_DATA[mood].interval);
       }
     }
 
-    function previewSfx(type) {
-      initAudio();
+    function changeMasterVolume(val) {
+      masterVolume = val / 100;
+      document.getElementById('volumeValueText').innerText = val + '%';
+      if (masterGainNode && audioCtx) {
+        masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+      }
+    }
+
+    function auditionSfx(type) {
+      initAudioContext();
       const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      const g = audioCtx.createGain();
+
       if (type === 'wood') {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.09);
+        g.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
-      } else if (type === 'glass') {
+        osc.stop(audioCtx.currentTime + 0.09);
+      } else if (type === 'bell') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.35);
+        g.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
-      } else {
-        osc.type = 'sawtooth';
+        osc.stop(audioCtx.currentTime + 0.35);
+      } else if (type === 'drop') {
+        osc.type = 'square';
         osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+        osc.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.14);
+        g.gain.setValueAtTime(0.45, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.18);
+        osc.stop(audioCtx.currentTime + 0.14);
       }
-      osc.connect(gain);
-      gain.connect(masterGain);
+
+      osc.connect(g);
+      g.connect(masterGainNode);
     }
   </script>
 </body>
 </html>
+
