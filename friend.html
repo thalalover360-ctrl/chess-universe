@@ -3,573 +3,377 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Real 3D Arena</title>
+  <title>Friends Network & Chat | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
   <link rel="stylesheet" href="style.css">
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 
   <style>
     body {
       background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
       color: #e2e8f0;
       touch-action: manipulation;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    
-    .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
-    .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
-
-    /* Real Staunton 3D Depth Shaders */
-    .piece-417db {
-      pointer-events: none !important;
-      user-select: none !important;
-      filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.65)) drop-shadow(0 2px 3px rgba(0,0,0,0.45)) !important;
-      transform: translateZ(0);
-      transition: transform 0.12s ease-out;
+    .glass-card {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(16, 185, 129, 0.18);
     }
-
-    #boardContainer {
-      position: relative;
-      width: 100%;
-      max-width: 360px;
-      margin: 0 auto;
-      padding: 6px;
-      border-radius: 1.35rem;
-      background: linear-gradient(145deg, #1b3524 0%, #07100a 100%);
-      border: 1px solid rgba(16, 185, 129, 0.28);
-      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.95), inset 0 1px 2px rgba(255,255,255,0.15);
-    }
-    #chessBoard {
-      width: 100% !important;
-      border-radius: 0.95rem;
-      overflow: hidden;
-      border: 2px solid rgba(0,0,0,0.55);
-    }
-
-    .highlight-yellow {
-      background-color: rgba(247, 230, 80, 0.48) !important;
-    }
-    .square-selected {
-      background-color: rgba(247, 230, 80, 0.72) !important;
-    }
-
-    .hint-dot {
-      width: 26%; height: 26%;
-      background: rgba(14, 26, 19, 0.45);
-      border-radius: 50%;
-      position: absolute; top: 37%; left: 37%;
-      pointer-events: none; z-index: 20;
-    }
-    .hint-capture-ring {
-      width: 82%; height: 82%;
-      border: 4.5px solid rgba(14, 26, 19, 0.48);
-      border-radius: 50%;
-      position: absolute; top: 9%; left: 9%;
-      pointer-events: none; z-index: 20;
-    }
-
-    .active-clock {
-      border-color: #10b981 !important;
-      background: rgba(16, 185, 129, 0.2) !important;
-      color: #6ee7b7 !important;
-      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
-    }
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.35); border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none items-center justify-between pb-4">
+<body class="min-h-screen flex flex-col font-sans select-none pb-12">
 
-  <!-- Opponent Bar -->
-  <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-2">
-    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
-      <div class="flex items-center gap-2.5">
-        <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
-          <i class="fa-solid fa-chevron-left text-xs"></i>
-        </a>
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center font-bold text-xs" id="oppAvatar">🤖</div>
-          <div>
-            <h2 id="oppName" class="text-xs font-black text-white leading-tight">Master Bot</h2>
-            <span id="oppElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1400</span>
-          </div>
-        </div>
-      </div>
-      <div id="oppClock" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono font-black text-sm text-slate-300 transition">
-        10:00
+  <!-- Header -->
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </a>
+      <div>
+        <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
+          <span>FRIENDS NETWORK</span>
+          <span class="text-[9px] bg-purple-500/20 text-purple-400 font-mono px-1.5 py-0.2 rounded border border-purple-500/30">10-DIGIT</span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Add Friends, Chat & Direct Duels</p>
       </div>
     </div>
   </header>
 
-  <!-- 3D Chessboard View -->
-  <main class="w-full max-w-md px-2 flex flex-col items-center justify-center my-auto">
-    <div id="boardContainer">
-      <div id="chessBoard"></div>
-    </div>
-  </main>
+  <main class="max-w-md w-full mx-auto px-3.5 pt-3.5 flex flex-col gap-3.5">
 
-  <!-- Player Bar & Controls -->
-  <footer class="w-full max-w-md px-3 flex flex-col gap-2.5">
-    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-emerald-400" id="playerAvatar">P</div>
+    <!-- My UID Card -->
+    <div class="glass-card rounded-3xl p-4 flex items-center justify-between shadow-xl border-purple-500/30">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl font-black text-purple-400 shadow-md" id="myAvatar">
+          H
+        </div>
         <div>
-          <h2 id="playerName" class="text-xs font-black text-white leading-tight">Harsh Singh</h2>
-          <span id="playerElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1200</span>
+          <h2 id="myNameText" class="text-sm font-black text-white leading-tight">Harsh Singh</h2>
+          <div class="text-[11px] font-mono text-slate-400 mt-0.5 flex items-center gap-1.5">
+            <span>UID:</span>
+            <span id="myUidText" class="text-purple-400 font-black tracking-wider">0000000000</span>
+          </div>
         </div>
       </div>
-      <div id="playerClock" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono font-black text-sm text-slate-300 transition">
-        10:00
-      </div>
+      <button onclick="copyMyUID()" class="px-3 py-1.5 bg-slate-950 hover:bg-slate-800 border border-purple-500/40 rounded-xl text-[10px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5 transition">
+        <i class="fa-regular fa-copy"></i> Copy
+      </button>
     </div>
 
-    <!-- Controls -->
-    <div class="flex gap-2">
-      <button onclick="board.flip()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-300">
-        <i class="fa-solid fa-repeat"></i>
-        <span>Flip</span>
-      </button>
-
-      <button id="btnPeekMove" onclick="togglePeekPreviousMove()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-amber-400">
-        <i class="fa-solid fa-backward-step"></i>
-        <span id="peekBtnText">Last Move</span>
-      </button>
-
-      <button onclick="resignGame()" class="flex-1 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-rose-300">
-        <i class="fa-regular fa-flag"></i>
-        <span>Resign</span>
-      </button>
-
-      <a href="music.html" class="w-9 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center text-emerald-400" title="Audio Studio">
-        <i class="fa-solid fa-music"></i>
-      </a>
-    </div>
-  </footer>
-
-  <!-- End Game Modal -->
-  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-3">
-      <div id="modalIcon" class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">
-        🏆
-      </div>
-      <div>
-        <h2 id="highlightWinnerTitle" class="text-base font-black uppercase tracking-wider text-emerald-400">Match Concluded</h2>
-        <p id="subReasonText" class="text-xs text-slate-400 font-medium mt-0.5">By Checkmate</p>
-      </div>
-
-      <div class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center justify-around font-mono text-xs">
-        <div>
-          <span class="text-[9px] text-slate-500 uppercase font-bold block">Rating</span>
-          <span id="modalRatingDelta" class="font-black text-emerald-400 text-sm">+16</span>
-        </div>
-        <div class="h-6 w-px bg-slate-800"></div>
-        <div>
-          <span class="text-[9px] text-slate-500 uppercase font-bold block">Rewards</span>
-          <span id="modalRewards" class="font-black text-amber-400 text-sm">+50 🪙</span>
-        </div>
-      </div>
-
-      <div class="w-full flex flex-col gap-2 pt-1">
-        <button onclick="goToAnalysis()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>View Real Analysis</span>
+    <!-- 10-Digit Search Bar -->
+    <div class="glass-card rounded-3xl p-3.5 flex flex-col gap-2.5 shadow-xl">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-bold">Search Friend By 10-Digit UID</span>
+      <div class="flex items-center gap-2">
+        <input type="text" id="inputSearchUID" placeholder="Enter 10-Digit UID (e.g. 8830464849)" maxlength="10" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-emerald-400 tracking-wider focus:outline-none focus:border-purple-500">
+        <button onclick="searchFriendByUID()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl text-xs uppercase tracking-wider transition shadow">
+          Search
         </button>
-        <div class="flex gap-2">
-          <button onclick="location.reload()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition border border-slate-700">Rematch</button>
-          <a href="index.html" class="flex-1 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition border border-slate-800 flex items-center justify-center">Lobby</a>
+      </div>
+      <!-- Search Result Display Box -->
+      <div id="searchResultBox" class="hidden mt-1 p-3 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs" id="foundInitial">P</div>
+          <div>
+            <h4 id="foundName" class="text-xs font-bold text-white leading-tight">Player</h4>
+            <span id="foundElo" class="text-[10px] font-mono text-slate-400">1200 Elo</span>
+          </div>
+        </div>
+        <button onclick="sendFriendRequest()" id="btnSendRequest" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition">
+          Add Friend
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs: Friends List / Requests -->
+    <div class="flex gap-2">
+      <button onclick="switchTab('friends')" id="tabBtnFriends" class="flex-1 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold uppercase tracking-wider transition">Friends</button>
+      <button onclick="switchTab('requests')" id="tabBtnRequests" class="flex-1 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider transition">Requests (<span id="reqCount">0</span>)</button>
+    </div>
+
+    <!-- Friends Container -->
+    <div id="friendsListContainer" class="flex flex-col gap-2">
+      <!-- Populated dynamically -->
+      <div class="glass-card rounded-2xl p-4 text-center text-xs text-slate-500 font-mono">
+        No friends added yet. Share your UID above!
+      </div>
+    </div>
+
+    <!-- Requests Container -->
+    <div id="requestsListContainer" class="hidden flex flex-col gap-2">
+      <div class="glass-card rounded-2xl p-4 text-center text-xs text-slate-500 font-mono">
+        No incoming friend requests.
+      </div>
+    </div>
+
+  </main>
+    <!-- 1-on-1 Live Chat Modal Drawer -->
+  <div id="chatDrawer" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex flex-col justify-end p-2">
+    <div class="bg-slate-900 border border-purple-500/40 w-full max-w-md mx-auto rounded-3xl p-4 shadow-2xl flex flex-col gap-3 h-[80vh]">
+      
+      <!-- Chat Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs" id="chatPartnerAvatar">P</div>
+          <div>
+            <h3 class="text-xs font-black text-white leading-tight" id="chatPartnerName">Chat</h3>
+            <span class="text-[9px] font-mono text-emerald-400 font-bold">Online</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="challengeCurrentFriend()" class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition flex items-center gap-1 shadow">
+            <i class="fa-solid fa-swords"></i> Duel
+          </button>
+          <button onclick="closeChatDrawer()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         </div>
       </div>
+
+      <!-- Messages Stream -->
+      <div id="chatMessagesBox" class="flex-1 overflow-y-auto custom-scroll flex flex-col gap-2 p-1 font-sans text-xs">
+        <div class="text-center text-[10px] font-mono text-slate-500 my-auto">Start chatting or send a duel challenge!</div>
+      </div>
+
+      <!-- Message Input -->
+      <div class="flex items-center gap-2 pt-1 border-t border-slate-800">
+        <input type="text" id="chatInputMessage" placeholder="Type a message..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500" onkeydown="if(event.key==='Enter') sendChatMessage()">
+        <button onclick="sendChatMessage()" class="w-9 h-9 rounded-xl bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center text-xs transition">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+
     </div>
   </div>
-    <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get('mode') || 'bot';
-    const playerSide = (urlParams.get('side') || 'white').toLowerCase();
-    const botId = parseInt(urlParams.get('botId') || '5', 10);
 
-    // 10 Distinct Real Bots
-    const BOTS_DATABASE = [
-      { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣", depth: 0, blunderRate: 0.65 },
-      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 0, blunderRate: 0.45 },
-      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 1, blunderRate: 0.32 },
-      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 1, blunderRate: 0.22 },
-      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 2, blunderRate: 0.12 },
-      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 2, blunderRate: 0.06 },
-      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 3, blunderRate: 0.03 },
-      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 3, blunderRate: 0.01 },
-      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡", depth: 4, blunderRate: 0.0 },
-      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐", depth: 4, blunderRate: 0.0 }
-    ];
+  <!-- FIRESTORE FRIENDS & CHAT SYNC SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    let currentBot = BOTS_DATABASE.find(b => b.id === botId);
-    if (!currentBot) {
-      const paramName = urlParams.get('botName');
-      currentBot = BOTS_DATABASE.find(b => b.name === paramName) || BOTS_DATABASE[4];
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+      authDomain: "chess-universe-5a7cb.firebaseapp.com",
+      projectId: "chess-universe-5a7cb",
+      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+      messagingSenderId: "145519167856",
+      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    };
 
-    const game = new Chess();
-    let board = null;
-    let whiteTime = 600;
-    let blackTime = 600;
-    let timerInterval = null;
-    let isGameOver = false;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    let selectedSquare = null;
-    let legalMovesList = [];
-    let lastMove = { from: null, to: null };
-    let isPeekingPrevious = false;
+    const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
+    const myUID = localStorage.getItem('chess_game_uid') || '8830464849';
+    const myElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
 
-    // Player Credentials
-    const localPlayerName = localStorage.getItem('chess_name') || 'Harsh Singh';
-    let savedElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
+    document.getElementById('myNameText').innerText = myName;
+    document.getElementById('myAvatar').innerText = myName.charAt(0).toUpperCase();
+    document.getElementById('myUidText').innerText = myUID;
 
-    let oppDisplayName = currentBot.name;
-    let oppDisplayElo = currentBot.elo;
-    let oppDisplayAvatar = currentBot.avatar;
+    let foundUserCache = null;
+    let activeChatPartner = null;
+    let chatUnsubscribe = null;
 
-    if (mode === 'pass') {
-      oppDisplayName = 'Player 2';
-      oppDisplayElo = 'Local';
-      oppDisplayAvatar = '👥';
-    } else if (mode === 'pvp' || mode === 'online') {
-      oppDisplayName = urlParams.get('oppName') || 'Challenger';
-      oppDisplayElo = urlParams.get('oppElo') || '1250';
-      oppDisplayAvatar = '⚔️';
-    }
+    window.copyMyUID = () => {
+      navigator.clipboard.writeText(myUID);
+      alert("UID copied to clipboard: " + myUID);
+    };
 
-    document.getElementById('playerName').innerText = localPlayerName;
-    document.getElementById('playerAvatar').innerText = localPlayerName.charAt(0).toUpperCase();
-    document.getElementById('playerElo').innerText = 'Rating: ' + savedElo;
-
-    document.getElementById('oppName').innerText = oppDisplayName;
-    document.getElementById('oppAvatar').innerText = oppDisplayAvatar;
-    document.getElementById('oppElo').innerText = 'Rating: ' + oppDisplayElo;
-
-    // ==========================================
-    // HARDWARE WEB AUDIO LO-FI GENERATOR (AUDIBLE VOLUME)
-    // ==========================================
-    let audioCtx = null;
-    let bgTimer = null;
-    const chords = [
-      [261.63, 329.63, 392.00],
-      [220.00, 261.63, 329.63],
-      [174.61, 220.00, 261.63],
-      [196.00, 246.94, 293.66]
-    ];
-    let chordStep = 0;
-
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-    }
-
-    function playLoFiChord() {
-      if (!audioCtx) return;
-      const notes = chords[chordStep % chords.length];
-      chordStep++;
-      notes.forEach((freq, idx) => {
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        g.gain.setValueAtTime(0, audioCtx.currentTime);
-        // Clear high gain so speaker plays loud & clear
-        g.gain.linearRampToValueAtTime(0.12 / (idx + 1), audioCtx.currentTime + 0.25);
-        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.4);
-        osc.connect(g);
-        g.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 2.4);
-      });
-    }
-
-    function startLofi() {
-      initAudio();
-      if (bgTimer) clearInterval(bgTimer);
-      playLoFiChord();
-      bgTimer = setInterval(playLoFiChord, 2400);
-    }
-
-    // Auto Start on First Screen Interaction
-    window.addEventListener('click', () => { startLofi(); }, { once: true });
-    window.addEventListener('touchstart', () => { startLofi(); }, { once: true });
-
-    function playWoodMoveSfx(isCapture = false) {
-      if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(isCapture ? 420 : 280, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.08);
-      g.gain.setValueAtTime(0.35, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-      osc.connect(g);
-      g.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.08);
-    }
-
-    function removeHints() {
-      $('#chessBoard .hint-dot, #chessBoard .hint-capture-ring').remove();
-      $('#chessBoard .square-55d63').removeClass('square-selected');
-    }
-
-    function renderHighlights() {
-      $('#chessBoard .square-55d63').removeClass('highlight-yellow');
-      if (lastMove.from) $('#chessBoard .square-' + lastMove.from).addClass('highlight-yellow');
-      if (lastMove.to) $('#chessBoard .square-' + lastMove.to).addClass('highlight-yellow');
-    }
-
-    function showHints(sq) {
-      if (isPeekingPrevious) return;
-      removeHints();
-      selectedSquare = sq;
-      $('#chessBoard .square-' + sq).addClass('square-selected');
-      legalMovesList = game.moves({ square: sq, verbose: true });
-
-      legalMovesList.forEach(m => {
-        const $sq =$('#chessBoard .square-' + m.to);
-        if ($sq.length) {
-          const el = m.captured ? '<div class="hint-capture-ring"></div>' : '<div class="hint-dot"></div>';
-          $sq.append(el);
-        }
-      });
-    }
-
-    function performMove(from, to) {
-      if (isPeekingPrevious) togglePeekPreviousMove();
-      removeHints();
-      const move = game.move({ from: from, to: to, promotion: 'q' });
-      if (!move) return false;
-
-      lastMove = { from: from, to: to };
-      selectedSquare = null;
-      legalMovesList = [];
-
-      board.position(game.fen());
-      renderHighlights();
-      playWoodMoveSfx(!!move.captured);
-      updateClocksUI();
-
-      if (game.game_over()) {
-        checkGameResult();
-        return true;
-      }
-
-      if (mode === 'bot') window.setTimeout(runBotEngineTurn, 450);
-      return true;
-    }
-
-    // REAL STAUNTON 3D PIECES (LICHESS REPO)
-    board = Chessboard('chessBoard', {
-      draggable: false,
-      position: 'start',
-      orientation: playerSide === 'black' ? 'black' : 'white',
-      pieceTheme: 'https://raw.githubusercontent.com/ornicar/lila/master/public/piece/staunton/{piece}.svg'
-    });
-
-    $(window).resize(board.resize);
-
-    $('#chessBoard').on('click touchstart', '.square-55d63', function (e) {
-      e.preventDefault();
-      initAudio();
-      if (game.game_over() || isGameOver) return;
-      if (isPeekingPrevious) { togglePeekPreviousMove(); return; }
-
-      const sq = $(this).attr('data-square');
-      if (!sq) return;
-
-      const isLegal = legalMovesList.some(m => m.to === sq);
-      if (selectedSquare && isLegal) {
-        performMove(selectedSquare, sq);
-        return;
-      }
-
-      const piece = game.get(sq);
-      const turn = game.turn();
-      const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b') || (mode === 'pass');
-
-      if (piece && piece.color === turn && isMyTurn) {
-        showHints(sq);
+    window.switchTab = (tab) => {
+      if (tab === 'friends') {
+        document.getElementById('tabBtnFriends').className = "flex-1 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold uppercase tracking-wider transition";
+        document.getElementById('tabBtnRequests').className = "flex-1 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider transition";
+        document.getElementById('friendsListContainer').classList.remove('hidden');
+        document.getElementById('requestsListContainer').classList.add('hidden');
       } else {
-        removeHints();
-        selectedSquare = null;
-        legalMovesList = [];
+        document.getElementById('tabBtnRequests').className = "flex-1 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold uppercase tracking-wider transition";
+        document.getElementById('tabBtnFriends').className = "flex-1 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider transition";
+        document.getElementById('requestsListContainer').classList.remove('hidden');
+        document.getElementById('friendsListContainer').classList.add('hidden');
       }
-    });
+    };
 
-    function togglePeekPreviousMove() {
-      const history = game.history();
-      if (history.length === 0) {
-        alert("No moves played yet!");
-        return;
-      }
-      const btnText = document.getElementById('peekBtnText');
-      const btn = document.getElementById('btnPeekMove');
-
-      if (!isPeekingPrevious) {
-        const tempSim = new Chess();
-        for (let i = 0; i < history.length - 1; i++) tempSim.move(history[i]);
-        board.position(tempSim.fen());
-        removeHints();
-        isPeekingPrevious = true;
-        btnText.innerText = "Live Board";
-        btn.classList.add('border-amber-500/80', 'bg-amber-500/20');
-      } else {
-        board.position(game.fen());
-        renderHighlights();
-        isPeekingPrevious = false;
-        btnText.innerText = "Last Move";
-        btn.classList.remove('border-amber-500/80', 'bg-amber-500/20');
-      }
-    }
-
-    const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-    function evaluatePositionScore(sim) {
-      let score = 0;
-      const b = sim.board();
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const p = b[r][c];
-          if (p) score += (p.color === 'w' ? pieceValues[p.type] : -pieceValues[p.type]);
-        }
-      }
-      return score;
-    }
-
-    function runBotEngineTurn() {
-      if (game.game_over() || isGameOver) return;
-      const moves = game.moves({ verbose: true });
-      if (moves.length === 0) return;
-
-      let chosen = null;
-      if (Math.random() < currentBot.blunderRate) {
-        chosen = moves[Math.floor(Math.random() * moves.length)];
-      } else {
-        let bestEval = (game.turn() === 'w') ? -999999 : 999999;
-        for (let i = 0; i < moves.length; i++) {
-          const sim = new Chess(game.fen());
-          sim.move(moves[i]);
-          let score = evaluatePositionScore(sim);
-          if (moves[i].captured) score += (game.turn() === 'w' ? 50 : -50);
-
-          if (game.turn() === 'w') {
-            if (score > bestEval) { bestEval = score; chosen = moves[i]; }
-          } else {
-            if (score < bestEval) { bestEval = score; chosen = moves[i]; }
-          }
-        }
-      }
-
-      if (!chosen) chosen = moves[0];
-      game.move(chosen);
-      board.position(game.fen());
-      lastMove = { from: chosen.from, to: chosen.to };
-      renderHighlights();
-      playWoodMoveSfx(!!chosen.captured);
-      updateClocksUI();
-
-      if (game.game_over()) checkGameResult();
-    }
-
-    function updateClocksUI() {
-      const pClock = document.getElementById('playerClock');
-      const oClock = document.getElementById('oppClock');
-      const turn = game.turn();
-      const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b');
-
-      if (isMyTurn) {
-        pClock.classList.add('active-clock');
-        oClock.classList.remove('active-clock');
-      } else {
-        oClock.classList.add('active-clock');
-        pClock.classList.remove('active-clock');
-      }
-    }
-
-    timerInterval = setInterval(() => {
-      if (isGameOver) return;
-      if (game.turn() === 'w') whiteTime = Math.max(0, whiteTime - 1);
-      else blackTime = Math.max(0, blackTime - 1);
-
-      formatClock('playerClock', playerSide === 'white' ? whiteTime : blackTime);
-      formatClock('oppClock', playerSide === 'white' ? blackTime : whiteTime);
-
-      if (whiteTime === 0 || blackTime === 0) {
-        const winnerColor = whiteTime === 0 ? 'Black' : 'White';
-        concludeMatch(winnerColor, 'Timeout');
-      }
-    }, 1000);
-
-    function formatClock(id, s) {
-      const m = Math.floor(s / 60);
-      const sec = s % 60;
-      document.getElementById(id).innerText = `${m}:${sec < 10 ? '0' : ''}${sec}`;
-    }
-
-    function checkGameResult() {
-      if (game.in_checkmate()) {
-        const winnerColor = game.turn() === 'b' ? 'White' : 'Black';
-        concludeMatch(winnerColor, 'Checkmate');
-      } else if (game.in_draw()) {
-        concludeMatch('Draw', 'Stalemate / Draw');
-      }
-    }
-
-    function concludeMatch(winnerColor, reason) {
-      if (isGameOver) return;
-      isGameOver = true;
-      clearInterval(timerInterval);
-      clearInterval(bgTimer);
-      removeHints();
-
-      const isWin = (winnerColor.toLowerCase() === playerSide);
-      const delta = winnerColor === 'Draw' ? 0 : (isWin ? 16 : -14);
-      const newElo = Math.max(100, savedElo + delta);
-      localStorage.setItem('chess_rating', newElo);
-
-      const rewardCoins = isWin ? 50 : 15;
-      localStorage.setItem('chess_coins', (parseInt(localStorage.getItem('chess_coins') || '350', 10) + rewardCoins));
-
-      const matchReport = {
-        outcome: isWin ? "Victory" : (winnerColor === 'Draw' ? "Draw" : "Defeat"),
-        won: isWin,
-        delta: delta,
-        newElo: newElo,
-        pgn: game.pgn(),
-        moves: game.history(),
-        timestamp: Date.now(),
-        opponent: oppDisplayName,
-        playedSide: playerSide
-      };
+    // 1. Search Friend by 10-Digit UID
+    window.searchFriendByUID = async () => {
+      const qUID = document.getElementById('inputSearchUID').value.trim();
+      if (qUID.length !== 10) return alert("Please enter a valid 10-digit UID!");
+      if (qUID === myUID) return alert("You cannot add yourself!");
 
       try {
-        localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
-      } catch (err) {}
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("gameUID", "==", qUID));
+        const snap = await getDocs(q);
 
-      document.getElementById('highlightWinnerTitle').innerText = isWin ? "🎉 Victory!" : "Defeat!";
-      document.getElementById('subReasonText').innerText = `By ${reason}`;
-      document.getElementById('modalRatingDelta').innerText = `${delta >= 0 ? '+' : ''}${delta} (${newElo})`;
-      document.getElementById('modalRewards').innerText = `+${rewardCoins} 🪙`;
-      document.getElementById('gameOverModal').classList.remove('hidden');
-    }
+        if (snap.empty) {
+          alert("No player found with this 10-digit UID!");
+          return;
+        }
 
-    function goToAnalysis() { window.location.href = 'analysis.html'; }
-    function resignGame() {
-      if (confirm('Resign this game?')) {
-        const winnerColor = playerSide === 'white' ? 'Black' : 'White';
-        concludeMatch(winnerColor, 'Resignation');
+        const data = snap.docs[0].data();
+        foundUserCache = { id: snap.docs[0].id, ...data };
+
+        document.getElementById('foundName').innerText = data.name || "Player";
+        document.getElementById('foundInitial').innerText = (data.name || "P").charAt(0).toUpperCase();
+        document.getElementById('foundElo').innerText = `${data.rating || 1200} Elo`;
+        document.getElementById('searchResultBox').classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert("Search error: " + err.message);
       }
-    }
+    };
 
-    if (mode === 'bot' && playerSide === 'black') setTimeout(runBotEngineTurn, 600);
-    updateClocksUI();
+    // 2. Send Friend Request
+    window.sendFriendRequest = async () => {
+      if (!foundUserCache) return;
+      try {
+        await addDoc(collection(db, "friend_requests"), {
+          fromUID: myUID,
+          fromName: myName,
+          fromElo: myElo,
+          toUID: foundUserCache.gameUID,
+          toName: foundUserCache.name,
+          status: "pending",
+          createdAt: Date.now()
+        });
+        alert("Friend request sent!");
+        document.getElementById('searchResultBox').classList.add('hidden');
+      } catch (err) {
+        alert("Error sending request: " + err.message);
+      }
+    };
+
+    // 3. Listen Incoming Requests
+    onSnapshot(query(collection(db, "friend_requests"), where("toUID", "==", myUID), where("status", "==", "pending")), (snap) => {
+      document.getElementById('reqCount').innerText = snap.size;
+      const container = document.getElementById('requestsListContainer');
+      if (snap.empty) {
+        container.innerHTML = `<div class="glass-card rounded-2xl p-4 text-center text-xs text-slate-500 font-mono">No incoming requests.</div>`;
+        return;
+      }
+      container.innerHTML = '';
+      snap.forEach(docSnap => {
+        const req = docSnap.data();
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-3 flex items-center justify-between";
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs">${req.fromName.charAt(0)}</div>
+            <div>
+              <h4 class="text-xs font-bold text-white">${req.fromName}</h4>
+              <span class="text-[10px] font-mono text-slate-400">${req.fromElo} Elo</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="acceptRequest('${docSnap.id}', '${req.fromUID}', '${req.fromName}', ${req.fromElo})" class="px-2.5 py-1 bg-emerald-500 text-slate-950 font-bold rounded-xl text-[10px]">Accept</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    });
+
+    window.acceptRequest = async (docId, fUID, fName, fElo) => {
+      await updateDoc(doc(db, "friend_requests", docId), { status: "accepted" });
+      await addDoc(collection(db, "friendships"), {
+        uids: [myUID, fUID],
+        user1: { uid: myUID, name: myName, elo: myElo },
+        user2: { uid: fUID, name: fName, elo: fElo },
+        createdAt: Date.now()
+      });
+    };
+
+    // 4. Listen Active Friends
+    onSnapshot(query(collection(db, "friendships"), where("uids", "array-contains", myUID)), (snap) => {
+      const container = document.getElementById('friendsListContainer');
+      if (snap.empty) {
+        container.innerHTML = `<div class="glass-card rounded-2xl p-4 text-center text-xs text-slate-500 font-mono">No friends added yet. Share your UID above!</div>`;
+        return;
+      }
+      container.innerHTML = '';
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        const friend = data.user1.uid === myUID ? data.user2 : data.user1;
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-3 flex items-center justify-between";
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs">${friend.name.charAt(0)}</div>
+            <div>
+              <h4 class="text-xs font-bold text-white">${friend.name}</h4>
+              <span class="text-[10px] font-mono text-slate-400">UID: ${friend.uid} • ${friend.elo} Elo</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="openChatWith('${friend.uid}', '${friend.name}')" class="px-2.5 py-1.5 bg-slate-900 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-[10px] flex items-center gap-1">
+              <i class="fa-regular fa-message"></i> Chat
+            </button>
+            <button onclick="challengeDirect('${friend.uid}', '${friend.name}', ${friend.elo})" class="px-2.5 py-1.5 bg-emerald-500 text-slate-950 font-black rounded-xl text-[10px]">
+              Duel ⚔️
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    });
+
+    // 5. Chat System
+    window.openChatWith = (fUID, fName) => {
+      activeChatPartner = { uid: fUID, name: fName };
+      document.getElementById('chatPartnerName').innerText = fName;
+      document.getElementById('chatPartnerAvatar').innerText = fName.charAt(0).toUpperCase();
+      document.getElementById('chatDrawer').classList.remove('hidden');
+
+      const chatId = [myUID, fUID].sort().join('_');
+      const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
+
+      if (chatUnsubscribe) chatUnsubscribe();
+      chatUnsubscribe = onSnapshot(q, (snap) => {
+        const box = document.getElementById('chatMessagesBox');
+        box.innerHTML = '';
+        snap.forEach(d => {
+          const m = d.data();
+          const isMe = m.senderUID === myUID;
+          const bubble = document.createElement('div');
+          bubble.className = `p-2 rounded-2xl max-w-[75%] ${isMe ? 'ml-auto bg-purple-600 text-white rounded-br-none' : 'mr-auto bg-slate-950 border border-slate-800 text-slate-200 rounded-bl-none'}`;
+          bubble.innerHTML = `<div>${m.text}</div><div class="text-[9px] opacity-60 text-right mt-0.5">${new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+          box.appendChild(bubble);
+        });
+        box.scrollTop = box.scrollHeight;
+      });
+    };
+
+    window.closeChatDrawer = () => {
+      document.getElementById('chatDrawer').classList.add('hidden');
+      if (chatUnsubscribe) chatUnsubscribe();
+    };
+
+    window.sendChatMessage = async () => {
+      const input = document.getElementById('chatInputMessage');
+      const text = input.value.trim();
+      if (!text || !activeChatPartner) return;
+      input.value = '';
+
+      const chatId = [myUID, activeChatPartner.uid].sort().join('_');
+      await addDoc(collection(db, "chats", chatId, "messages"), {
+        senderUID: myUID,
+        senderName: myName,
+        text: text,
+        timestamp: Date.now()
+      });
+    };
+
+    window.challengeDirect = (fUID, fName, fElo) => {
+      const roomId = "DUEL-" + Math.floor(1000 + Math.random() * 9000);
+      window.location.href = `game.html?mode=pvp&room=${roomId}&side=white&oppName=${encodeURIComponent(fName)}&oppElo=${fElo}`;
+    };
+
+    window.challengeCurrentFriend = () => {
+      if (activeChatPartner) challengeDirect(activeChatPartner.uid, activeChatPartner.name, 1200);
+    };
   </script>
 </body>
 </html>
+
