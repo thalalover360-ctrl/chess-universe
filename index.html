@@ -6,6 +6,7 @@
   <title>Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
       background: radial-gradient(circle at top, #14241b 0%, #080f0c 100%);
@@ -14,11 +15,21 @@
     }
     .glow-green { box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35); }
     .card-tap:active { transform: scale(0.98); }
+    .neon-pulse { animation: neonPulse 2s infinite ease-in-out; }
+    @keyframes neonPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.6); }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans select-none pb-8">
 
-  <!-- Header with Currency Counters -->
+  <!-- Background Ambience Music Audio Element -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- Header with Live Economy Counters & Music Toggle -->
   <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-2">
       <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
@@ -27,21 +38,26 @@
       <h1 class="text-sm font-black tracking-wider uppercase text-white hidden sm:block">Chess Universe</h1>
     </div>
 
-    <!-- Currency Counters & Free Reward Button -->
+    <!-- Currency Counters & Controls -->
     <div class="flex items-center gap-1.5">
+      <!-- Music Toggle Button -->
+      <button id="btnMusicToggle" onclick="toggleBackgroundMusic()" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs hover:text-white transition">
+        <i class="fa-solid fa-volume-xmark" id="musicIcon"></i>
+      </button>
+
       <!-- Coins -->
       <div class="flex items-center gap-1 bg-slate-900 border border-amber-500/40 px-2.5 py-1 rounded-xl shadow">
         <span class="text-xs">🪙</span>
-        <span id="userCoins" class="text-xs font-black font-mono text-amber-400">250</span>
+        <span id="userCoins" class="text-xs font-black font-mono text-amber-400">350</span>
       </div>
 
       <!-- Diamonds -->
       <div class="flex items-center gap-1 bg-slate-900 border border-cyan-500/40 px-2.5 py-1 rounded-xl shadow">
         <span class="text-xs">💎</span>
-        <span id="userDiamonds" class="text-xs font-black font-mono text-cyan-400">5</span>
+        <span id="userDiamonds" class="text-xs font-black font-mono text-cyan-400">8</span>
       </div>
 
-      <!-- Claim / Watch Ad Button -->
+      <!-- Free Reward Modal -->
       <button onclick="openRewardModal()" class="flex items-center gap-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 px-2 py-1 rounded-xl text-emerald-400 text-xs font-bold transition">
         <i class="fa-solid fa-gift"></i>
         <span>Free</span>
@@ -91,7 +107,7 @@
       </div>
     </section>
 
-    <!-- BIG PLAY MODES -->
+    <!-- BIG PLAY ARENA MODES -->
     <section class="flex flex-col gap-2.5">
       
       <!-- 1. Play vs Bot -->
@@ -108,52 +124,83 @@
         <i class="fa-solid fa-chevron-right text-lg text-emerald-950/60"></i>
       </button>
 
-      <!-- 2. Pass & Play -->
-      <a href="game.html?mode=pass" class="card-tap w-full p-4 rounded-3xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 flex items-center justify-between shadow-xl transition">
+      <!-- 2. Play Online Matchmaking -->
+      <button onclick="startOnlineMatchmaking()" class="card-tap w-full p-4 rounded-3xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-black text-left flex items-center justify-between shadow-lg transition">
         <div class="flex items-center gap-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl">
-            <i class="fa-solid fa-users"></i>
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-white uppercase tracking-wide leading-tight">Pass & Play</h3>
-            <p class="text-[11px] text-slate-400 font-medium">1 Device, 2 Players (Offline Board)</p>
-          </div>
-        </div>
-        <i class="fa-solid fa-arrow-right text-sm text-slate-500"></i>
-      </a>
-
-      <!-- 3. Friends & Duels -->
-      <a href="friend.html" class="card-tap w-full p-4 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 flex items-center justify-between shadow-xl transition">
-        <div class="flex items-center gap-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">
-            <i class="fa-solid fa-user-group"></i>
+          <div class="w-12 h-12 rounded-2xl bg-black/20 flex items-center justify-center text-cyan-200 text-2xl">
+            <i class="fa-solid fa-globe"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="text-sm font-black text-white uppercase tracking-wide leading-tight">Friends & Duels</h3>
-              <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">ONLINE</span>
+              <h3 class="text-base font-black uppercase tracking-wide leading-tight">Play Online</h3>
+              <span class="text-[9px] bg-white/20 text-white px-1.5 py-0.5 rounded font-bold">1v1 LIVE</span>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium">Friend Requests, Live Chat & Matches</p>
+            <p class="text-[11px] font-medium text-cyan-100/80">Quick Match vs Random Opponents</p>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-right text-sm text-slate-500"></i>
+        <i class="fa-solid fa-play text-lg text-white/80"></i>
+      </button>
+
+      <!-- 3. Private Pool / WhatsApp Duel -->
+      <button onclick="openPrivatePoolModal()" class="card-tap w-full p-4 rounded-3xl bg-slate-900 border border-emerald-500/40 hover:border-emerald-500 flex items-center justify-between shadow-xl transition">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">
+            <i class="fa-brands fa-whatsapp text-2xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-black text-white uppercase tracking-wide leading-tight">Private Pool / Room</h3>
+              <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">INVITE</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium">Create Room & Share Link on WhatsApp</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-share-nodes text-sm text-emerald-400"></i>
+      </button>
+
+      <!-- 4. Pass & Play -->
+      <a href="game.html?mode=pass" class="card-tap w-full p-3.5 rounded-3xl bg-slate-900 border border-slate-800 hover:border-slate-700 flex items-center justify-between shadow-xl transition">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-300 text-base">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-black text-white uppercase tracking-wide leading-tight">Pass & Play</h3>
+            <p class="text-[10px] text-slate-400 font-medium">1 Device, 2 Players (Offline Board)</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-arrow-right text-xs text-slate-500"></i>
       </a>
 
-      <!-- 4. Guild / Clan Hub -->
-      <a href="guild.html" class="card-tap w-full p-4 rounded-3xl bg-slate-900 border border-amber-500/30 hover:border-amber-500/60 flex items-center justify-between shadow-xl transition">
-        <div class="flex items-center gap-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
+      <!-- 5. Friends & Duels -->
+      <a href="friend.html" class="card-tap w-full p-3.5 rounded-3xl bg-slate-900 border border-slate-800 hover:border-slate-700 flex items-center justify-between shadow-xl transition">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-300 text-base">
+            <i class="fa-solid fa-user-group"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-black text-white uppercase tracking-wide leading-tight">Friends & Requests</h3>
+            <p class="text-[10px] text-slate-400 font-medium">UID Search, Friend List & Chat</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-arrow-right text-xs text-slate-500"></i>
+      </a>
+
+      <!-- 6. Clan & Guilds (7 Squad) -->
+      <a href="guild.html" class="card-tap w-full p-3.5 rounded-3xl bg-slate-900 border border-amber-500/30 hover:border-amber-500/60 flex items-center justify-between shadow-xl transition">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-base">
             <i class="fa-solid fa-shield-halved"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="text-sm font-black text-white uppercase tracking-wide leading-tight">Clan & Guilds (7 Squad)</h3>
-              <span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded font-bold">CLAN WARS</span>
+              <h3 class="text-xs font-black text-white uppercase tracking-wide leading-tight">Clan & Guilds (7 Squad)</h3>
+              <span class="text-[8px] bg-amber-500/20 text-amber-400 px-1.5 py-0.2 rounded font-bold">MISSIONS</span>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium">Create 7-Player Clan, Group Chat & Elo</p>
+            <p class="text-[10px] text-slate-400 font-medium">7-Player Clan, Squad Elo & Loot</p>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-right text-sm text-slate-500"></i>
+        <i class="fa-solid fa-arrow-right text-xs text-slate-500"></i>
       </a>
 
     </section>
@@ -174,6 +221,46 @@
     </section>
 
   </main>
+    <!-- Private Pool / WhatsApp Share Modal -->
+  <div id="poolModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-door-open text-emerald-400"></i>
+          <span>Private Duel Pool</span>
+        </h3>
+        <button onclick="closePrivatePoolModal()" class="w-7 h-7 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Create Pool Room -->
+      <div class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 flex flex-col gap-2 text-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Your Generated Room Code</span>
+        <div id="roomCodeDisplay" class="font-mono text-xl font-black text-emerald-400 tracking-widest py-1 bg-slate-900 rounded-xl border border-emerald-950">
+          CHESS-774
+        </div>
+        <button onclick="shareRoomOnWhatsApp()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span>Share Room to WhatsApp</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 text-slate-500 text-xs">
+        <div class="h-px bg-slate-800 flex-1"></div>
+        <span>OR JOIN ROOM</span>
+        <div class="h-px bg-slate-800 flex-1"></div>
+      </div>
+
+      <!-- Join Pool Room -->
+      <div class="flex gap-2">
+        <input type="text" id="inputJoinRoomCode" placeholder="Enter Room Code" class="flex-1 uppercase font-mono bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+        <button onclick="joinPoolRoom()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
+          Join
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Bot Color Selection Modal -->
   <div id="botColorModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -206,7 +293,7 @@
     </div>
   </div>
 
-  <!-- Rewarded Ad / Free Rewards Modal -->
+  <!-- Free Loot / Ad Modal -->
   <div id="rewardModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-amber-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-4 text-center">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -231,22 +318,59 @@
   </div>
 
   <script>
-    // Permanent UID Fallback
+    // Background Music Engine
+    const bgAudio = document.getElementById('bgMusic');
+    let isMusicPlaying = false;
+
+    function playAudioSafe() {
+      if (!isMusicPlaying) {
+        bgAudio.volume = 0.25;
+        bgAudio.play().then(() => {
+          isMusicPlaying = true;
+          updateMusicIcon();
+        }).catch(() => {});
+      }
+    }
+
+    // Auto-unlock music on very first user interaction
+    document.addEventListener('click', playAudioSafe, { once: true });
+    document.addEventListener('touchstart', playAudioSafe, { once: true });
+
+    function toggleBackgroundMusic() {
+      if (isMusicPlaying) {
+        bgAudio.pause();
+        isMusicPlaying = false;
+      } else {
+        bgAudio.play();
+        isMusicPlaying = true;
+      }
+      updateMusicIcon();
+    }
+
+    function updateMusicIcon() {
+      const icon = document.getElementById('musicIcon');
+      if (isMusicPlaying) {
+        icon.className = "fa-solid fa-volume-high text-emerald-400";
+      } else {
+        icon.className = "fa-solid fa-volume-xmark text-slate-400";
+      }
+    }
+
+    // UID & Profile Persistence
     let myUID = localStorage.getItem('chess_game_uid') || localStorage.getItem('chess_uid') || '8830464849';
     localStorage.setItem('chess_game_uid', myUID);
 
-    // Economy Initialization
     let coins = parseInt(localStorage.getItem('chess_coins'), 10);
-    if (isNaN(coins)) coins = 250;
+    if (isNaN(coins)) coins = 350;
     localStorage.setItem('chess_coins', coins);
 
     let diamonds = parseInt(localStorage.getItem('chess_diamonds'), 10);
-    if (isNaN(diamonds)) diamonds = 5;
+    if (isNaN(diamonds)) diamonds = 8;
     localStorage.setItem('chess_diamonds', diamonds);
 
     function updateCurrencyUI() {
-      document.getElementById('userCoins').innerText = localStorage.getItem('chess_coins') || '250';
-      document.getElementById('userDiamonds').innerText = localStorage.getItem('chess_diamonds') || '5';
+      document.getElementById('userCoins').innerText = localStorage.getItem('chess_coins') || '350';
+      document.getElementById('userDiamonds').innerText = localStorage.getItem('chess_diamonds') || '8';
     }
     updateCurrencyUI();
 
@@ -277,35 +401,62 @@
       window.location.href = `game.html?mode=bot&side=${c}`;
     }
 
-    // Reward / Ad System
+    function startOnlineMatchmaking() {
+      const oppNames = ['Grandmaster_Arya', 'Vikram_Knight', 'Rohan_Attack', 'Aarav_Tactics'];
+      const randomOpp = oppNames[Math.floor(Math.random() * oppNames.length)];
+      const randomElo = 1150 + Math.floor(Math.random() * 200);
+      window.location.href = `game.html?mode=online&oppName=${randomOpp}&oppElo=${randomElo}`;
+    }
+
+    // Private Pool & WhatsApp Sharing
+    let currentRoomCode = 'CHESS-' + Math.floor(100 + Math.random() * 900);
+    function openPrivatePoolModal() {
+      currentRoomCode = 'CHESS-' + Math.floor(100 + Math.random() * 900);
+      document.getElementById('roomCodeDisplay').innerText = currentRoomCode;
+      document.getElementById('poolModal').classList.remove('hidden');
+    }
+    function closePrivatePoolModal() { document.getElementById('poolModal').classList.add('hidden'); }
+
+    function shareRoomOnWhatsApp() {
+      const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'game.html';
+      const inviteUrl = `${baseUrl}?mode=pvp&room=${currentRoomCode}&host=${encodeURIComponent(myName)}`;
+      const textMsg = encodeURIComponent(`⚔️ Harsh has challenged you to a Chess Duel on Chess Universe!\nRoom Code: ${currentRoomCode}\nTap to enter arena: ${inviteUrl}`);
+      window.open(`https://api.whatsapp.com/send?text=${textMsg}`, '_blank');
+    }
+
+    function joinPoolRoom() {
+      const code = document.getElementById('inputJoinRoomCode').value.trim().toUpperCase();
+      if (!code) {
+        alert('Please enter room code!');
+        return;
+      }
+      window.location.href = `game.html?mode=pvp&room=${code}&oppName=Challenger`;
+    }
+
+    // Rewards Modal
     function openRewardModal() { document.getElementById('rewardModal').classList.remove('hidden'); }
     function closeRewardModal() { document.getElementById('rewardModal').classList.add('hidden'); }
-
     function claimAdReward() {
       const btn = document.getElementById('btnWatchAd');
       btn.disabled = true;
-      btn.innerText = "Watching Sponsor Video (3s)...";
-
+      btn.innerText = "Watching Sponsor (3s)...";
       setTimeout(() => {
-        let curC = parseInt(localStorage.getItem('chess_coins') || '250', 10) + 100;
-        let curD = parseInt(localStorage.getItem('chess_diamonds') || '5', 10) + 3;
+        let curC = parseInt(localStorage.getItem('chess_coins') || '350', 10) + 100;
+        let curD = parseInt(localStorage.getItem('chess_diamonds') || '8', 10) + 3;
         localStorage.setItem('chess_coins', curC);
         localStorage.setItem('chess_diamonds', curD);
         updateCurrencyUI();
         btn.disabled = false;
         btn.innerText = "Watch Ad (Earn Loot) 📺";
         closeRewardModal();
-        alert("Reward Claimed: +100 Coins & +3 Diamonds!");
+        alert("🎉 Loot Claimed: +100 Coins & +3 Diamonds!");
       }, 3000);
     }
 
-    // Render Match History Feed
+    // Match History
     function loadRecentBattles() {
       let history = [];
-      try {
-        history = JSON.parse(localStorage.getItem('chess_match_history') || '[]');
-      } catch (e) {}
-
+      try { history = JSON.parse(localStorage.getItem('chess_match_history') || '[]'); } catch (e) {}
       const container = document.getElementById('matchHistoryFeed');
       const badge = document.getElementById('historyCountBadge');
       badge.innerText = `${history.length} Games`;
