@@ -67,7 +67,21 @@
       <span class="text-xl">⚔️</span> PLAY CHESS
     </button>
 
-    <!-- 3. Friends & Social Section -->
+    <!-- 3. Learn Rules & Practice Demo Button -->
+    <a href="rule.html" class="flex items-center justify-between p-3.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/50 rounded-2xl shadow-lg transition group">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl text-amber-400">
+          📖
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-white group-hover:text-amber-400 transition">Chess Rules & Interactive Demo</h4>
+          <p class="text-[11px] text-slate-400">Tap-to-move demo, Stalemate, En Passant & Promotion</p>
+        </div>
+      </div>
+      <span class="text-slate-500 text-sm group-hover:translate-x-0.5 transition">→</span>
+    </a>
+
+    <!-- 4. Friends & Community Section -->
     <div class="glass-card p-4 space-y-3">
       <div class="flex items-center justify-between">
         <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Friends & Community</h3>
@@ -75,21 +89,21 @@
       </div>
 
       <!-- Quick Friend Duel Trigger -->
-      <a href="friend.html" class="flex items-center justify-between p-3 bg-slate-950/60 hover:bg-slate-800/50 rounded-xl border border-slate-800 transition">
+      <a href="friend.html" class="flex items-center justify-between p-3 bg-slate-950/60 hover:bg-slate-800/50 rounded-xl border border-slate-800 transition group">
         <div class="flex items-center gap-3">
           <span class="text-xl">👥</span>
           <div>
-            <h4 class="text-xs font-bold text-white">Friend Duel & Search</h4>
-            <p class="text-[11px] text-slate-400">Search 10-Digit UID, Manage Friends</p>
+            <h4 class="text-xs font-bold text-white group-hover:text-emerald-400 transition">Friend Duel & Search</h4>
+            <p class="text-[11px] text-slate-400">Search UID, Manage Friends</p>
           </div>
         </div>
-        <span class="text-slate-500 text-sm">→</span>
+        <span class="text-slate-500 text-sm group-hover:translate-x-0.5 transition">→</span>
       </a>
     </div>
 
   </main>
 
-  <!-- PLAY MODAL DIALOG (Opens on clicking PLAY) -->
+  <!-- PLAY MODAL DIALOG -->
   <div id="playModal" class="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 hidden backdrop-blur-sm">
     <div class="bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
       
@@ -100,7 +114,7 @@
 
       <div class="space-y-2.5">
         
-        <!-- Mode 1: Bot (Fixed bots.html link) -->
+        <!-- Mode 1: Bot -->
         <a href="bots.html" class="flex items-center justify-between p-3.5 bg-slate-950 hover:bg-slate-800/80 rounded-2xl border border-slate-800 transition group">
           <div class="flex items-center gap-3.5">
             <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xl text-emerald-400">
@@ -108,7 +122,7 @@
             </div>
             <div>
               <h4 class="text-sm font-bold text-white group-hover:text-emerald-400 transition">Play vs Bot</h4>
-              <p class="text-xs text-slate-400">Stockfish AI • 6 Difficulty Levels</p>
+              <p class="text-xs text-slate-400">Choose from 10 Battle Bots (400 - 2800 Elo)</p>
             </div>
           </div>
           <span class="text-slate-500 text-sm group-hover:translate-x-0.5 transition">→</span>
@@ -179,7 +193,7 @@
 
     document.getElementById('btnCopyUID').onclick = () => {
       navigator.clipboard.writeText(uid);
-      alert('10-Digit UID Copied: ' + uid);
+      alert('UID Copied: ' + uid);
     };
 
     document.getElementById('btnLogout').onclick = () => {
