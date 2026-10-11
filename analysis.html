@@ -3,325 +3,441 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Deep Engine Analysis</title>
+  <title>Chess Universe - Pro Game Review & Engine Breakdown</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Chessboard & Chess.js dependencies -->
   <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+  <link rel="stylesheet" href="style.css">
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 
   <style>
     body {
-      background: radial-gradient(circle at top, #14241b 0%, #080f0c 100%);
+      background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
       color: #e2e8f0;
       touch-action: manipulation;
     }
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
-    .active-move { background-color: rgba(16, 185, 129, 0.25) !important; color: #34d399 !important; font-weight: bold; border-color: #10b981 !important; }
-    .eval-bar-fill { transition: height 0.3s ease; }
+    .piece-417db { pointer-events: none !important; user-select: none !important; }
+
+    /* Tactical Move Highlights */
+    .highlight-best { background-color: rgba(16, 185, 129, 0.55) !important; }
+    .highlight-mistake { background-color: rgba(245, 158, 11, 0.55) !important; }
+    .highlight-blunder { background-color: rgba(239, 68, 68, 0.6) !important; }
+    .highlight-normal { background-color: rgba(247, 230, 80, 0.45) !important; }
+
+    /* Move List Badges */
+    .move-chip.active {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #10b981 !important;
+      color: #34d399 !important;
+      font-weight: 800;
+    }
+    
+    .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(16, 185, 129, 0.35);
+      border-radius: 4px;
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none pb-6">
+<body class="min-h-screen flex flex-col font-sans select-none pb-8">
 
-  <!-- Analysis Header -->
-  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
-        <i class="fa-solid fa-arrow-left"></i>
+  <!-- Header -->
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
       </a>
       <div>
-        <h1 class="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2">
+        <h1 class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
           <span>Game Review</span>
-          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">DEEP EVAL</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">CENTIPAWN 2.0</span>
         </h1>
-        <p id="analysisMatchSummary" class="text-[10px] text-slate-400 font-medium">Running tactical heuristics...</p>
+        <p id="subMatchInfo" class="text-[10px] text-slate-400 font-medium">vs Opponent</p>
       </div>
     </div>
-    <div id="badgeOutcome" class="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-      REVIEW
+    <div class="flex items-center gap-1.5">
+      <button onclick="board.flip()" class="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-repeat"></i> Flip
+      </button>
     </div>
   </header>
 
   <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3">
 
-    <!-- Board + Live Eval Bar Row -->
-    <div class="flex gap-2 items-center">
-      <!-- Eval Bar -->
-      <div class="w-4 h-[350px] bg-slate-900 border border-slate-800 rounded-lg overflow-hidden flex flex-col justify-end relative shadow-inner">
-        <div id="evalBarWhite" class="eval-bar-fill w-full bg-emerald-400" style="height: 50%;"></div>
-        <span id="evalScoreTag" class="absolute inset-x-0 bottom-1 text-[8px] font-black text-slate-950 text-center font-mono">+0.0</span>
+    <!-- Board Area with Centipawn Eval Bar -->
+    <div class="flex items-center justify-center gap-2.5">
+      <!-- Flush-Aligned Real-Time Evaluation Bar -->
+      <div class="w-3.5 h-[315px] bg-slate-950 border border-slate-800 rounded-full overflow-hidden flex flex-col justify-end relative shadow-inner">
+        <div id="evalBarFill" class="w-full bg-emerald-400 transition-all duration-300" style="height: 50%;"></div>
+        <span id="evalScoreText" class="absolute inset-x-0 bottom-1 text-center text-[8px] font-mono font-black text-slate-950">+0.0</span>
       </div>
 
-      <!-- Replay Board -->
-      <div class="flex-1 aspect-square rounded-2xl overflow-hidden border-2 border-emerald-950 shadow-2xl relative bg-slate-950">
-        <div id="analysisBoard" class="w-full h-full"></div>
+      <!-- Chessboard Frame -->
+      <div class="w-[315px] rounded-2xl overflow-hidden border-2 border-emerald-950 shadow-2xl relative">
+        <div id="analysisBoard" class="w-full"></div>
       </div>
     </div>
 
-    <!-- Navigation Stepper -->
-    <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-2xl shadow-lg">
-      <div class="flex items-center gap-1.5">
-        <button onclick="goToMove(0)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
-          <i class="fa-solid fa-backward-step"></i>
+    <!-- Advantage Flow Chart Canvas -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 shadow-md flex flex-col gap-1.5">
+      <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase">
+        <span>Advantage Chart</span>
+        <span id="evalPeakInfo" class="text-emerald-400 font-mono">Even</span>
+      </div>
+      <canvas id="evalGraphCanvas" height="42" class="w-full rounded-lg bg-slate-950"></canvas>
+    </div>
+
+    <!-- Stepper Controls & Quality Badge -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 flex items-center justify-between shadow-md">
+      <div class="flex gap-1.5">
+        <button onclick="firstMove()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+          <i class="fa-solid fa-backward-fast"></i>
         </button>
-        <button onclick="stepMove(-1)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
+        <button onclick="prevMove()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
           <i class="fa-solid fa-chevron-left"></i>
         </button>
       </div>
 
-      <div class="text-center font-mono text-xs font-bold text-slate-300">
-        Move: <span id="currentMoveDisplay" class="text-emerald-400">0</span> / <span id="totalMovesDisplay">0</span>
-        <div id="moveVerdictBadge" class="text-[10px] text-slate-400 font-sans mt-0.5">Starting Position</div>
+      <div class="text-center font-mono">
+        <div class="text-xs font-black text-white">
+          Move: <span id="currentMoveIndex">0</span> / <span id="totalMovesCount">0</span>
+        </div>
+        <div id="moveQualityBadge" class="text-[10px] font-bold text-emerald-400 mt-0.5">
+          STARTING POSITION
+        </div>
       </div>
 
-      <div class="flex items-center gap-1.5">
-        <button onclick="stepMove(1)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
+      <div class="flex gap-1.5">
+        <button onclick="nextMove()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
           <i class="fa-solid fa-chevron-right"></i>
         </button>
-        <button onclick="goToMove(historyMoves.length)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
-          <i class="fa-solid fa-forward-step"></i>
+        <button onclick="lastMove()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+          <i class="fa-solid fa-forward-fast"></i>
         </button>
       </div>
     </div>
+        <!-- Complete Chess.com Classification Cards Grid -->
+    <div class="grid grid-cols-4 gap-2 text-center">
+      <div class="bg-slate-900/90 border border-slate-800 p-2 rounded-2xl shadow">
+        <div class="flex items-center justify-center gap-1 text-[9px] uppercase font-bold text-slate-400">
+          <span>Best</span> <span>⭐</span>
+        </div>
+        <span id="metricBest" class="text-xs font-mono font-black text-emerald-400">0</span>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 p-2 rounded-2xl shadow">
+        <div class="flex items-center justify-center gap-1 text-[9px] uppercase font-bold text-slate-400">
+          <span>Accuracy</span> <span>🎯</span>
+        </div>
+        <span id="metricAccuracy" class="text-xs font-mono font-black text-cyan-400">0%</span>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 p-2 rounded-2xl shadow">
+        <div class="flex items-center justify-center gap-1 text-[9px] uppercase font-bold text-slate-400">
+          <span>Mistake</span> <span>⚠️</span>
+        </div>
+        <span id="metricMistakes" class="text-xs font-mono font-black text-amber-400">0</span>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 p-2 rounded-2xl shadow">
+        <div class="flex items-center justify-center gap-1 text-[9px] uppercase font-bold text-slate-400">
+          <span>Blunder</span> <span>❌</span>
+        </div>
+        <span id="metricBlunders" class="text-xs font-mono font-black text-rose-400">0</span>
+      </div>
+    </div>
 
-    <!-- Move Classification Cards (Brilliant / Mistakes / Blunders) -->
-    <section class="grid grid-cols-4 gap-1.5 text-center">
-      <div class="p-2 rounded-2xl bg-slate-900 border border-slate-800">
-        <span class="text-[9px] font-bold text-cyan-400 uppercase tracking-wider block">Best</span>
-        <span id="metricBest" class="text-sm font-black text-white font-mono">0</span>
+    <!-- Engine Recommendation & Coach Advice -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2 shadow-md">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-brain"></i>
+          <span>Engine Recommendation</span>
+        </h3>
+        <span id="bestAltMoveTag" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          Best: -
+        </span>
       </div>
-      <div class="p-2 rounded-2xl bg-slate-900 border border-slate-800">
-        <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider block">Accuracy</span>
-        <span id="metricAccuracy" class="text-sm font-black text-emerald-400 font-mono">--%</span>
-      </div>
-      <div class="p-2 rounded-2xl bg-slate-900 border border-slate-800">
-        <span class="text-[9px] font-bold text-amber-400 uppercase tracking-wider block">Mistakes</span>
-        <span id="metricMistakes" class="text-sm font-black text-amber-400 font-mono">0</span>
-      </div>
-      <div class="p-2 rounded-2xl bg-slate-900 border border-slate-800">
-        <span class="text-[9px] font-bold text-rose-400 uppercase tracking-wider block">Blunders</span>
-        <span id="metricBlunders" class="text-sm font-black text-rose-400 font-mono">0</span>
-      </div>
-    </section>
-
-    <!-- Deep Coaching Focus Area -->
-    <section class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg flex flex-col gap-1.5">
-      <div class="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
-        <i class="fa-solid fa-crosshairs"></i>
-        <span>Coach's Deep Breakdown</span>
-      </div>
-      <p id="tacticalAdviceText" class="text-xs text-slate-300 leading-relaxed font-medium">
-        Running engine evaluation on moves...
+      <p id="coachAdviceText" class="text-xs text-slate-300 leading-relaxed font-medium">
+        Loading evaluation...
       </p>
-    </section>
+    </div>
 
-    <!-- Annotated Move Feed with Badges -->
-    <section class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg flex flex-col gap-2">
-      <h3 class="text-xs font-black uppercase text-slate-400 tracking-wider">Move Flow</h3>
-      <div id="movesListContainer" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-1 font-mono text-xs"></div>
-    </section>
+    <!-- Full Interactive PGN Move Table (Clickable Chips) -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2 shadow-md">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-list-ol text-emerald-400"></i>
+          <span>Move History List</span>
+        </h3>
+        <button onclick="jumpToNextBlunder()" class="text-[9px] font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-md transition">
+          Find Blunder ⚡
+        </button>
+      </div>
 
-    <!-- Bottom Actions -->
-    <div class="flex gap-2 pt-1">
-      <a href="game.html" class="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs text-center transition shadow-lg">
-        Play Next Match ⚔️
-      </a>
-      <a href="index.html" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs text-center transition border border-slate-700">
-        Dashboard 🏠
-      </a>
+      <div id="pgnChipsFeed" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
+        <!-- Rendered via JS -->
+      </div>
     </div>
 
   </main>
-
-  <script>
-    let matchData = null;
+    <script>
+    let report = null;
     try {
-      matchData = JSON.parse(localStorage.getItem('last_match_analysis') || '{}');
-    } catch (e) {}
+      report = JSON.parse(localStorage.getItem('last_match_analysis') || 'null');
+    } catch(e) {}
 
-    const replayGame = new Chess();
-    let board = null;
-    let historyMoves = matchData.moves || [];
-    let currentMoveIndex = 0;
-    let analysisScores = []; // Stores eval score per ply
-    let moveTags = [];       // 'best', 'good', 'inaccuracy', 'mistake', 'blunder'
+    let moveHistory = report && report.moves ? report.moves : [];
+    let currentStep = 0;
+    let evalPositions = [];
 
-    // Board Setup
-    const boardOrientation = matchData.playedSide === 'black' ? 'black' : 'white';
-    board = Chessboard('analysisBoard', {
-      draggable: false,
-      position: 'start',
-      orientation: boardOrientation,
-      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
-    });
-    $(window).resize(board.resize);
+    // Realistic Piece-Square Values
+    const pieceVals = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
 
-    // Deep Heuristic Evaluation Engine
-    const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-    function evaluatePosition(gameInstance) {
-      if (gameInstance.in_checkmate()) {
-        return gameInstance.turn() === 'w' ? -10000 : 10000;
-      }
-      if (gameInstance.in_draw()) return 0;
-
+    function calculateBoardScore(sim) {
       let score = 0;
-      const b = gameInstance.board();
+      const b = sim.board();
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
-          const piece = b[r][c];
-          if (piece) {
-            const val = pieceValues[piece.type] || 0;
-            // Center control bonus
-            const centerBonus = (r >= 3 && r <= 4 && c >= 3 && c <= 4) ? 25 : 0;
-            score += piece.color === 'w' ? (val + centerBonus) : -(val + centerBonus);
+          const p = b[r][c];
+          if (p) {
+            const v = pieceVals[p.type] || 0;
+            score += (p.color === 'w' ? v : -v);
           }
         }
       }
-      return score;
+      return +(score / 100).toFixed(1);
     }
 
-    // Run Full Match Analysis Loop
-    function runMatchReview() {
-      const simGame = new Chess();
-      let prevScore = 0;
-      let bestCount = 0, mistakeCount = 0, blunderCount = 0;
-      let worstBlunderMove = null;
+    function evaluateMatchEngine() {
+      let sim = new Chess();
+      let prevScore = 0.0;
+      let bestCount = 0;
+      let mistakes = 0;
+      let blunders = 0;
+      let inaccuracies = 0;
 
-      analysisScores.push(0);
+      evalPositions.push({
+        fen: sim.fen(),
+        score: 0.0,
+        label: 'START',
+        from: null,
+        to: null,
+        suggested: '-'
+      });
 
-      historyMoves.forEach((moveStr, i) => {
-        simGame.move(moveStr);
-        const curScore = evaluatePosition(simGame);
-        analysisScores.push(curScore);
+      moveHistory.forEach((san, idx) => {
+        const turnBefore = sim.turn();
+        
+        // Find best alternate engine move before executing move
+        const possible = sim.moves({ verbose: true });
+        let engineBestMove = possible[0] ? possible[0].san : '-';
+        if (possible.length > 1) {
+          const captures = possible.filter(m => m.captured);
+          if (captures.length) engineBestMove = captures[0].san;
+        }
 
-        const delta = (i % 2 === 0) ? (curScore - prevScore) : (prevScore - curScore);
+        const executed = sim.move(san);
+        const newScore = calculateBoardScore(sim);
+        const delta = (turnBefore === 'w') ? (newScore - prevScore) : (prevScore - newScore);
 
-        let tag = 'good';
-        if (delta >= -15) {
-          tag = 'best';
+        let label = 'GOOD';
+        if (delta <= -2.5) {
+          label = 'BLUNDER';
+          blunders++;
+        } else if (delta <= -1.2) {
+          label = 'MISTAKE';
+          mistakes++;
+        } else if (delta <= -0.5) {
+          label = 'INACCURACY';
+          inaccuracies++;
+        } else if (delta >= 0.1) {
+          label = 'BEST';
           bestCount++;
-        } else if (delta < -250) {
-          tag = 'blunder';
-          blunderCount++;
-          if (!worstBlunderMove) worstBlunderMove = { move: moveStr, ply: i + 1 };
-        } else if (delta < -120) {
-          tag = 'mistake';
-          mistakeCount++;
-        } else if (delta < -50) {
-          tag = 'inaccuracy';
         }
 
-        moveTags.push(tag);
-        prevScore = curScore;
+        prevScore = newScore;
+        evalPositions.push({
+          fen: sim.fen(),
+          score: newScore,
+          label: label,
+          from: executed ? executed.from : null,
+          to: executed ? executed.to : null,
+          san: san,
+          suggested: engineBestMove
+        });
       });
 
-      const totalMoves = historyMoves.length;
-      document.getElementById('totalMovesDisplay').innerText = totalMoves;
+      const totalMoves = moveHistory.length || 1;
+      const totalTurns = Math.max(1, Math.floor(totalMoves / 2));
+      const penalty = (blunders * 12) + (mistakes * 6) + (inaccuracies * 3);
+      const calculatedAccuracy = Math.max(50, Math.min(96, Math.round(100 - (penalty / totalTurns))));
+
       document.getElementById('metricBest').innerText = bestCount;
-      document.getElementById('metricMistakes').innerText = mistakeCount;
-      document.getElementById('metricBlunders').innerText = blunderCount;
+      document.getElementById('metricAccuracy').innerText = calculatedAccuracy + '%';
+      document.getElementById('metricMistakes').innerText = mistakes;
+      document.getElementById('metricBlunders').innerText = blunders;
 
-      const accuracy = totalMoves > 0 
-        ? Math.max(50, Math.min(98, Math.round(100 - (blunderCount * 8 + mistakeCount * 4) / Math.max(1, totalMoves / 2) * 10))) 
-        : 80;
-      document.getElementById('metricAccuracy').innerText = accuracy + '%';
-
-      // Coaching Takeaways
-      if (worstBlunderMove) {
-        document.getElementById('tacticalAdviceText').innerText = 
-          `Move ${Math.ceil(worstBlunderMove.ply / 2)} (${worstBlunderMove.move}) par decisive blunder hua jisse piece exchange me loss hua. Tactically defend karein.`;
-      } else if (mistakeCount > 0) {
-        document.getElementById('tacticalAdviceText').innerText = 
-          "Opening aur center setup solid tha! Middle-game transitions me opponent ke tactical forks par thoda aur dhyan dein.";
+      // Coach Advice Comment
+      let advice = "";
+      if (blunders > 1) {
+        advice = `You gave away ${blunders} severe tactical blunder(s). Keep pieces defended and look out for forks & hanging queen moves.`;
+      } else if (mistakes > 1) {
+        advice = `Solid game! You made ${mistakes} positional mistake(s). Work on king protection and controlling center files early.`;
       } else {
-        document.getElementById('tacticalAdviceText').innerText = 
-          "Master-grade game! Clean coordination, minimum inaccuracies aur accurate endgame execution.";
+        advice = `Outstanding performance! You maintained relentless control with clean coordination and minimal inaccuracies.`;
       }
-
-      renderMovesList();
-      goToMove(totalMoves);
+      document.getElementById('coachAdviceText').innerText = advice;
     }
 
-    function renderMovesList() {
-      const container = document.getElementById('movesListContainer');
-      container.innerHTML = '';
+    if (report) {
+      document.getElementById('subMatchInfo').innerText = `vs ${report.opponent || 'Opponent'} • Rating ${report.delta >= 0 ? '+' : ''}${report.delta || 0}`;
+    }
 
-      historyMoves.forEach((m, idx) => {
-        const btn = document.createElement('button');
-        const moveNumber = idx % 2 === 0 ? `${Math.floor(idx / 2) + 1}. ` : '';
-        const tag = moveTags[idx];
+    evaluateMatchEngine();
+    document.getElementById('totalMovesCount').innerText = moveHistory.length;
 
-        let tagColor = "border-slate-800 text-slate-300";
-        if (tag === 'best') tagColor = "border-cyan-500/40 text-cyan-400";
-        if (tag === 'mistake') tagColor = "border-amber-500/40 text-amber-400";
-        if (tag === 'blunder') tagColor = "border-rose-500/60 text-rose-400 font-bold";
+    // Render PGN Chips Feed
+    function renderPgnFeed() {
+      const feed = document.getElementById('pgnChipsFeed');
+      feed.innerHTML = '';
+      moveHistory.forEach((san, idx) => {
+        const moveNumber = Math.floor(idx / 2) + 1;
+        const isWhite = idx % 2 === 0;
+        const pos = evalPositions[idx + 1] || {};
+        
+        let labelColor = "text-slate-300";
+        if (pos.label === 'BLUNDER') labelColor = "text-rose-400 font-bold";
+        else if (pos.label === 'MISTAKE') labelColor = "text-amber-400";
+        else if (pos.label === 'BEST') labelColor = "text-emerald-400";
 
-        btn.id = `move-btn-${idx + 1}`;
-        btn.className = `px-2 py-1 rounded-lg bg-slate-950 border text-xs transition ${tagColor}`;
-        btn.innerText = moveNumber + m;
-        btn.onclick = () => goToMove(idx + 1);
-        container.appendChild(btn);
+        const chip = document.createElement('button');
+        chip.id = 'chip-' + (idx + 1);
+        chip.className = `move-chip px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-[11px] font-mono ${labelColor} hover:border-emerald-500 transition`;
+        chip.innerText = `${isWhite ? moveNumber + '.' : ''}${san}`;
+        chip.onclick = () => jumpToMove(idx + 1);
+        feed.appendChild(chip);
       });
     }
 
-    function goToMove(targetIndex) {
-      if (targetIndex < 0 || targetIndex > historyMoves.length) return;
-      currentMoveIndex = targetIndex;
+    // Canvas Advantage Graph Renderer
+    function drawEvalGraph() {
+      const canvas = document.getElementById('evalGraphCanvas');
+      if (!canvas || evalPositions.length === 0) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.parentElement.clientWidth - 20;
+      const h = canvas.height = 42;
 
-      replayGame.reset();
-      for (let i = 0; i < currentMoveIndex; i++) {
-        replayGame.move(historyMoves[i]);
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      const stepX = w / Math.max(1, evalPositions.length - 1);
+      evalPositions.forEach((pos, i) => {
+        const x = i * stepX;
+        const clamped = Math.max(-5, Math.min(5, pos.score));
+        const y = (h / 2) - (clamped / 5) * (h / 2.2);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    const board = Chessboard('analysisBoard', {
+      draggable: false,
+      position: 'start',
+      orientation: report && report.playedSide === 'black' ? 'black' : 'white',
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    });
+
+    function highlightSquares(from, to, label) {
+      $('#analysisBoard .square-55d63').removeClass('highlight-best highlight-mistake highlight-blunder highlight-normal');
+      if (!from || !to) return;
+      let cls = 'highlight-normal';
+      if (label === 'BLUNDER') cls = 'highlight-blunder';
+      else if (label === 'MISTAKE') cls = 'highlight-mistake';
+      else if (label === 'BEST') cls = 'highlight-best';
+      
+      $('#analysisBoard .square-' + from).addClass(cls);
+      $('#analysisBoard .square-' + to).addClass(cls);
+    }
+
+    function updateStepUI() {
+      const cur = evalPositions[currentStep] || { fen: 'start', score: 0.0, label: 'START' };
+      board.position(cur.fen);
+      document.getElementById('currentMoveIndex').innerText = currentStep;
+
+      // Evaluation Bar Fill
+      const clamped = Math.max(-5, Math.min(5, cur.score));
+      const percentage = Math.round(((clamped + 5) / 10) * 100);
+      document.getElementById('evalBarFill').style.height = `${percentage}%`;
+      document.getElementById('evalScoreText').innerText = (cur.score >= 0 ? '+' : '') + cur.score;
+
+      // Badge Quality
+      const badge = document.getElementById('moveQualityBadge');
+      badge.innerText = `${cur.label} (SCORE: ${cur.score >= 0 ? '+' : ''}${cur.score})`;
+      if (cur.label === 'BLUNDER') badge.className = "text-[10px] font-bold text-rose-400";
+      else if (cur.label === 'MISTAKE') badge.className = "text-[10px] font-bold text-amber-400";
+      else badge.className = "text-[10px] font-bold text-emerald-400";
+
+      // Best alternate move tag
+      document.getElementById('bestAltMoveTag').innerText = `Best: ${cur.suggested || '-'}`;
+
+      highlightSquares(cur.from, cur.to, cur.label);
+
+      // Active Chip Highlight
+      document.querySelectorAll('.move-chip').forEach(c => c.classList.remove('active'));
+      const activeChip = document.getElementById('chip-' + currentStep);
+      if (activeChip) activeChip.classList.add('active');
+    }
+
+    function jumpToMove(step) {
+      currentStep = step;
+      updateStepUI();
+    }
+
+    function nextMove() {
+      if (currentStep < evalPositions.length - 1) {
+        currentStep++;
+        updateStepUI();
       }
-      board.position(replayGame.fen());
-      document.getElementById('currentMoveDisplay').innerText = currentMoveIndex;
+    }
 
-      // Update Evaluation Bar UI
-      const rawScore = analysisScores[currentMoveIndex] || 0;
-      const cpScore = (rawScore / 100).toFixed(1);
-      const scoreStr = (rawScore >= 0 ? '+' : '') + cpScore;
-      document.getElementById('evalScoreTag').innerText = scoreStr;
+    function prevMove() {
+      if (currentStep > 0) {
+        currentStep--;
+        updateStepUI();
+      }
+    }
 
-      // Clamp percentage for bar fill (50% is equal)
-      const clampedScore = Math.max(-1000, Math.min(1000, rawScore));
-      const whitePct = Math.min(95, Math.max(5, 50 + (clampedScore / 20)));
-      document.getElementById('evalBarWhite').style.height = whitePct + '%';
+    function firstMove() { currentStep = 0; updateStepUI(); }
+    function lastMove() { currentStep = evalPositions.length - 1; updateStepUI(); }
 
-      // Move Tag Badge
-      const verdict = document.getElementById('moveVerdictBadge');
-      if (currentMoveIndex === 0) {
-        verdict.innerText = "Starting Position";
-        verdict.className = "text-[10px] text-slate-400 font-sans mt-0.5";
+    function jumpToNextBlunder() {
+      const blunderIdx = evalPositions.findIndex((p, i) => i > currentStep && p.label === 'BLUNDER');
+      if (blunderIdx !== -1) {
+        jumpToMove(blunderIdx);
       } else {
-        const t = moveTags[currentMoveIndex - 1];
-        verdict.innerText = t.toUpperCase() + ` (Score: ${scoreStr})`;
-        verdict.className = `text-[10px] font-black uppercase mt-0.5 ${
-          t === 'best' ? 'text-cyan-400' : t === 'blunder' ? 'text-rose-400' : t === 'mistake' ? 'text-amber-400' : 'text-emerald-400'
-        }`;
-      }
-
-      // Highlight active pill
-      document.querySelectorAll('#movesListContainer button').forEach(b => b.classList.remove('active-move'));
-      if (currentMoveIndex > 0) {
-        const activeBtn = document.getElementById(`move-btn-${currentMoveIndex}`);
-        if (activeBtn) {
-          activeBtn.classList.add('active-move');
-          activeBtn.scrollIntoView({ block: 'nearest', inline: 'center' });
-        }
+        const loopIdx = evalPositions.findIndex(p => p.label === 'BLUNDER');
+        if (loopIdx !== -1) jumpToMove(loopIdx);
+        else alert("No blunders detected in this game! 🎉");
       }
     }
 
-    function stepMove(dir) {
-      goToMove(currentMoveIndex + dir);
-    }
-
-    if (matchData && historyMoves.length > 0) {
-      document.getElementById('analysisMatchSummary').innerText = `vs ${matchData.opponent || 'Opponent'} • Rating ${matchData.delta > 0 ? '+' : ''}${matchData.delta || 0}`;
-      runMatchReview();
-    }
+    renderPgnFeed();
+    drawEvalGraph();
+    $(window).resize(() => { board.resize(); drawEvalGraph(); });
+    updateStepUI();
   </script>
 </body>
 </html>
