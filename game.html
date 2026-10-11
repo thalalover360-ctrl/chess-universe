@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Arena</title>
+  <title>Chess Universe - Pro Arena</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -15,25 +15,31 @@
 
   <style>
     body {
-      background: radial-gradient(circle at top, #13221a 0%, #080f0c 100%);
+      background: radial-gradient(circle at top, #14241b 0%, #080f0c 100%);
       color: #e2e8f0;
       touch-action: manipulation;
     }
-    /* Authentic Chess.com Forest Green & Cream Palette */
+    /* Chess.com Authentic Forest Green Board */
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
-    /* Yellow Move Highlight */
+    /* Yellow Last Move Highlight */
     .highlight-yellow {
       background-color: rgba(247, 230, 80, 0.65) !important;
       box-shadow: inset 0 0 4px 1px rgba(234, 179, 8, 0.9) !important;
+    }
+
+    /* Premove Blue Highlight */
+    .highlight-premove {
+      background-color: rgba(59, 130, 246, 0.6) !important;
+      box-shadow: inset 0 0 4px 1px rgba(37, 99, 235, 0.9) !important;
     }
 
     /* Active Glowing Timer */
     .active-clock {
       border-color: #10b981 !important;
       background: rgba(16, 185, 129, 0.2) !important;
-      box-shadow: 0 0 18px -2px rgba(16, 185, 129, 0.6) !important;
+      box-shadow: 0 0 16px -2px rgba(16, 185, 129, 0.6) !important;
       animation: pulse-border 1.4s infinite;
     }
     @keyframes pulse-border {
@@ -44,7 +50,7 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans select-none items-center justify-between pb-4">
 
-  <!-- Top Bar: Opponent Info & Clock -->
+  <!-- Opponent Bar -->
   <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-2">
     <div class="flex items-center justify-between bg-emerald-950/40 border border-emerald-900/60 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
       <div class="flex items-center gap-2.5">
@@ -65,14 +71,14 @@
     </div>
   </header>
 
-  <!-- Forest Green Chessboard -->
+  <!-- Green Chessboard Container -->
   <main class="w-full max-w-md px-2 flex flex-col items-center justify-center my-auto">
     <div id="boardContainer" class="w-full aspect-square max-w-[390px] rounded-2xl overflow-hidden border-4 border-emerald-950 shadow-2xl relative">
       <div id="chessBoard" class="w-full h-full"></div>
     </div>
   </main>
 
-  <!-- Bottom Bar: Player Info & Clock -->
+  <!-- Player Bar & Controls -->
   <footer class="w-full max-w-md px-3 flex flex-col gap-2.5">
     <div class="flex items-center justify-between bg-emerald-950/40 border border-emerald-900/60 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
       <div class="flex items-center gap-2.5">
@@ -90,7 +96,11 @@
     <div class="flex gap-2">
       <button onclick="board.flip()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-300">
         <i class="fa-solid fa-repeat"></i>
-        <span>Flip Board</span>
+        <span>Flip</span>
+      </button>
+      <button onclick="cancelPremove()" id="btnCancelPremove" class="hidden flex-1 py-2 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-800/80 rounded-xl text-xs font-bold transition items-center justify-center gap-1.5 text-amber-300">
+        <i class="fa-solid fa-ban"></i>
+        <span>Cancel Premove</span>
       </button>
       <button onclick="resignGame()" class="flex-1 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-rose-300">
         <i class="fa-regular fa-flag"></i>
@@ -98,66 +108,6 @@
       </button>
     </div>
   </footer>
-
-  <!-- DEDICATED GAME ANALYSIS MODAL -->
-  <div id="analysisModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-md rounded-3xl p-5 shadow-2xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h3 class="text-sm font-black uppercase text-white flex items-center gap-2">
-            <i class="fa-solid fa-chart-line text-emerald-400"></i>
-            <span>Game Analysis Report</span>
-          </h3>
-          <p id="analysisSummaryOutcome" class="text-[11px] text-emerald-400 font-bold mt-0.5">Victory by Checkmate</p>
-        </div>
-        <button onclick="location.href='index.html'" class="w-7 h-7 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Rating Change Pill -->
-      <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800">
-        <span class="text-xs text-slate-400 font-medium">Rating Adjusted</span>
-        <span id="analysisEloDiff" class="text-xs font-black font-mono text-emerald-400">+16 (New: 1216)</span>
-      </div>
-
-      <!-- Performance Metrics -->
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <div class="p-2.5 rounded-2xl bg-slate-950 border border-slate-800">
-          <span class="text-[10px] text-slate-500 uppercase font-bold block">Accuracy</span>
-          <span id="metricAccuracy" class="text-sm font-black text-emerald-400 font-mono">88.4%</span>
-        </div>
-        <div class="p-2.5 rounded-2xl bg-slate-950 border border-slate-800">
-          <span class="text-[10px] text-slate-500 uppercase font-bold block">Best Moves</span>
-          <span id="metricBest" class="text-sm font-black text-cyan-400 font-mono">14</span>
-        </div>
-        <div class="p-2.5 rounded-2xl bg-slate-950 border border-slate-800">
-          <span class="text-[10px] text-slate-500 uppercase font-bold block">Blunders</span>
-          <span id="metricBlunders" class="text-sm font-black text-rose-400 font-mono">1</span>
-        </div>
-      </div>
-
-      <!-- Key Focus Areas -->
-      <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex flex-col gap-2">
-        <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-bullseye"></i>
-          <span>Areas to Focus</span>
-        </h4>
-        <p id="analysisKeyAdvice" class="text-xs text-slate-300 leading-relaxed font-medium">
-          Opening me center control tagda tha. Middle game me knight forks par thoda dhyan dena zaroori hai.
-        </p>
-      </div>
-
-      <div class="flex gap-2">
-        <button onclick="location.reload()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition">
-          Rematch ⚔️
-        </button>
-        <button onclick="location.href='index.html'" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-xs transition">
-          Home 🏠
-        </button>
-      </div>
-    </div>
-  </div>
     <script>
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode') || 'bot';
@@ -170,10 +120,11 @@
     let blackTime = 600;
     let timerInterval = null;
     let isGameOver = false;
+    let currentPremove = null;
 
-    // Web Audio Synthesizer: Crisp Move & Capture Sounds
+    // Web Audio Synthesizer (Instant sounds, no external mp3 lag)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playAudioTone(freq, duration, type = 'sine') {
+    function playTone(freq, duration, type = 'sine') {
       try {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -188,11 +139,11 @@
       } catch (e) {}
     }
 
-    const soundMove = () => playAudioTone(480, 0.08);
-    const soundCapture = () => playAudioTone(820, 0.12, 'triangle');
-    const soundCheck = () => playAudioTone(240, 0.25, 'sawtooth');
+    const sndMove = () => playTone(480, 0.08);
+    const sndCapture = () => playTone(820, 0.12, 'triangle');
+    const sndCheck = () => playTone(240, 0.25, 'sawtooth');
 
-    // UI Profiles
+    // Profile Load
     const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
     const myElo = parseInt(localStorage.getItem('chess_rating') || '1200', 10);
     document.getElementById('playerName').innerText = myName;
@@ -205,14 +156,29 @@
       document.getElementById('oppElo').innerText = 'Local PvP';
     }
 
-    // Yellow Highlight Helper
-    function highlightSquares(source, target) {
-      $('#chessBoard .square-55d63').removeClass('highlight-yellow');
+    function clearHighlights() {
+      $('#chessBoard .square-55d63').removeClass('highlight-yellow highlight-premove');
+    }
+
+    function setYellowHighlight(source, target) {
+      clearHighlights();
       if (source) $('#chessBoard .square-' + source).addClass('highlight-yellow');
       if (target) $('#chessBoard .square-' + target).addClass('highlight-yellow');
     }
 
-    // Board Init
+    function setPremoveHighlight(source, target) {
+      clearHighlights();
+      if (source) $('#chessBoard .square-' + source).addClass('highlight-premove');
+      if (target) $('#chessBoard .square-' + target).addClass('highlight-premove');
+    }
+
+    function cancelPremove() {
+      currentPremove = null;
+      document.getElementById('btnCancelPremove').classList.add('hidden');
+      clearHighlights();
+    }
+
+    // Board Configuration
     const boardConfig = {
       draggable: true,
       position: 'start',
@@ -220,29 +186,49 @@
       pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
       onDragStart: (source, piece) => {
         if (game.game_over() || isGameOver) return false;
+        const turn = game.turn();
+        const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b');
+
+        // Agar apni turn nahi hai, toh premove ke liye piece pick karne do
+        if (!isMyTurn) {
+          if (playerSide === 'white' && piece.search(/^w/) === -1) return false;
+          if (playerSide === 'black' && piece.search(/^b/) === -1) return false;
+          return true;
+        }
+
         if (mode === 'bot') {
           if (playerSide === 'white' && piece.search(/^b/) !== -1) return false;
           if (playerSide === 'black' && piece.search(/^w/) !== -1) return false;
         }
       },
       onDrop: (source, target) => {
+        const turn = game.turn();
+        const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b');
+
+        // Premove queue karo agar opponent ki turn chal rahi hai
+        if (!isMyTurn && mode === 'bot') {
+          currentPremove = { source, target };
+          setPremoveHighlight(source, target);
+          document.getElementById('btnCancelPremove').classList.remove('hidden');
+          return;
+        }
+
         const move = game.move({ from: source, to: target, promotion: 'q' });
         if (move === null) return 'snapback';
 
-        highlightSquares(source, target);
-
-        if (move.captured) soundCapture();
-        else if (game.in_check()) soundCheck();
-        else soundMove();
+        setYellowHighlight(source, target);
+        if (move.captured) sndCapture();
+        else if (game.in_check()) sndCheck();
+        else sndMove();
 
         updateClocksUI();
 
         if (game.game_over()) {
-          triggerGameOver(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
+          endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
           return;
         }
 
-        if (mode === 'bot') window.setTimeout(makeBotMove, 400);
+        if (mode === 'bot') window.setTimeout(botTurn, 400);
       },
       onSnapEnd: () => board.position(game.fen())
     };
@@ -250,34 +236,54 @@
     board = Chessboard('chessBoard', boardConfig);
     $(window).resize(board.resize);
 
-    // Bot AI
-    function makeBotMove() {
+    function botTurn() {
       if (game.game_over() || isGameOver) return;
-      const legalMoves = game.moves({ verbose: true });
-      if (legalMoves.length === 0) return;
+      const legal = game.moves({ verbose: true });
+      if (legal.length === 0) return;
 
-      let chosen = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+      let moveChoice = legal[Math.floor(Math.random() * legal.length)];
       if (botLevel !== 'easy') {
-        const captures = legalMoves.filter(m => m.captured);
-        if (captures.length > 0) chosen = captures[Math.floor(Math.random() * captures.length)];
+        const caps = legal.filter(m => m.captured);
+        if (caps.length > 0) moveChoice = caps[Math.floor(Math.random() * caps.length)];
       }
 
-      game.move(chosen);
+      game.move(moveChoice);
       board.position(game.fen());
-      highlightSquares(chosen.from, chosen.to);
+      setYellowHighlight(moveChoice.from, moveChoice.to);
 
-      if (chosen.captured) soundCapture();
-      else if (game.in_check()) soundCheck();
-      else soundMove();
+      if (moveChoice.captured) sndCapture();
+      else if (game.in_check()) sndCheck();
+      else sndMove();
 
       updateClocksUI();
 
       if (game.game_over()) {
-        triggerGameOver(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
+        endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
+        return;
+      }
+
+      // Agar player ka premove set hai toh turant execute karo
+      if (currentPremove) {
+        const pMove = currentPremove;
+        cancelPremove();
+        const executed = game.move({ from: pMove.source, to: pMove.target, promotion: 'q' });
+        if (executed) {
+          board.position(game.fen());
+          setYellowHighlight(pMove.source, pMove.target);
+          if (executed.captured) sndCapture();
+          else if (game.in_check()) sndCheck();
+          else sndMove();
+          updateClocksUI();
+
+          if (game.game_over()) {
+            endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
+            return;
+          }
+          window.setTimeout(botTurn, 400);
+        }
       }
     }
 
-    // Clocks
     function updateClocksUI() {
       const pClock = document.getElementById('playerClock');
       const oClock = document.getElementById('oppClock');
@@ -302,22 +308,22 @@
       formatClock('oppClock', playerSide === 'white' ? blackTime : whiteTime);
 
       if (whiteTime === 0 || blackTime === 0) {
-        triggerGameOver(whiteTime === 0 ? 'White ran out of time!' : 'Black ran out of time!');
+        endGame(whiteTime === 0 ? 'White ran out of time!' : 'Black ran out of time!');
       }
     }, 1000);
 
-    function formatClock(elemId, sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      document.getElementById(elemId).innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+    function formatClock(id, s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      document.getElementById(id).innerText = `${m}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // Post-Match Dedicated Analysis Calculation
-    function triggerGameOver(outcome) {
+    function endGame(res) {
       isGameOver = true;
       clearInterval(timerInterval);
+      cancelPremove();
 
-      const won = outcome.toLowerCase().includes(playerSide);
+      const won = res.toLowerCase().includes(playerSide);
       const delta = won ? 16 : -14;
       const newElo = Math.max(100, myElo + delta);
 
@@ -325,31 +331,39 @@
       if (won) localStorage.setItem('chess_won', parseInt(localStorage.getItem('chess_won') || '0', 10) + 1);
       else localStorage.setItem('chess_lost', parseInt(localStorage.getItem('chess_lost') || '0', 10) + 1);
 
-      // Fill Analysis Modal
-      document.getElementById('analysisSummaryOutcome').innerText = outcome;
-      document.getElementById('analysisEloDiff').innerText = `${delta > 0 ? '+' : ''}${delta} (New Elo: ${newElo})`;
+      // Match summary package
+      const matchReport = {
+        outcome: res,
+        won: won,
+        delta: delta,
+        newElo: newElo,
+        pgn: game.pgn(),
+        moves: game.history(),
+        timestamp: Date.now(),
+        opponent: mode === 'pass' ? 'Player 2' : 'Master Bot (' + botLevel + ')',
+        playedSide: playerSide
+      };
 
-      const totalMoves = game.history().length;
-      const accuracy = Math.min(96, Math.max(68, Math.round(75 + (won ? 15 : -5) + Math.random() * 8)));
-      document.getElementById('metricAccuracy').innerText = accuracy + '%';
-      document.getElementById('metricBest').innerText = Math.round(totalMoves * 0.45);
-      document.getElementById('metricBlunders').innerText = won ? (Math.random() > 0.5 ? 0 : 1) : Math.floor(Math.random() * 3 + 1);
+      // Store in Last Match & Match History
+      localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
 
-      const advices = [
-        "Opening development solid rahi. Endgame conversion me pawn promotion fast karo.",
-        "Center control accha tha. Minor pieces ke forks aur outposts par dhyan dena zaroori hai.",
-        "Time control sharp tha! Opponent ke open files par rooks coordinate karne se faayda hoga."
-      ];
-      document.getElementById('analysisKeyAdvice').innerText = advices[Math.floor(Math.random() * advices.length)];
+      let historyList = [];
+      try {
+        historyList = JSON.parse(localStorage.getItem('chess_match_history') || '[]');
+      } catch (e) {}
+      historyList.unshift(matchReport);
+      if (historyList.length > 20) historyList.pop();
+      localStorage.setItem('chess_match_history', JSON.stringify(historyList));
 
-      document.getElementById('analysisModal').classList.remove('hidden');
+      // Redirect directly to dedicated analysis page
+      window.location.href = 'analysis.html';
     }
 
     function resignGame() {
-      if (confirm('Kya sach me resign karna chahte ho?')) triggerGameOver('Opponent wins by Resignation.');
+      if (confirm('Kya sach me resign karna chahte ho?')) endGame('Opponent wins by Resignation.');
     }
 
-    if (mode === 'bot' && playerSide === 'black') setTimeout(makeBotMove, 600);
+    if (mode === 'bot' && playerSide === 'black') setTimeout(botTurn, 600);
     updateClocksUI();
   </script>
 </body>
