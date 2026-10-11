@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Friends Network | Chess Universe</title>
+  <title>Chess Universe - Real 3D Arena</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 
   <style>
     body {
@@ -14,471 +19,557 @@
       color: #e2e8f0;
       touch-action: manipulation;
     }
-    .friend-tab.active {
-      background: rgba(16, 185, 129, 0.25) !important;
+    
+    .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
+    .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
+
+    /* Real Staunton 3D Depth Shaders */
+    .piece-417db {
+      pointer-events: none !important;
+      user-select: none !important;
+      filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.65)) drop-shadow(0 2px 3px rgba(0,0,0,0.45)) !important;
+      transform: translateZ(0);
+      transition: transform 0.12s ease-out;
+    }
+
+    #boardContainer {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 6px;
+      border-radius: 1.35rem;
+      background: linear-gradient(145deg, #1b3524 0%, #07100a 100%);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.95), inset 0 1px 2px rgba(255,255,255,0.15);
+    }
+    #chessBoard {
+      width: 100% !important;
+      border-radius: 0.95rem;
+      overflow: hidden;
+      border: 2px solid rgba(0,0,0,0.55);
+    }
+
+    .highlight-yellow {
+      background-color: rgba(247, 230, 80, 0.48) !important;
+    }
+    .square-selected {
+      background-color: rgba(247, 230, 80, 0.72) !important;
+    }
+
+    .hint-dot {
+      width: 26%; height: 26%;
+      background: rgba(14, 26, 19, 0.45);
+      border-radius: 50%;
+      position: absolute; top: 37%; left: 37%;
+      pointer-events: none; z-index: 20;
+    }
+    .hint-capture-ring {
+      width: 82%; height: 82%;
+      border: 4.5px solid rgba(14, 26, 19, 0.48);
+      border-radius: 50%;
+      position: absolute; top: 9%; left: 9%;
+      pointer-events: none; z-index: 20;
+    }
+
+    .active-clock {
       border-color: #10b981 !important;
-      color: #34d399 !important;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
-    }
-    .friend-card {
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(16, 185, 129, 0.16);
-      transition: all 0.2s ease;
-    }
-    .friend-card:hover {
-      border-color: rgba(16, 185, 129, 0.45);
-      transform: translateY(-2px);
+      background: rgba(16, 185, 129, 0.2) !important;
+      color: #6ee7b7 !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none pb-12">
+<body class="min-h-screen flex flex-col font-sans select-none items-center justify-between pb-4">
 
-  <!-- Header -->
-  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
-    <div class="flex items-center gap-2.5">
-      <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
-        <i class="fa-solid fa-chevron-left text-xs"></i>
-      </a>
-      <div>
-        <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
-          <span>Social Network</span>
-          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">10-DIGIT UID</span>
-        </h1>
-        <p class="text-[10px] text-slate-400 font-medium">Real Friends & Direct Live Duels</p>
+  <!-- Opponent Bar -->
+  <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-2">
+    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+      <div class="flex items-center gap-2.5">
+        <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </a>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center font-bold text-xs" id="oppAvatar">🤖</div>
+          <div>
+            <h2 id="oppName" class="text-xs font-black text-white leading-tight">Master Bot</h2>
+            <span id="oppElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1400</span>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="flex items-center gap-1 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl font-mono text-xs">
-      <span>🪙</span>
-      <span id="friendCoinsDisplay" class="font-bold text-amber-400">350</span>
+      <div id="oppClock" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono font-black text-sm text-slate-300 transition">
+        10:00
+      </div>
     </div>
   </header>
 
-  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3.5">
-
-    <!-- My UID Card & WhatsApp Share -->
-    <div class="friend-card rounded-2xl p-3 flex items-center justify-between shadow-lg">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400" id="myAvatarInitial">H</div>
-        <div>
-          <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Your Permanent Game UID</span>
-          <div id="myUidText" class="font-mono text-sm font-black text-emerald-400 tracking-wider">Loading...</div>
-        </div>
-      </div>
-      <div class="flex gap-1.5">
-        <button onclick="copyMyUid()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs transition" title="Copy UID">
-          <i class="fa-regular fa-copy text-emerald-400"></i>
-        </button>
-        <button onclick="shareMyUidOnWhatsApp()" class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:text-white flex items-center justify-center text-xs transition" title="Share via WhatsApp">
-          <i class="fa-brands fa-whatsapp text-sm"></i>
-        </button>
-      </div>
+  <!-- 3D Chessboard View -->
+  <main class="w-full max-w-md px-2 flex flex-col items-center justify-center my-auto">
+    <div id="boardContainer">
+      <div id="chessBoard"></div>
     </div>
-
-    <!-- Social Sub-Tabs -->
-    <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
-      <button onclick="switchTab('friends')" id="tab-friends" class="friend-tab active py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
-        Friends (<span id="countFriends">0</span>)
-      </button>
-      <button onclick="switchTab('requests')" id="tab-requests" class="friend-tab py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
-        Live Duels (<span id="countRequests">0</span>)
-      </button>
-      <button onclick="switchTab('add')" id="tab-add" class="friend-tab py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
-        Add UID
-      </button>
-    </div>
-
-    <!-- VIEW 1: Friends Roster Feed -->
-    <div id="viewFriends" class="flex flex-col gap-2.5">
-      <div id="friendsListContainer" class="flex flex-col gap-2"></div>
-    </div>
-
-    <!-- VIEW 2: Live Duel Invites / Requests -->
-    <div id="viewRequests" class="hidden flex flex-col gap-2.5">
-      <div id="requestsListContainer" class="flex flex-col gap-2"></div>
-    </div>
-
-    <!-- VIEW 3: Add / Search Friend by 10-Digit UID -->
-    <div id="viewAdd" class="hidden flex flex-col gap-3">
-      <div class="friend-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
-        <h3 class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
-          <i class="fa-solid fa-user-plus text-emerald-400"></i>
-          <span>Search Player by 10-Digit UID</span>
-        </h3>
-        <div class="flex items-center gap-2">
-          <input type="tel" id="inputFriendUid" maxlength="10" placeholder="e.g. 8830464849" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono tracking-widest focus:outline-none focus:border-emerald-500">
-          <button onclick="searchAndAddFriend()" id="btnFindFriend" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
-            Search
-          </button>
-        </div>
-      </div>
-      <div id="searchedCardResult" class="hidden friend-card rounded-2xl p-3 flex items-center justify-between"></div>
-    </div>
-
   </main>
-    <!-- Challenge Configuration Modal -->
-  <div id="duelModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-3.5 relative">
-      <button onclick="closeDuelModal()" class="absolute top-4 right-4 w-7 h-7 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
-        <i class="fa-solid fa-xmark text-xs"></i>
-      </button>
 
-      <div class="flex items-center gap-3 pt-1">
-        <div id="modalTargetAvatar" class="w-12 h-12 rounded-2xl bg-slate-950 border border-emerald-500/40 flex items-center justify-center text-xl font-bold text-emerald-400">P</div>
+  <!-- Player Bar & Controls -->
+  <footer class="w-full max-w-md px-3 flex flex-col gap-2.5">
+    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-emerald-400" id="playerAvatar">P</div>
         <div>
-          <h3 id="modalTargetName" class="text-sm font-black text-white leading-tight">Opponent</h3>
-          <div id="modalTargetElo" class="text-xs font-mono font-bold text-emerald-400 mt-0.5">1200 Elo</div>
+          <h2 id="playerName" class="text-xs font-black text-white leading-tight">Harsh Singh</h2>
+          <span id="playerElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1200</span>
         </div>
       </div>
-
-      <!-- Time Format Selection -->
-      <div class="flex flex-col gap-1.5 pt-1">
-        <span class="text-[10px] uppercase font-bold text-slate-400">Match Clock Format</span>
-        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono font-bold">
-          <button onclick="setDuelTime(180)" id="dtime-180" class="duel-time-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 transition">
-            3 Min Blitz
-          </button>
-          <button onclick="setDuelTime(600)" id="dtime-600" class="duel-time-btn py-2 rounded-xl bg-slate-950 border-2 border-emerald-500 text-white transition">
-            10 Min Rapid
-          </button>
-          <button onclick="setDuelTime(900)" id="dtime-900" class="duel-time-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 transition">
-            15 Min Classic
-          </button>
-        </div>
+      <div id="playerClock" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono font-black text-sm text-slate-300 transition">
+        10:00
       </div>
+    </div>
 
-      <!-- Side Selector -->
-      <div class="flex flex-col gap-1.5">
-        <span class="text-[10px] uppercase font-bold text-slate-400">Play As</span>
-        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-          <button onclick="setDuelSide('white')" id="dside-white" class="duel-side-btn py-2 rounded-xl bg-slate-950 border-2 border-emerald-500 text-white flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-chess-pawn text-slate-100"></i> White
-          </button>
-          <button onclick="setDuelSide('black')" id="dside-black" class="duel-side-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-chess-pawn text-emerald-400"></i> Black
-          </button>
-        </div>
-      </div>
-
-      <button onclick="confirmAndLaunchDuel()" class="w-full mt-2 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
-        <i class="fa-solid fa-swords text-sm"></i>
-        <span>Send Live Challenge</span>
+    <!-- Controls -->
+    <div class="flex gap-2">
+      <button onclick="board.flip()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-300">
+        <i class="fa-solid fa-repeat"></i>
+        <span>Flip</span>
       </button>
+
+      <button id="btnPeekMove" onclick="togglePeekPreviousMove()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-amber-400">
+        <i class="fa-solid fa-backward-step"></i>
+        <span id="peekBtnText">Last Move</span>
+      </button>
+
+      <button onclick="resignGame()" class="flex-1 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-rose-300">
+        <i class="fa-regular fa-flag"></i>
+        <span>Resign</span>
+      </button>
+
+      <a href="music.html" class="w-9 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center text-emerald-400" title="Audio Studio">
+        <i class="fa-solid fa-music"></i>
+      </a>
+    </div>
+  </footer>
+
+  <!-- End Game Modal -->
+  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-3">
+      <div id="modalIcon" class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">
+        🏆
+      </div>
+      <div>
+        <h2 id="highlightWinnerTitle" class="text-base font-black uppercase tracking-wider text-emerald-400">Match Concluded</h2>
+        <p id="subReasonText" class="text-xs text-slate-400 font-medium mt-0.5">By Checkmate</p>
+      </div>
+
+      <div class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center justify-around font-mono text-xs">
+        <div>
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Rating</span>
+          <span id="modalRatingDelta" class="font-black text-emerald-400 text-sm">+16</span>
+        </div>
+        <div class="h-6 w-px bg-slate-800"></div>
+        <div>
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Rewards</span>
+          <span id="modalRewards" class="font-black text-amber-400 text-sm">+50 🪙</span>
+        </div>
+      </div>
+
+      <div class="w-full flex flex-col gap-2 pt-1">
+        <button onclick="goToAnalysis()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>View Real Analysis</span>
+        </button>
+        <div class="flex gap-2">
+          <button onclick="location.reload()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition border border-slate-700">Rematch</button>
+          <a href="index.html" class="flex-1 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition border border-slate-800 flex items-center justify-center">Lobby</a>
+        </div>
+      </div>
     </div>
   </div>
+    <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode') || 'bot';
+    const playerSide = (urlParams.get('side') || 'white').toLowerCase();
+    const botId = parseInt(urlParams.get('botId') || '5', 10);
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    // 10 Distinct Real Bots
+    const BOTS_DATABASE = [
+      { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣", depth: 0, blunderRate: 0.65 },
+      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 0, blunderRate: 0.45 },
+      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 1, blunderRate: 0.32 },
+      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 1, blunderRate: 0.22 },
+      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 2, blunderRate: 0.12 },
+      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 2, blunderRate: 0.06 },
+      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 3, blunderRate: 0.03 },
+      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 3, blunderRate: 0.01 },
+      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡", depth: 4, blunderRate: 0.0 },
+      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐", depth: 4, blunderRate: 0.0 }
+    ];
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
-      authDomain: "chess-universe-5a7cb.firebaseapp.com",
-      projectId: "chess-universe-5a7cb",
-      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
-      messagingSenderId: "145519167856",
-      appId: "1:145519167856:web:bf124bc275895447fd27b5"
-    };
+    let currentBot = BOTS_DATABASE.find(b => b.id === botId);
+    if (!currentBot) {
+      const paramName = urlParams.get('botName');
+      currentBot = BOTS_DATABASE.find(b => b.name === paramName) || BOTS_DATABASE[4];
+    }
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const game = new Chess();
+    let board = null;
+    let whiteTime = 600;
+    let blackTime = 600;
+    let timerInterval = null;
+    let isGameOver = false;
 
-    const myName = localStorage.getItem('chess_name') || 'Player';
-    const myUID = localStorage.getItem('chess_game_uid') || '0000000000';
-    const myFirebaseUid = localStorage.getItem('chess_firebase_uid') || '';
-    const myCoins = parseInt(localStorage.getItem('chess_coins'), 10) || 350;
-    const myElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
+    let selectedSquare = null;
+    let legalMovesList = [];
+    let lastMove = { from: null, to: null };
+    let isPeekingPrevious = false;
 
-    document.getElementById('myUidText').innerText = myUID;
-    document.getElementById('myAvatarInitial').innerText = myName.charAt(0).toUpperCase();
-    document.getElementById('friendCoinsDisplay').innerText = myCoins;
+    // Player Credentials
+    const localPlayerName = localStorage.getItem('chess_name') || 'Harsh Singh';
+    let savedElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
 
-    let selectedDuelTarget = null;
-    let selectedDuelSeconds = 600;
-    let selectedDuelSide = 'white';
-        window.copyMyUid = () => {
-      navigator.clipboard.writeText(myUID);
-      alert("Game UID copied: " + myUID);
-    };
+    let oppDisplayName = currentBot.name;
+    let oppDisplayElo = currentBot.elo;
+    let oppDisplayAvatar = currentBot.avatar;
 
-    window.shareMyUidOnWhatsApp = () => {
-      const msg = encodeURIComponent(`♟️ Add me on Chess Universe!\nMy 10-Digit Game UID is: *${myUID}*\nEnter this in Friends Network to challenge me directly!`);
-      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-    };
+    if (mode === 'pass') {
+      oppDisplayName = 'Player 2';
+      oppDisplayElo = 'Local';
+      oppDisplayAvatar = '👥';
+    } else if (mode === 'pvp' || mode === 'online') {
+      oppDisplayName = urlParams.get('oppName') || 'Challenger';
+      oppDisplayElo = urlParams.get('oppElo') || '1250';
+      oppDisplayAvatar = '⚔️';
+    }
 
-    window.switchTab = (tab) => {
-      ['friends', 'requests', 'add'].forEach(t => {
-        document.getElementById('tab-' + t).classList.remove('active');
-        document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
-      });
-      document.getElementById('tab-' + tab).classList.add('active');
-      document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
-    };
+    document.getElementById('playerName').innerText = localPlayerName;
+    document.getElementById('playerAvatar').innerText = localPlayerName.charAt(0).toUpperCase();
+    document.getElementById('playerElo').innerText = 'Rating: ' + savedElo;
 
-    function getStoredFriends() {
-      try {
-        return JSON.parse(localStorage.getItem('chess_friends_cache') || '[]');
-      } catch (e) {
-        return [];
+    document.getElementById('oppName').innerText = oppDisplayName;
+    document.getElementById('oppAvatar').innerText = oppDisplayAvatar;
+    document.getElementById('oppElo').innerText = 'Rating: ' + oppDisplayElo;
+
+    // ==========================================
+    // HARDWARE WEB AUDIO LO-FI GENERATOR (AUDIBLE VOLUME)
+    // ==========================================
+    let audioCtx = null;
+    let bgTimer = null;
+    const chords = [
+      [261.63, 329.63, 392.00],
+      [220.00, 261.63, 329.63],
+      [174.61, 220.00, 261.63],
+      [196.00, 246.94, 293.66]
+    ];
+    let chordStep = 0;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
       }
     }
 
-    function renderFriendsUI() {
-      const list = getStoredFriends();
-      const container = document.getElementById('friendsListContainer');
-      document.getElementById('countFriends').innerText = list.length;
-
-      if (list.length === 0) {
-        container.innerHTML = `<div class="text-center py-8 text-xs text-slate-500 font-medium">No friends added yet. Tap "Add UID" to connect!</div>`;
-        return;
-      }
-
-      container.innerHTML = '';
-      list.forEach(fr => {
-        const item = document.createElement('div');
-        item.className = "friend-card p-3 rounded-2xl flex items-center justify-between shadow-md";
-        item.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-sm">
-              ${fr.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h4 class="text-xs font-black text-white leading-tight">${fr.name}</h4>
-              <div class="text-[10px] font-mono text-slate-400 mt-0.5">
-                <span class="text-emerald-400 font-bold">${fr.rating || 1200} Elo</span> • UID: ${fr.uid}
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="openDuelModal('${fr.uid}', '${encodeURIComponent(fr.name)}', ${fr.rating || 1200})" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
-              Duel ⚔️
-            </button>
-            <button onclick="removeFriend('${fr.uid}')" class="w-8 h-8 rounded-xl bg-slate-950 hover:bg-rose-950/40 border border-slate-800 text-slate-500 hover:text-rose-400 flex items-center justify-center text-xs transition">
-              <i class="fa-regular fa-trash-can"></i>
-            </button>
-          </div>
-        `;
-        container.appendChild(item);
+    function playLoFiChord() {
+      if (!audioCtx) return;
+      const notes = chords[chordStep % chords.length];
+      chordStep++;
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        g.gain.setValueAtTime(0, audioCtx.currentTime);
+        // Clear high gain so speaker plays loud & clear
+        g.gain.linearRampToValueAtTime(0.12 / (idx + 1), audioCtx.currentTime + 0.25);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.4);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 2.4);
       });
     }
 
-    window.openDuelModal = (uid, name, rating) => {
-      selectedDuelTarget = { uid, name: decodeURIComponent(name), rating };
-      document.getElementById('modalTargetName').innerText = selectedDuelTarget.name;
-      document.getElementById('modalTargetAvatar').innerText = selectedDuelTarget.name.charAt(0).toUpperCase();
-      document.getElementById('modalTargetElo').innerText = selectedDuelTarget.rating + ' Elo';
-      document.getElementById('duelModal').classList.remove('hidden');
-    };
+    function startLofi() {
+      initAudio();
+      if (bgTimer) clearInterval(bgTimer);
+      playLoFiChord();
+      bgTimer = setInterval(playLoFiChord, 2400);
+    }
 
-    window.closeDuelModal = () => {
-      document.getElementById('duelModal').classList.add('hidden');
-    };
+    // Auto Start on First Screen Interaction
+    window.addEventListener('click', () => { startLofi(); }, { once: true });
+    window.addEventListener('touchstart', () => { startLofi(); }, { once: true });
 
-    window.setDuelTime = (sec) => {
-      selectedDuelSeconds = sec;
-      [180, 600, 900].forEach(s => {
-        const btn = document.getElementById('dtime-' + s);
-        btn.classList.remove('border-2', 'border-emerald-500', 'text-white');
-        btn.classList.add('border-slate-800', 'text-slate-400');
-      });
-      const active = document.getElementById('dtime-' + sec);
-      active.classList.add('border-2', 'border-emerald-500', 'text-white');
-      active.classList.remove('border-slate-800', 'text-slate-400');
-    };
+    function playWoodMoveSfx(isCapture = false) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(isCapture ? 420 : 280, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.35, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
 
-    window.setDuelSide = (side) => {
-      selectedDuelSide = side;
-      ['white', 'black'].forEach(s => {
-        const btn = document.getElementById('dside-' + s);
-        btn.classList.remove('border-2', 'border-emerald-500', 'text-white');
-        btn.classList.add('border-slate-800', 'text-slate-400');
-      });
-      const active = document.getElementById('dside-' + side);
-      active.classList.add('border-2', 'border-emerald-500', 'text-white');
-      active.classList.remove('border-slate-800', 'text-slate-400');
-    };
+    function removeHints() {
+      $('#chessBoard .hint-dot, #chessBoard .hint-capture-ring').remove();
+      $('#chessBoard .square-55d63').removeClass('square-selected');
+    }
 
-    window.confirmAndLaunchDuel = async () => {
-      if (!selectedDuelTarget) return;
-      const duelRoomId = 'DUEL-' + Math.floor(1000 + Math.random() * 9000);
-      try {
-        const roomRef = doc(db, "rooms", duelRoomId);
-        await setDoc(roomRef, {
-          roomId: duelRoomId,
-          hostName: myName,
-          hostUID: myUID,
-          hostElo: myElo,
-          targetUID: selectedDuelTarget.uid,
-          guestName: selectedDuelTarget.name,
-          guestUID: selectedDuelTarget.uid,
-          guestElo: selectedDuelTarget.rating,
-          timeLimit: selectedDuelSeconds,
-          status: 'waiting',
-          currentTurn: 'w',
-          fen: 'start',
-          createdAt: Date.now()
-        });
+    function renderHighlights() {
+      $('#chessBoard .square-55d63').removeClass('highlight-yellow');
+      if (lastMove.from) $('#chessBoard .square-' + lastMove.from).addClass('highlight-yellow');
+      if (lastMove.to) $('#chessBoard .square-' + lastMove.to).addClass('highlight-yellow');
+    }
 
-        const baseUrl = window.location.origin + window.location.pathname.replace('friend.html', '') + 'game.html';
-        const opponentSide = selectedDuelSide === 'white' ? 'black' : 'white';
-        const inviteUrl = `${baseUrl}?mode=pvp&room=${duelRoomId}&side=${opponentSide}&oppName=${encodeURIComponent(myName)}&oppElo=${myElo}`;
+    function showHints(sq) {
+      if (isPeekingPrevious) return;
+      removeHints();
+      selectedSquare = sq;
+      $('#chessBoard .square-' + sq).addClass('square-selected');
+      legalMovesList = game.moves({ square: sq, verbose: true });
 
-        const shareChoice = confirm(`Challenge room created against ${selectedDuelTarget.name}!\n\nOpen WhatsApp to send match link now?`);
-        if (shareChoice) {
-          const msg = encodeURIComponent(`⚔️ *Direct Duel Challenge on Chess Universe!*\n${myName} has challenged you to a game!\nRoom Code: ${duelRoomId}\nPlay now: ${inviteUrl}`);
-          window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+      legalMovesList.forEach(m => {
+        const $sq =$('#chessBoard .square-' + m.to);
+        if ($sq.length) {
+          const el = m.captured ? '<div class="hint-capture-ring"></div>' : '<div class="hint-dot"></div>';
+          $sq.append(el);
         }
-        window.location.href = `game.html?mode=pvp&room=${duelRoomId}&side=${selectedDuelSide}&oppName=${encodeURIComponent(selectedDuelTarget.name)}&oppElo=${selectedDuelTarget.rating}`;
-      } catch (err) {
-        console.error(err);
-        alert("Failed to initialize match room.");
-      }
-    };
+      });
+    }
 
-    window.searchAndAddFriend = async () => {
-      const uid = document.getElementById('inputFriendUid').value.trim();
-      if (!uid || uid.length !== 10 || isNaN(uid)) {
-        alert("Enter a valid 10-digit Game UID!");
+    function performMove(from, to) {
+      if (isPeekingPrevious) togglePeekPreviousMove();
+      removeHints();
+      const move = game.move({ from: from, to: to, promotion: 'q' });
+      if (!move) return false;
+
+      lastMove = { from: from, to: to };
+      selectedSquare = null;
+      legalMovesList = [];
+
+      board.position(game.fen());
+      renderHighlights();
+      playWoodMoveSfx(!!move.captured);
+      updateClocksUI();
+
+      if (game.game_over()) {
+        checkGameResult();
+        return true;
+      }
+
+      if (mode === 'bot') window.setTimeout(runBotEngineTurn, 450);
+      return true;
+    }
+
+    // REAL STAUNTON 3D PIECES (LICHESS REPO)
+    board = Chessboard('chessBoard', {
+      draggable: false,
+      position: 'start',
+      orientation: playerSide === 'black' ? 'black' : 'white',
+      pieceTheme: 'https://raw.githubusercontent.com/ornicar/lila/master/public/piece/staunton/{piece}.svg'
+    });
+
+    $(window).resize(board.resize);
+
+    $('#chessBoard').on('click touchstart', '.square-55d63', function (e) {
+      e.preventDefault();
+      initAudio();
+      if (game.game_over() || isGameOver) return;
+      if (isPeekingPrevious) { togglePeekPreviousMove(); return; }
+
+      const sq = $(this).attr('data-square');
+      if (!sq) return;
+
+      const isLegal = legalMovesList.some(m => m.to === sq);
+      if (selectedSquare && isLegal) {
+        performMove(selectedSquare, sq);
         return;
       }
-      if (uid === myUID) {
-        alert("You cannot add your own UID!");
+
+      const piece = game.get(sq);
+      const turn = game.turn();
+      const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b') || (mode === 'pass');
+
+      if (piece && piece.color === turn && isMyTurn) {
+        showHints(sq);
+      } else {
+        removeHints();
+        selectedSquare = null;
+        legalMovesList = [];
+      }
+    });
+
+    function togglePeekPreviousMove() {
+      const history = game.history();
+      if (history.length === 0) {
+        alert("No moves played yet!");
         return;
       }
+      const btnText = document.getElementById('peekBtnText');
+      const btn = document.getElementById('btnPeekMove');
 
-      const btn = document.getElementById('btnFindFriend');
-      btn.innerText = "...";
-      btn.disabled = true;
+      if (!isPeekingPrevious) {
+        const tempSim = new Chess();
+        for (let i = 0; i < history.length - 1; i++) tempSim.move(history[i]);
+        board.position(tempSim.fen());
+        removeHints();
+        isPeekingPrevious = true;
+        btnText.innerText = "Live Board";
+        btn.classList.add('border-amber-500/80', 'bg-amber-500/20');
+      } else {
+        board.position(game.fen());
+        renderHighlights();
+        isPeekingPrevious = false;
+        btnText.innerText = "Last Move";
+        btn.classList.remove('border-amber-500/80', 'bg-amber-500/20');
+      }
+    }
 
-      try {
-        const uidDocRef = doc(db, "uids", uid);
-        const uidSnap = await getDoc(uidDocRef);
-
-        if (uidSnap.exists()) {
-          const data = uidSnap.data();
-          const card = document.getElementById('searchedCardResult');
-          card.classList.remove('hidden');
-          card.innerHTML = `
-            <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-sm">
-                ${data.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h4 class="text-xs font-black text-white">${data.name}</h4>
-                <div class="text-[10px] font-mono text-slate-400">${data.rating || 1200} Elo • UID: ${uid}</div>
-              </div>
-            </div>
-            <button onclick="saveFriend('${uid}', '${encodeURIComponent(data.name)}', ${data.rating || 1200})" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
-              Add Friend +
-            </button>
-          `;
-        } else {
-          alert("No player found with UID: " + uid);
+    const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+    function evaluatePositionScore(sim) {
+      let score = 0;
+      const b = sim.board();
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = b[r][c];
+          if (p) score += (p.color === 'w' ? pieceValues[p.type] : -pieceValues[p.type]);
         }
-      } catch (err) {
-        console.error(err);
-        alert("Search failed: " + err.message);
-      } finally {
-        btn.innerText = "Search";
-        btn.disabled = false;
       }
-    };
+      return score;
+    }
 
-    window.saveFriend = async (uid, nameEnc, rating) => {
-      const name = decodeURIComponent(nameEnc);
-      let list = getStoredFriends();
-      if (list.some(f => f.uid === uid)) {
-        alert("Already in your friends list!");
-        return;
-      }
-      list.push({ uid, name, rating });
-      localStorage.setItem('chess_friends_cache', JSON.stringify(list));
+    function runBotEngineTurn() {
+      if (game.game_over() || isGameOver) return;
+      const moves = game.moves({ verbose: true });
+      if (moves.length === 0) return;
 
-      if (myFirebaseUid) {
-        try {
-          await updateDoc(doc(db, "users", myFirebaseUid), {
-            friends: arrayUnion(uid)
-          });
-        } catch (e) {}
-      }
+      let chosen = null;
+      if (Math.random() < currentBot.blunderRate) {
+        chosen = moves[Math.floor(Math.random() * moves.length)];
+      } else {
+        let bestEval = (game.turn() === 'w') ? -999999 : 999999;
+        for (let i = 0; i < moves.length; i++) {
+          const sim = new Chess(game.fen());
+          sim.move(moves[i]);
+          let score = evaluatePositionScore(sim);
+          if (moves[i].captured) score += (game.turn() === 'w' ? 50 : -50);
 
-      alert(`${name} added to Friends!`);
-      document.getElementById('inputFriendUid').value = '';
-      document.getElementById('searchedCardResult').classList.add('hidden');
-      renderFriendsUI();
-      switchTab('friends');
-    };
-
-    window.removeFriend = async (uid) => {
-      if (!confirm("Remove this friend?")) return;
-      let list = getStoredFriends().filter(f => f.uid !== uid);
-      localStorage.setItem('chess_friends_cache', JSON.stringify(list));
-
-      if (myFirebaseUid) {
-        try {
-          await updateDoc(doc(db, "users", myFirebaseUid), {
-            friends: arrayRemove(uid)
-          });
-        } catch (e) {}
-      }
-      renderFriendsUI();
-    };
-
-    // Live Incoming Duel Listener
-    function listenForIncomingDuels() {
-      try {
-        const q = query(collection(db, "rooms"), where("targetUID", "==", myUID), where("status", "==", "waiting"));
-        onSnapshot(q, (snapshot) => {
-          const container = document.getElementById('requestsListContainer');
-          document.getElementById('countRequests').innerText = snapshot.docs.length;
-
-          if (snapshot.empty) {
-            container.innerHTML = `<div class="text-center py-8 text-xs text-slate-500 font-medium">No pending duel requests.</div>`;
-            return;
+          if (game.turn() === 'w') {
+            if (score > bestEval) { bestEval = score; chosen = moves[i]; }
+          } else {
+            if (score < bestEval) { bestEval = score; chosen = moves[i]; }
           }
+        }
+      }
 
-          container.innerHTML = '';
-          snapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            const item = document.createElement('div');
-            item.className = "friend-card p-3 rounded-2xl flex items-center justify-between border-cyan-500/30";
-            item.innerHTML = `
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-sm">
-                  ${data.hostName.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <h4 class="text-xs font-black text-white leading-tight">${data.hostName}</h4>
-                  <div class="text-[10px] font-mono text-cyan-400 mt-0.5">${data.hostElo || 1200} Elo • Challenged You!</div>
-                </div>
-              </div>
-              <button onclick="acceptDuelChallenge('${data.roomId}', '${encodeURIComponent(data.hostName)}', ${data.hostElo || 1200})" class="px-3.5 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
-                Accept ⚔️
-              </button>
-            `;
-            container.appendChild(item);
-          });
-        });
-      } catch (e) {
-        console.warn("Duel listener:", e);
+      if (!chosen) chosen = moves[0];
+      game.move(chosen);
+      board.position(game.fen());
+      lastMove = { from: chosen.from, to: chosen.to };
+      renderHighlights();
+      playWoodMoveSfx(!!chosen.captured);
+      updateClocksUI();
+
+      if (game.game_over()) checkGameResult();
+    }
+
+    function updateClocksUI() {
+      const pClock = document.getElementById('playerClock');
+      const oClock = document.getElementById('oppClock');
+      const turn = game.turn();
+      const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b');
+
+      if (isMyTurn) {
+        pClock.classList.add('active-clock');
+        oClock.classList.remove('active-clock');
+      } else {
+        oClock.classList.add('active-clock');
+        pClock.classList.remove('active-clock');
       }
     }
 
-    window.acceptDuelChallenge = async (roomId, hostNameEnc, hostElo) => {
-      try {
-        const roomRef = doc(db, "rooms", roomId);
-        await updateDoc(roomRef, {
-          status: 'active'
-        });
-        window.location.href = `game.html?mode=pvp&room=${roomId}&side=black&oppName=${hostNameEnc}&oppElo=${hostElo}`;
-      } catch (err) {
-        alert("Failed to join challenge: " + err.message);
-      }
-    };
+    timerInterval = setInterval(() => {
+      if (isGameOver) return;
+      if (game.turn() === 'w') whiteTime = Math.max(0, whiteTime - 1);
+      else blackTime = Math.max(0, blackTime - 1);
 
-    renderFriendsUI();
-    listenForIncomingDuels();
+      formatClock('playerClock', playerSide === 'white' ? whiteTime : blackTime);
+      formatClock('oppClock', playerSide === 'white' ? blackTime : whiteTime);
+
+      if (whiteTime === 0 || blackTime === 0) {
+        const winnerColor = whiteTime === 0 ? 'Black' : 'White';
+        concludeMatch(winnerColor, 'Timeout');
+      }
+    }, 1000);
+
+    function formatClock(id, s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      document.getElementById(id).innerText = `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    function checkGameResult() {
+      if (game.in_checkmate()) {
+        const winnerColor = game.turn() === 'b' ? 'White' : 'Black';
+        concludeMatch(winnerColor, 'Checkmate');
+      } else if (game.in_draw()) {
+        concludeMatch('Draw', 'Stalemate / Draw');
+      }
+    }
+
+    function concludeMatch(winnerColor, reason) {
+      if (isGameOver) return;
+      isGameOver = true;
+      clearInterval(timerInterval);
+      clearInterval(bgTimer);
+      removeHints();
+
+      const isWin = (winnerColor.toLowerCase() === playerSide);
+      const delta = winnerColor === 'Draw' ? 0 : (isWin ? 16 : -14);
+      const newElo = Math.max(100, savedElo + delta);
+      localStorage.setItem('chess_rating', newElo);
+
+      const rewardCoins = isWin ? 50 : 15;
+      localStorage.setItem('chess_coins', (parseInt(localStorage.getItem('chess_coins') || '350', 10) + rewardCoins));
+
+      const matchReport = {
+        outcome: isWin ? "Victory" : (winnerColor === 'Draw' ? "Draw" : "Defeat"),
+        won: isWin,
+        delta: delta,
+        newElo: newElo,
+        pgn: game.pgn(),
+        moves: game.history(),
+        timestamp: Date.now(),
+        opponent: oppDisplayName,
+        playedSide: playerSide
+      };
+
+      try {
+        localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
+      } catch (err) {}
+
+      document.getElementById('highlightWinnerTitle').innerText = isWin ? "🎉 Victory!" : "Defeat!";
+      document.getElementById('subReasonText').innerText = `By ${reason}`;
+      document.getElementById('modalRatingDelta').innerText = `${delta >= 0 ? '+' : ''}${delta} (${newElo})`;
+      document.getElementById('modalRewards').innerText = `+${rewardCoins} 🪙`;
+      document.getElementById('gameOverModal').classList.remove('hidden');
+    }
+
+    function goToAnalysis() { window.location.href = 'analysis.html'; }
+    function resignGame() {
+      if (confirm('Resign this game?')) {
+        const winnerColor = playerSide === 'white' ? 'Black' : 'White';
+        concludeMatch(winnerColor, 'Resignation');
+      }
+    }
+
+    if (mode === 'bot' && playerSide === 'black') setTimeout(runBotEngineTurn, 600);
+    updateClocksUI();
   </script>
 </body>
 </html>
-
