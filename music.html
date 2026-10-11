@@ -7,37 +7,50 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
 
   <style>
     body {
       background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
       color: #e2e8f0;
       touch-action: manipulation;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    .mood-card.active {
-      border-color: #10b981 !important;
-      background: rgba(16, 185, 129, 0.15) !important;
-      box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
-    }
-    .mood-card {
+
+    .glass-card {
       background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(16, 185, 129, 0.18);
-      transition: all 0.2s ease;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .mood-card-active {
+      border-color: #10b981 !important;
+      background: rgba(16, 185, 129, 0.12) !important;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.25) !important;
+    }
+
+    input[type=range] {
+      accent-color: #10b981;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none pb-12">
+<body class="min-h-screen flex flex-col font-sans select-none pb-14">
 
   <!-- Header -->
-  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
       <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
         <i class="fa-solid fa-chevron-left text-xs"></i>
       </a>
       <div>
         <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
-          <span>Audio Studio</span>
+          <span>AUDIO STUDIO</span>
           <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">SYNTH</span>
         </h1>
         <p class="text-[10px] text-slate-400 font-medium">Procedural Music & Move Sound FX</p>
@@ -45,254 +58,161 @@
     </div>
   </header>
 
-  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3.5">
+  <main class="max-w-md w-full mx-auto px-3.5 pt-4 flex flex-col gap-4">
 
-    <!-- Master Audio Player Deck -->
-    <div class="p-4 rounded-3xl bg-slate-900/90 border border-emerald-500/30 shadow-2xl flex flex-col gap-3.5">
+    <!-- Procedural Master Engine Card -->
+    <div class="glass-card rounded-3xl p-5 flex flex-col gap-4 shadow-xl border-emerald-500/30">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-sm font-black text-white leading-tight">Procedural Lo-Fi Engine</h2>
-          <p class="text-[10px] text-slate-400 mt-0.5">Self-generating chess ambient harmony</p>
+          <p class="text-xs text-slate-400 mt-0.5">Self-generating chess ambient harmony</p>
         </div>
-        <button id="btnTogglePlayback" onclick="togglePlayback()" class="w-12 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center text-lg font-bold shadow-lg transition">
-          <i class="fa-solid fa-play" id="playIcon"></i>
+        <button onclick="toggleMasterPlayback()" id="btnMasterPlay" class="w-12 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center text-lg shadow-lg transition">
+          <i class="fa-solid fa-play" id="masterPlayIcon"></i>
         </button>
       </div>
 
-      <!-- Volume Slider -->
+      <!-- Live Volume Slider -->
       <div class="flex flex-col gap-1.5 pt-1">
-        <div class="flex justify-between items-center text-xs font-mono">
-          <span class="text-slate-400 font-bold uppercase text-[10px]">Master Volume</span>
-          <span id="volumeValueText" class="text-emerald-400 font-bold">75%</span>
+        <div class="flex items-center justify-between text-[11px] font-mono">
+          <span class="text-slate-400 font-bold uppercase tracking-wider">Master Volume</span>
+          <span id="volumePercentageLabel" class="text-emerald-400 font-black">80%</span>
         </div>
-        <input type="range" id="volumeSlider" min="0" max="100" value="75" oninput="changeMasterVolume(this.value)" class="w-full accent-emerald-500 bg-slate-950 h-2 rounded-lg cursor-pointer">
+        <input type="range" id="masterVolumeSlider" min="0" max="100" value="80" oninput="handleVolumeChange(this.value)" class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer border border-slate-800">
       </div>
     </div>
 
-    <!-- Soundtrack Moods Grid -->
-    <div class="flex flex-col gap-2">
-      <h3 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5 px-1">
-        <i class="fa-solid fa-compact-disc"></i>
-        <span>Soundtrack Moods</span>
-      </h3>
+    <!-- Soundtrack Moods Section -->
+    <div class="flex flex-col gap-2.5">
+      <div class="flex items-center gap-1.5 px-1">
+        <i class="fa-solid fa-compact-disc text-amber-400 text-xs"></i>
+        <span class="text-xs font-black uppercase text-slate-300 tracking-wider">Soundtrack Moods</span>
+      </div>
 
-      <div class="grid grid-cols-2 gap-2.5">
+      <div class="grid grid-cols-2 gap-3">
         <!-- Mood 1: Grandmaster Lo-Fi -->
-        <div onclick="selectMood('lofi')" id="mood-lofi" class="mood-card active p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
-          <span class="text-xl">♟️</span>
-          <h4 class="text-xs font-black text-white leading-tight">Grandmaster Lo-Fi</h4>
-          <p class="text-[9px] text-slate-400 leading-tight">Soft Rhodes chords & calm focus</p>
+        <div onclick="selectTrackMood('lofi')" id="moodCard-lofi" class="glass-card mood-card-active rounded-2xl p-3.5 flex flex-col gap-1.5 cursor-pointer shadow-md">
+          <div class="text-2xl">♟️</div>
+          <h3 class="text-xs font-black text-white leading-tight">Grandmaster Lo-Fi</h3>
+          <p class="text-[10px] text-slate-400 leading-snug">Soft Rhodes chords & calm focus</p>
         </div>
 
         <!-- Mood 2: Deep Space Fog -->
-        <div onclick="selectMood('space')" id="mood-space" class="mood-card p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
-          <span class="text-xl">🌌</span>
-          <h4 class="text-xs font-black text-white leading-tight">Deep Space Fog</h4>
-          <p class="text-[9px] text-slate-400 leading-tight">Slow atmospheric pad resonance</p>
+        <div onclick="selectTrackMood('space')" id="moodCard-space" class="glass-card rounded-2xl p-3.5 flex flex-col gap-1.5 cursor-pointer shadow-md">
+          <div class="text-2xl">🌌</div>
+          <h3 class="text-xs font-black text-white leading-tight">Deep Space Fog</h3>
+          <p class="text-[10px] text-slate-400 leading-snug">Slow atmospheric pad resonance</p>
         </div>
 
         <!-- Mood 3: Cyber Attack -->
-        <div onclick="selectMood('cyber')" id="mood-cyber" class="mood-card p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
-          <span class="text-xl">⚡</span>
-          <h4 class="text-xs font-black text-white leading-tight">Cyber Attack</h4>
-          <p class="text-[9px] text-slate-400 leading-tight">Fast tactical sequencer pulses</p>
+        <div onclick="selectTrackMood('cyber')" id="moodCard-cyber" class="glass-card rounded-2xl p-3.5 flex flex-col gap-1.5 cursor-pointer shadow-md">
+          <div class="text-2xl">⚡</div>
+          <h3 class="text-xs font-black text-white leading-tight">Cyber Attack</h3>
+          <p class="text-[10px] text-slate-400 leading-snug">BGMI war vibe & bass sequencer</p>
         </div>
 
         <!-- Mood 4: Coffeehouse Blitz -->
-        <div onclick="selectMood('coffee')" id="mood-coffee" class="mood-card p-3 rounded-2xl cursor-pointer flex flex-col gap-1">
-          <span class="text-xl">☕</span>
-          <h4 class="text-xs font-black text-white leading-tight">Coffeehouse Blitz</h4>
-          <p class="text-[9px] text-slate-400 leading-tight">Warm acoustic vibe for blitz</p>
+        <div onclick="selectTrackMood('coffee')" id="moodCard-coffee" class="glass-card rounded-2xl p-3.5 flex flex-col gap-1.5 cursor-pointer shadow-md">
+          <div class="text-2xl">☕</div>
+          <h3 class="text-xs font-black text-white leading-tight">Coffeehouse Blitz</h3>
+          <p class="text-[10px] text-slate-400 leading-snug">Warm acoustic vibe for blitz</p>
         </div>
       </div>
     </div>
+        <!-- Move Sound FX Pack Section -->
+    <div class="flex flex-col gap-2.5">
+      <div class="flex items-center gap-1.5 px-1">
+        <i class="fa-solid fa-chess-knight text-cyan-400 text-xs"></i>
+        <span class="text-xs font-black uppercase text-slate-300 tracking-wider">Move Sound FX Pack</span>
+      </div>
 
-    <!-- Move Sound FX Pack Audition -->
-    <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md flex flex-col gap-2.5">
-      <h3 class="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-        <i class="fa-solid fa-chess-pawn"></i>
-        <span>Move Sound FX Pack</span>
-      </h3>
-      <div class="grid grid-cols-3 gap-2">
-        <button onclick="auditionSfx('wood')" class="py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center transition flex flex-col items-center gap-0.5">
-          <span class="text-xs font-bold text-slate-200">Wood Piece</span>
-          <span class="text-[9px] text-emerald-400 font-mono">Test 🔊</span>
+      <div class="grid grid-cols-3 gap-2.5 font-mono text-center">
+        <!-- FX 1: Wood Piece -->
+        <button onclick="testSoundFX('wood')" class="glass-card rounded-2xl p-3 flex flex-col items-center gap-1.5 shadow-md active:scale-95 transition">
+          <span class="text-xs font-black text-white">Wood Piece</span>
+          <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+            Test <i class="fa-solid fa-volume-high text-[9px]"></i>
+          </span>
         </button>
-        <button onclick="auditionSfx('bell')" class="py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center transition flex flex-col items-center gap-0.5">
-          <span class="text-xs font-bold text-slate-200">Glass Bell</span>
-          <span class="text-[9px] text-cyan-400 font-mono">Test 🔊</span>
+
+        <!-- FX 2: Glass Bell -->
+        <button onclick="testSoundFX('check')" class="glass-card rounded-2xl p-3 flex flex-col items-center gap-1.5 shadow-md active:scale-95 transition">
+          <span class="text-xs font-black text-white">Glass Bell</span>
+          <span class="text-[10px] text-cyan-400 font-bold flex items-center gap-1">
+            Test <i class="fa-solid fa-volume-high text-[9px]"></i>
+          </span>
         </button>
-        <button onclick="auditionSfx('drop')" class="py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-center transition flex flex-col items-center gap-0.5">
-          <span class="text-xs font-bold text-slate-200">Heavy Drop</span>
-          <span class="text-[9px] text-amber-400 font-mono">Test 🔊</span>
+
+        <!-- FX 3: Heavy Drop -->
+        <button onclick="testSoundFX('capture')" class="glass-card rounded-2xl p-3 flex flex-col items-center gap-1.5 shadow-md active:scale-95 transition">
+          <span class="text-xs font-black text-white">Heavy Drop</span>
+          <span class="text-[10px] text-amber-400 font-bold flex items-center gap-1">
+            Test <i class="fa-solid fa-volume-high text-[9px]"></i>
+          </span>
         </button>
       </div>
     </div>
 
   </main>
-    <script>
+
+  <script>
     let isPlaying = false;
     let currentMood = 'lofi';
-    let audioCtx = null;
-    let musicLoopTimer = null;
-    let masterGainNode = null;
-    let masterVolume = 0.75;
-    let chordIndex = 0;
 
-    // Mood Chord Progressions
-    const MOOD_DATA = {
-      lofi: {
-        chords: [
-          [261.63, 329.63, 392.00], // C Maj
-          [220.00, 261.63, 329.63], // A Min
-          [174.61, 220.00, 261.63], // F Maj
-          [196.00, 246.94, 293.66]  // G Maj
-        ],
-        interval: 2200,
-        type: 'sine'
-      },
-      space: {
-        chords: [
-          [130.81, 196.00, 293.66],
-          [110.00, 164.81, 246.94],
-          [146.83, 220.00, 329.63]
-        ],
-        interval: 3200,
-        type: 'triangle'
-      },
-      cyber: {
-        chords: [
-          [164.81, 196.00, 246.94],
-          [220.00, 261.63, 329.63],
-          [146.83, 174.61, 220.00],
-          [196.00, 246.94, 293.66]
-        ],
-        interval: 1400,
-        type: 'sawtooth'
-      },
-      coffee: {
-        chords: [
-          [261.63, 329.63, 440.00],
-          [196.00, 246.94, 329.63],
-          [220.00, 277.18, 329.63]
-        ],
-        interval: 2000,
-        type: 'sine'
+    // Master Audio Playback Toggle
+    window.toggleMasterPlayback = () => {
+      isPlaying = !isPlaying;
+      const icon = document.getElementById('masterPlayIcon');
+      const btn = document.getElementById('btnMasterPlay');
+
+      if (typeof SoundEngine !== 'undefined') {
+        if (isPlaying) {
+          SoundEngine.startLobbyTheme();
+          icon.className = 'fa-solid fa-pause';
+          btn.className = 'w-12 h-12 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center text-lg shadow-lg transition';
+        } else {
+          SoundEngine.stopLobbyTheme();
+          icon.className = 'fa-solid fa-play';
+          btn.className = 'w-12 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center text-lg shadow-lg transition';
+        }
       }
     };
 
-    function initAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGainNode = audioCtx.createGain();
-        masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
-        masterGainNode.connect(audioCtx.destination);
+    // Live Master Volume Adjustment
+    window.handleVolumeChange = (val) => {
+      document.getElementById('volumePercentageLabel').innerText = val + '%';
+      if (typeof SoundEngine !== 'undefined') {
+        SoundEngine.setVolume(val / 100);
       }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-    }
+    };
 
-    function playChord() {
-      if (!isPlaying || !audioCtx) return;
-      const config = MOOD_DATA[currentMood];
-      const notes = config.chords[chordIndex % config.chords.length];
-      chordIndex++;
-
-      notes.forEach((freq, idx) => {
-        const osc = audioCtx.createOscillator();
-        const noteGain = audioCtx.createGain();
-
-        osc.type = config.type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-        noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        noteGain.gain.linearRampToValueAtTime(0.2 / (idx + 1), audioCtx.currentTime + 0.3);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (config.interval / 1000));
-
-        osc.connect(noteGain);
-        noteGain.connect(masterGainNode);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + (config.interval / 1000));
-      });
-    }
-
-    function togglePlayback() {
-      initAudioContext();
-      isPlaying = !isPlaying;
-
-      const btn = document.getElementById('btnTogglePlayback');
-      const icon = document.getElementById('playIcon');
-
-      if (isPlaying) {
-        icon.className = 'fa-solid fa-pause';
-        btn.classList.add('bg-amber-400');
-        playChord();
-        musicLoopTimer = setInterval(playChord, MOOD_DATA[currentMood].interval);
-      } else {
-        icon.className = 'fa-solid fa-play';
-        btn.classList.remove('bg-amber-400');
-        if (musicLoopTimer) clearInterval(musicLoopTimer);
-      }
-    }
-
-    function selectMood(mood) {
+    // Mood Selector Switcher
+    window.selectTrackMood = (mood) => {
       currentMood = mood;
-      chordIndex = 0;
+      ['lofi', 'space', 'cyber', 'coffee'].forEach(m => {
+        const el = document.getElementById('moodCard-' + m);
+        if (m === mood) {
+          el.classList.add('mood-card-active');
+        } else {
+          el.classList.remove('mood-card-active');
+        }
+      });
 
-      document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
-      document.getElementById('mood-' + mood).classList.add('active');
-
-      if (isPlaying) {
-        if (musicLoopTimer) clearInterval(musicLoopTimer);
-        playChord();
-        musicLoopTimer = setInterval(playChord, MOOD_DATA[mood].interval);
+      // Restart Sound with new mood if playing
+      if (isPlaying && typeof SoundEngine !== 'undefined') {
+        SoundEngine.stopLobbyTheme();
+        SoundEngine.startLobbyTheme();
       }
-    }
+    };
 
-    function changeMasterVolume(val) {
-      masterVolume = val / 100;
-      document.getElementById('volumeValueText').innerText = val + '%';
-      if (masterGainNode && audioCtx) {
-        masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+    // Interactive SFX Sound Tester
+    window.testSoundFX = (type) => {
+      if (typeof SoundEngine !== 'undefined') {
+        if (type === 'wood') SoundEngine.playMove();
+        else if (type === 'check') SoundEngine.playCheck();
+        else if (type === 'capture') SoundEngine.playCapture();
       }
-    }
-
-    function auditionSfx(type) {
-      initAudioContext();
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-
-      if (type === 'wood') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.09);
-        g.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.09);
-      } else if (type === 'bell') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.35);
-        g.gain.setValueAtTime(0.35, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
-      } else if (type === 'drop') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.14);
-        g.gain.setValueAtTime(0.45, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.14);
-      }
-
-      osc.connect(g);
-      g.connect(masterGainNode);
-    }
+    };
   </script>
 </body>
 </html>
