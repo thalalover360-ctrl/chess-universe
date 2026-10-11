@@ -3,59 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Multiplayer Arena | Chess Universe</title>
+  <title>Multiplayer Hub | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
-</head>
-<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
 
-  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
-    <div class="flex items-center gap-2">
-      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
-      <span class="font-bold text-sm tracking-wide text-white">MULTIPLAYER</span>
+  <style>
+    body {
+      background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
+      color: #e2e8f0;
+      touch-action: manipulation;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(16, 185, 129, 0.18);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans select-none pb-12">
+
+  <!-- Header -->
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </a>
+      <div>
+        <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
+          <span>Multiplayer Hub</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">PVP MODES</span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Local Pass & UID Direct Duels</p>
+      </div>
     </div>
-    <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">Hub</a>
+    <div class="flex items-center gap-1 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl font-mono text-xs">
+      <span>🪙</span>
+      <span id="displayCoinsMulti" class="font-bold text-amber-400">350</span>
+    </div>
   </header>
 
-  <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4">
+  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3.5">
 
-    <!-- Online PvP -->
-    <a href="online.html" class="block bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 p-5 rounded-2xl transition group shadow-lg">
+    <!-- Mode 1: Local Pass & Play (Same Phone, 2 Players) -->
+    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-2xl text-sky-400">
-            ⚡
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xl">
+            <i class="fa-solid fa-people-arrows"></i>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-white group-hover:text-sky-400 transition">Random Online Match</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Quick matchmaking with random opponents</p>
+            <h3 class="text-xs font-black text-white uppercase tracking-wider">Pass & Play (Offline)</h3>
+            <p class="text-[10px] text-slate-400">Play face-to-face on single device</p>
           </div>
         </div>
-        <span class="text-slate-500 text-lg group-hover:translate-x-0.5 transition">→</span>
       </div>
-    </a>
 
-    <!-- Friend Duel -->
-    <a href="friend.html" class="block bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 p-5 rounded-2xl transition group shadow-lg">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl text-emerald-400">
-            👥
-          </div>
+      <!-- Time Format Selection -->
+      <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono font-bold">
+        <button onclick="setLocalTime(300)" id="time-300" class="time-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 transition">
+          5 Min Blitz
+        </button>
+        <button onclick="setLocalTime(600)" id="time-600" class="time-btn py-2 rounded-xl bg-slate-950 border-2 border-emerald-500 text-white transition">
+          10 Min Rapid
+        </button>
+        <button onclick="setLocalTime(900)" id="time-900" class="time-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 transition">
+          15 Min Classic
+        </button>
+      </div>
+
+      <button onclick="startPassAndPlay()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+        <i class="fa-solid fa-play"></i>
+        <span>Start Local Game</span>
+      </button>
+    </div>
+
+    <!-- Mode 2: Search Player by 10-Digit Game UID -->
+    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xl">
+          <i class="fa-solid fa-id-badge"></i>
+        </div>
+        <div>
+          <h3 class="text-xs font-black text-white uppercase tracking-wider">Direct UID Challenge</h3>
+          <p class="text-[10px] text-slate-400">Find any player using their 10-Digit UID</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <input type="tel" id="searchUidInput" maxlength="10" placeholder="Enter 10-Digit UID" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono tracking-widest focus:outline-none focus:border-emerald-500">
+        <button onclick="searchPlayerByUid()" id="btnSearchUid" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
+          Search
+        </button>
+      </div>
+
+      <!-- Searched Player Result Card (Hidden by default) -->
+      <div id="foundPlayerCard" class="hidden p-3 rounded-2xl bg-slate-950 border border-emerald-500/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-sm" id="searchedAvatar">P</div>
           <div>
-            <h3 class="text-sm font-bold text-white group-hover:text-emerald-400 transition">10-Digit UID Friend Duel</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Search friends, room codes & direct WhatsApp invite</p>
+            <h4 id="searchedName" class="text-xs font-black text-white leading-tight">Player Name</h4>
+            <div class="text-[10px] font-mono text-slate-400">
+              <span id="searchedElo" class="text-emerald-400 font-bold">1200 Elo</span>
+            </div>
           </div>
         </div>
-        <span class="text-slate-500 text-lg group-hover:translate-x-0.5 transition">→</span>
+        <button onclick="challengeFoundPlayer()" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider transition">
+          Duel ⚔️
+        </button>
       </div>
+    </div>
+
+    <!-- Mode 3: Redirect to Online WhatsApp / Global Arena -->
+    <a href="online.html" class="glass-card rounded-2xl p-3.5 flex items-center justify-between hover:border-emerald-500/50 transition">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg">
+          <i class="fa-solid fa-earth-americas"></i>
+        </div>
+        <div>
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">WhatsApp & Online Rooms</h4>
+          <p class="text-[10px] text-slate-400">Create private links or play global matches</p>
+        </div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-500 text-xs mr-1"></i>
     </a>
 
   </main>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-  <script type="module">
-    import { checkAuthOrRedirect } from './script.js';
-    checkAuthOrRedirect();
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
+      authDomain: "chess-universe-5a7cb.firebaseapp.com",
+      projectId: "chess-universe-5a7cb",
+      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
+      messagingSenderId: "145519167856",
+      appId: "1:145519167856:web:bf124bc275895447fd27b5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Profile Synced Credentials
+    const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
+    const myUID = localStorage.getItem('chess_game_uid') || '0000000000';
+    const myElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
+    const myCoins = parseInt(localStorage.getItem('chess_coins'), 10) || 350;
+
+    document.getElementById('displayCoinsMulti').innerText = myCoins;
+
+    let selectedTimerSeconds = 600;
+    window.setLocalTime = (sec) => {
+      selectedTimerSeconds = sec;
+      [300, 600, 900].forEach(s => {
+        const btn = document.getElementById('time-' + s);
+        btn.classList.remove('border-2', 'border-emerald-500', 'text-white');
+        btn.classList.add('border-slate-800', 'text-slate-400');
+      });
+      const active = document.getElementById('time-' + sec);
+      active.classList.add('border-2', 'border-emerald-500', 'text-white');
+      active.classList.remove('border-slate-800', 'text-slate-400');
+    };
+
+    window.startPassAndPlay = () => {
+      window.location.href = `game.html?mode=pass&timer=${selectedTimerSeconds}&side=white`;
+    };
+
+    let targetOpponent = null;
+
+    // Search player using Firestore 'uids' lookup index
+    window.searchPlayerByUid = async () => {
+      const inputUid = document.getElementById('searchUidInput').value.trim();
+      if (!inputUid || inputUid.length !== 10 || isNaN(inputUid)) {
+        alert("Enter a valid 10-digit Game UID!");
+        return;
+      }
+      if (inputUid === myUID) {
+        alert("That's your own UID!");
+        return;
+      }
+
+      const btn = document.getElementById('btnSearchUid');
+      btn.innerText = "...";
+      btn.disabled = true;
+
+      try {
+        const uidDocRef = doc(db, "uids", inputUid);
+        const uidSnap = await getDoc(uidDocRef);
+
+        if (uidSnap.exists()) {
+          const data = uidSnap.data();
+          targetOpponent = {
+            name: data.name || "Opponent",
+            rating: data.rating || 1200,
+            uid: inputUid
+          };
+
+          document.getElementById('searchedName').innerText = targetOpponent.name;
+          document.getElementById('searchedAvatar').innerText = targetOpponent.name.charAt(0).toUpperCase();
+          document.getElementById('searchedElo').innerText = targetOpponent.rating + ' Elo';
+          document.getElementById('foundPlayerCard').classList.remove('hidden');
+        } else {
+          alert("Player not found with UID: " + inputUid);
+          document.getElementById('foundPlayerCard').classList.add('hidden');
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Search failed: " + err.message);
+      } finally {
+        btn.innerText = "Search";
+        btn.disabled = false;
+      }
+    };
+
+    window.challengeFoundPlayer = async () => {
+      if (!targetOpponent) return;
+
+      const duelRoomId = 'DUEL-' + Math.floor(1000 + Math.random() * 9000);
+      try {
+        const roomRef = doc(db, "rooms", duelRoomId);
+        await setDoc(roomRef, {
+          roomId: duelRoomId,
+          hostName: myName,
+          hostUID: myUID,
+          hostElo: myElo,
+          targetUID: targetOpponent.uid,
+          guestName: targetOpponent.name,
+          guestUID: targetOpponent.uid,
+          guestElo: targetOpponent.rating,
+          status: 'waiting',
+          currentTurn: 'w',
+          fen: 'start',
+          createdAt: Date.now()
+        });
+
+        const baseUrl = window.location.origin + window.location.pathname.replace('multiplayer.html', '') + 'game.html';
+        const inviteUrl = `${baseUrl}?mode=pvp&room=${duelRoomId}&side=black&oppName=${encodeURIComponent(myName)}&oppElo=${myElo}`;
+        
+        const confirmShare = confirm(`Duel Room created against ${targetOpponent.name}!\n\nOpen WhatsApp to send match invite?`);
+        if (confirmShare) {
+          const msg = encodeURIComponent(`⚔️ *Direct Chess Duel!*\n${myName} challenged you!\nRoom: ${duelRoomId}\nPlay here: ${inviteUrl}`);
+          window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+        }
+        window.location.href = `game.html?mode=pvp&room=${duelRoomId}&side=white&oppName=${encodeURIComponent(targetOpponent.name)}&oppElo=${targetOpponent.rating}`;
+      } catch (err) {
+        console.error(err);
+        alert("Failed to initialize duel room.");
+      }
+    };
   </script>
 </body>
 </html>
