@@ -18,9 +18,16 @@
       color: #e2e8f0;
       touch-action: manipulation;
     }
-    /* Chess.com Classic Forest Green Board */
+    
+    /* Classic Chess.com Board */
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
+
+    /* Piece Fix - No Floating, Centered Lock */
+    .piece-417db {
+      pointer-events: none !important;
+      user-select: none !important;
+    }
 
     /* Yellow Highlights */
     .highlight-yellow {
@@ -30,28 +37,28 @@
       background-color: rgba(247, 230, 80, 0.75) !important;
     }
 
-    /* Move Hint Dots - Perfectly Centered, Non-blocking */
+    /* Clean Native Dots */
     .hint-dot {
-      width: 26% !important;
-      height: 26% !important;
-      background: rgba(30, 30, 30, 0.38) !important;
-      border-radius: 50% !important;
-      position: absolute !important;
-      top: 37% !important;
-      left: 37% !important;
-      pointer-events: none !important;
-      z-index: 10 !important;
+      width: 28%;
+      height: 28%;
+      background: rgba(30, 30, 30, 0.4);
+      border-radius: 50%;
+      position: absolute;
+      top: 36%;
+      left: 36%;
+      pointer-events: none;
+      z-index: 20;
     }
     .hint-capture-ring {
-      width: 84% !important;
-      height: 84% !important;
-      border: 4px solid rgba(30, 30, 30, 0.42) !important;
-      border-radius: 50% !important;
-      position: absolute !important;
-      top: 8% !important;
-      left: 8% !important;
-      pointer-events: none !important;
-      z-index: 10 !important;
+      width: 82%;
+      height: 82%;
+      border: 4px solid rgba(30, 30, 30, 0.45);
+      border-radius: 50%;
+      position: absolute;
+      top: 9%;
+      left: 9%;
+      pointer-events: none;
+      z-index: 20;
     }
 
     .active-clock {
@@ -91,8 +98,8 @@
 
   <!-- Green Chessboard Container -->
   <main class="w-full max-w-md px-2 flex flex-col items-center justify-center my-auto">
-    <div id="boardContainer" class="w-full aspect-square max-w-[390px] rounded-2xl overflow-hidden border-4 border-emerald-950 shadow-2xl relative">
-      <div id="chessBoard" class="w-full h-full"></div>
+    <div id="boardContainer" class="w-full max-w-[360px] rounded-2xl overflow-hidden border-4 border-emerald-950 shadow-2xl relative">
+      <div id="chessBoard" class="w-full"></div>
     </div>
   </main>
 
@@ -137,38 +144,33 @@
     let isGameOver = false;
 
     let selectedSquare = null;
-    let legalTargets = [];
+    let legalMovesList = [];
     let lastMove = { from: null, to: null };
 
-    // Mobile Audio Synthesizer
+    // Audio Engine
     let audioCtx = null;
-    function getAudioCtx() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
-
     function playTone(freq, dur, type = 'sine') {
       try {
-        const ctx = getAudioCtx();
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
         osc.type = type;
         osc.connect(g);
-        g.connect(ctx.destination);
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        g.gain.setValueAtTime(0.12, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+        g.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
         osc.start();
-        osc.stop(ctx.currentTime + dur);
+        osc.stop(audioCtx.currentTime + dur);
       } catch (e) {}
     }
 
-    const sndMove = () => playTone(520, 0.08);
-    const sndCapture = () => playTone(880, 0.12, 'triangle');
-    const sndCheck = () => playTone(260, 0.25, 'sawtooth');
+    const sndMove = () => playTone(540, 0.08);
+    const sndCapture = () => playTone(840, 0.12, 'triangle');
+    const sndCheck = () => playTone(280, 0.22, 'sawtooth');
 
-    // Profile Setup
+    // Profile & Elo
     const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
     let savedElo = parseInt(localStorage.getItem('chess_rating'), 10);
     if (isNaN(savedElo) || !savedElo) savedElo = 1200;
@@ -184,7 +186,7 @@
       document.getElementById('oppElo').innerText = 'Local PvP';
     }
 
-    function removeDots() {
+    function removeHints() {
       $('#chessBoard .hint-dot, #chessBoard .hint-capture-ring').remove();
       $('#chessBoard .square-55d63').removeClass('square-selected');
     }
@@ -195,15 +197,13 @@
       if (lastMove.to) $('#chessBoard .square-' + lastMove.to).addClass('highlight-yellow');
     }
 
-    function showDots(square) {
-      removeDots();
-      selectedSquare = square;
-      legalTargets = [];
-      $('#chessBoard .square-' + square).addClass('square-selected');
+    function showHints(sq) {
+      removeHints();
+      selectedSquare = sq;
+      $('#chessBoard .square-' + sq).addClass('square-selected');
+      legalMovesList = game.moves({ square: sq, verbose: true });
 
-      const moves = game.moves({ square: square, verbose: true });
-      moves.forEach(m => {
-        legalTargets.push(m.to);
+      legalMovesList.forEach(m => {
         const $sq =$('#chessBoard .square-' + m.to);
         if ($sq.length) {
           const el = m.captured ? '<div class="hint-capture-ring"></div>' : '<div class="hint-dot"></div>';
@@ -212,14 +212,14 @@
       });
     }
 
-    function makeMove(from, to) {
-      removeDots();
+    function performMove(from, to) {
+      removeHints();
       const move = game.move({ from: from, to: to, promotion: 'q' });
       if (!move) return false;
 
       lastMove = { from: from, to: to };
       selectedSquare = null;
-      legalTargets = [];
+      legalMovesList = [];
 
       board.position(game.fen());
       renderHighlights();
@@ -235,66 +235,46 @@
         return true;
       }
 
-      if (mode === 'bot') window.setTimeout(botTurn, 350);
+      if (mode === 'bot') window.setTimeout(botTurn, 400);
       return true;
     }
 
-    // Board Init
-    const boardConfig = {
-      draggable: true,
+    // Board Init: Pure Tap-To-Move (No Drag Glitches)
+    board = Chessboard('chessBoard', {
+      draggable: false,
       position: 'start',
       orientation: playerSide === 'black' ? 'black' : 'white',
-      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
-      onDragStart: (source, piece) => {
-        getAudioCtx();
-        if (game.game_over() || isGameOver) return false;
-        const turn = game.turn();
-        if (mode === 'bot') {
-          if (playerSide === 'white' && (turn !== 'w' || piece.search(/^w/) === -1)) return false;
-          if (playerSide === 'black' && (turn !== 'b' || piece.search(/^b/) === -1)) return false;
-        }
-        showDots(source);
-      },
-      onDrop: (source, target) => {
-        if (!makeMove(source, target)) {
-          removeDots();
-          return 'snapback';
-        }
-      },
-      onSnapEnd: () => {
-        board.position(game.fen());
-        renderHighlights();
-      }
-    };
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    });
 
-    board = Chessboard('chessBoard', boardConfig);
     $(window).resize(board.resize);
 
-    // Reliable Tap-To-Move Click Handler on Squares
-    $('#chessBoard').on('click pointerup', '.square-55d63', function (e) {
-      getAudioCtx();
+    // Click/Tap Square Handler
+    $('#chessBoard').on('click touchstart', '.square-55d63', function (e) {
+      e.preventDefault();
       if (game.game_over() || isGameOver) return;
 
       const sq = $(this).attr('data-square');
       if (!sq) return;
 
-      // 1. Agar dot wale square pe tap kiya -> Chal do!
-      if (selectedSquare && legalTargets.includes(sq)) {
-        makeMove(selectedSquare, sq);
+      // 1. Agar dot wale square pe tap kiya -> Direct chal do!
+      const isLegal = legalMovesList.some(m => m.to === sq);
+      if (selectedSquare && isLegal) {
+        performMove(selectedSquare, sq);
         return;
       }
 
-      // 2. Agar piece par tap kiya -> Show dots
+      // 2. Agar apne piece pe tap kiya -> Show dots
       const piece = game.get(sq);
       const turn = game.turn();
       const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b') || (mode === 'pass');
 
       if (piece && piece.color === turn && isMyTurn) {
-        showDots(sq);
+        showHints(sq);
       } else {
-        removeDots();
+        removeHints();
         selectedSquare = null;
-        legalTargets = [];
+        legalMovesList = [];
       }
     });
 
@@ -362,7 +342,7 @@
     function endGame(res) {
       isGameOver = true;
       clearInterval(timerInterval);
-      removeDots();
+      removeHints();
 
       const won = res.toLowerCase().includes(playerSide);
       const delta = won ? 16 : -14;
@@ -405,5 +385,4 @@
     updateClocksUI();
   </script>
 </body>
-  </html>
-
+</html>
