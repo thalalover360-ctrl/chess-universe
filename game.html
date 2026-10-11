@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Pro Arena</title>
+  <title>Chess Universe - 3D Arena</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -15,41 +15,73 @@
 
   <style>
     body {
-      background: radial-gradient(circle at top, #14241b 0%, #080f0c 100%);
+      background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
       color: #e2e8f0;
       touch-action: manipulation;
     }
+    
+    /* Matte Tournament Board Theme */
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
-    .piece-417db { pointer-events: none !important; user-select: none !important; }
-    .highlight-yellow { background-color: rgba(247, 230, 80, 0.65) !important; }
-    .square-selected { background-color: rgba(247, 230, 80, 0.75) !important; }
+    /* 3D Realistic Piece Lighting & Drop-Shadows */
+    .piece-417db {
+      pointer-events: none !important;
+      user-select: none !important;
+      filter: drop-shadow(0 7px 5px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 3px rgba(0,0,0,0.4)) !important;
+      transform: translateZ(0);
+      transition: transform 0.15s ease-out;
+    }
 
+    /* Board Frame 3D Bevel */
+    #boardContainer {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 5px;
+      border-radius: 1.25rem;
+      background: linear-gradient(145deg, #1b3524 0%, #07100a 100%);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.9), inset 0 1px 2px rgba(255,255,255,0.15);
+    }
+    #chessBoard {
+      width: 100% !important;
+      border-radius: 0.9rem;
+      overflow: hidden;
+      border: 2px solid rgba(0,0,0,0.5);
+    }
+
+    /* Calm, Non-Distracting Highlights (Zero Flicker) */
+    .highlight-yellow {
+      background-color: rgba(247, 230, 80, 0.45) !important;
+    }
+    .square-selected {
+      background-color: rgba(247, 230, 80, 0.7) !important;
+    }
+
+    /* Subtle Move Dots & Rings */
     .hint-dot {
-      width: 28%; height: 28%;
-      background: rgba(30, 30, 30, 0.45);
+      width: 26%; height: 26%;
+      background: rgba(14, 26, 19, 0.42);
       border-radius: 50%;
-      position: absolute; top: 36%; left: 36%;
+      position: absolute; top: 37%; left: 37%;
       pointer-events: none; z-index: 20;
     }
     .hint-capture-ring {
       width: 82%; height: 82%;
-      border: 4px solid rgba(30, 30, 30, 0.5);
+      border: 4px solid rgba(14, 26, 19, 0.45);
       border-radius: 50%;
       position: absolute; top: 9%; left: 9%;
       pointer-events: none; z-index: 20;
     }
 
+    /* Subtle Active Clock Ring */
     .active-clock {
       border-color: #10b981 !important;
-      background: rgba(16, 185, 129, 0.2) !important;
-      box-shadow: 0 0 16px -2px rgba(16, 185, 129, 0.6) !important;
-      animation: pulse-border 1.4s infinite;
-    }
-    @keyframes pulse-border {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
+      background: rgba(16, 185, 129, 0.18) !important;
+      color: #6ee7b7 !important;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35) !important;
     }
   </style>
 </head>
@@ -57,13 +89,13 @@
 
   <!-- Opponent Bar -->
   <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-2">
-    <div class="flex items-center justify-between bg-emerald-950/40 border border-emerald-900/60 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+    <div class="flex items-center justify-between bg-slate-900/80 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
       <div class="flex items-center gap-2.5">
-        <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white">
+        <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
           <i class="fa-solid fa-chevron-left"></i>
         </a>
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs" id="oppAvatar">🤖</div>
+          <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center font-bold text-xs" id="oppAvatar">🤖</div>
           <div>
             <h2 id="oppName" class="text-xs font-black text-white leading-tight">Master Bot</h2>
             <span id="oppElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1400</span>
@@ -76,20 +108,20 @@
     </div>
   </header>
 
-  <!-- Chessboard Container -->
+  <!-- 3D Chessboard View -->
   <main class="w-full max-w-md px-2 flex flex-col items-center justify-center my-auto">
-    <div id="boardContainer" class="w-full max-w-[360px] rounded-2xl overflow-hidden border-4 border-emerald-950 shadow-2xl relative">
-      <div id="chessBoard" class="w-full"></div>
+    <div id="boardContainer">
+      <div id="chessBoard"></div>
     </div>
   </main>
 
   <!-- Player Bar & Controls -->
   <footer class="w-full max-w-md px-3 flex flex-col gap-2.5">
-    <div class="flex items-center justify-between bg-emerald-950/40 border border-emerald-900/60 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+    <div class="flex items-center justify-between bg-slate-900/80 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-emerald-400" id="playerAvatar">P</div>
         <div>
-          <h2 id="playerName" class="text-xs font-black text-white leading-tight">Player</h2>
+          <h2 id="playerName" class="text-xs font-black text-white leading-tight">Harsh Singh</h2>
           <span id="playerElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1200</span>
         </div>
       </div>
@@ -98,7 +130,7 @@
       </div>
     </div>
 
-    <!-- 3 Action Controls: Flip, Last Move Peek, Resign -->
+    <!-- Controls: Flip, Last Move Peek, Resign, Music Studio -->
     <div class="flex gap-2">
       <button onclick="board.flip()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-300">
         <i class="fa-solid fa-repeat"></i>
@@ -114,60 +146,70 @@
         <i class="fa-regular fa-flag"></i>
         <span>Resign</span>
       </button>
+
+      <a href="music.html" class="w-9 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center text-emerald-400" title="Audio Studio">
+        <i class="fa-solid fa-music"></i>
+      </a>
     </div>
   </footer>
 
-  <!-- Highlighted Victory Modal -->
-  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 border-emerald-500/50 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-3.5">
-      
-      <div id="modalIcon" class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg mt-1">
+  <!-- Clean Victory / End Modal -->
+  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-3">
+      <div id="modalIcon" class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">
         🏆
       </div>
-
       <div>
-        <h2 id="highlightWinnerTitle" class="text-base font-black uppercase tracking-wider text-emerald-400 leading-tight">
-          Match Concluded
-        </h2>
-        <p id="subReasonText" class="text-xs text-slate-400 font-medium mt-1">
-          By Checkmate
-        </p>
+        <h2 id="highlightWinnerTitle" class="text-base font-black uppercase tracking-wider text-emerald-400">Match Concluded</h2>
+        <p id="subReasonText" class="text-xs text-slate-400 font-medium mt-0.5">By Checkmate</p>
       </div>
 
       <div class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center justify-around font-mono text-xs">
-        <div class="flex flex-col items-center">
-          <span class="text-[10px] text-slate-500 uppercase font-bold">Rating</span>
-          <span id="modalRatingDelta" class="font-black text-emerald-400 text-sm">+16 (1216)</span>
+        <div>
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Rating</span>
+          <span id="modalRatingDelta" class="font-black text-emerald-400 text-sm">+16</span>
         </div>
         <div class="h-6 w-px bg-slate-800"></div>
-        <div class="flex flex-col items-center">
-          <span class="text-[10px] text-slate-500 uppercase font-bold">Rewards</span>
+        <div>
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Rewards</span>
           <span id="modalRewards" class="font-black text-amber-400 text-sm">+50 🪙 | +2 💎</span>
         </div>
       </div>
 
       <div class="w-full flex flex-col gap-2 pt-1">
-        <button onclick="goToAnalysis()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+        <button onclick="goToAnalysis()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
           <i class="fa-solid fa-chart-line"></i>
-          <span>View Deep Analysis</span>
+          <span>View Real Analysis</span>
         </button>
         <div class="flex gap-2">
-          <button onclick="location.reload()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-xs transition border border-slate-700">
-            Rematch ⚔️
-          </button>
-          <a href="index.html" class="flex-1 py-2.5 bg-slate-950 hover:bg-slate-800 text-slate-300 font-black rounded-xl text-xs transition border border-slate-800 flex items-center justify-center">
-            Dashboard 🏠
-          </a>
+          <button onclick="location.reload()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition border border-slate-700">Rematch</button>
+          <a href="index.html" class="flex-1 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition border border-slate-800 flex items-center justify-center">Lobby</a>
         </div>
       </div>
-
     </div>
   </div>
-    <script>
+  
+  <script>
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode') || 'bot';
     const playerSide = (urlParams.get('side') || 'white').toLowerCase();
-    const botLevel = urlParams.get('diff') || 'medium';
+    const botId = parseInt(urlParams.get('botId') || '5', 10);
+
+    // 10 Distinct Bots Profile
+    const BOTS_DATABASE = [
+      { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣", depth: 0, blunderRate: 0.7 },
+      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 0, blunderRate: 0.5 },
+      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 1, blunderRate: 0.35 },
+      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 1, blunderRate: 0.25 },
+      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 2, blunderRate: 0.15 },
+      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 2, blunderRate: 0.08 },
+      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 3, blunderRate: 0.04 },
+      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 3, blunderRate: 0.01 },
+      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡", depth: 4, blunderRate: 0.0 },
+      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐", depth: 4, blunderRate: 0.0 }
+    ];
+
+    const currentBot = BOTS_DATABASE.find(b => b.id === botId) || BOTS_DATABASE[4];
 
     const game = new Chess();
     let board = null;
@@ -181,19 +223,22 @@
     let lastMove = { from: null, to: null };
     let isPeekingPrevious = false;
 
-    // Profile & Elo
+    // Local Player Info
     const localPlayerName = localStorage.getItem('chess_name') || 'Harsh Singh';
-    let savedElo = parseInt(localStorage.getItem('chess_rating'), 10);
-    if (isNaN(savedElo) || !savedElo) savedElo = 1200;
-    localStorage.setItem('chess_rating', savedElo);
+    let savedElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
 
-    let oppDisplayName = 'Master Bot';
-    if (mode === 'bot') {
-      oppDisplayName = urlParams.get('botName') || `Bot (${botLevel.toUpperCase()})`;
-    } else if (mode === 'pass') {
+    let oppDisplayName = currentBot.name;
+    let oppDisplayElo = currentBot.elo;
+    let oppDisplayAvatar = currentBot.avatar;
+
+    if (mode === 'pass') {
       oppDisplayName = 'Player 2';
-    } else {
-      oppDisplayName = urlParams.get('oppName') || 'Opponent';
+      oppDisplayElo = 'Local';
+      oppDisplayAvatar = '👥';
+    } else if (mode === 'online' || mode === 'pvp') {
+      oppDisplayName = urlParams.get('oppName') || 'Challenger';
+      oppDisplayElo = urlParams.get('oppElo') || 1350;
+      oppDisplayAvatar = '⚔️';
     }
 
     document.getElementById('playerName').innerText = localPlayerName;
@@ -201,31 +246,80 @@
     document.getElementById('playerElo').innerText = 'Rating: ' + savedElo;
 
     document.getElementById('oppName').innerText = oppDisplayName;
-    document.getElementById('oppAvatar').innerText = oppDisplayName.charAt(0).toUpperCase();
-    document.getElementById('oppElo').innerText = mode === 'pass' ? 'Local Duel' : (urlParams.get('oppElo') ? 'Rating: ' + urlParams.get('oppElo') : 'Rating: 1400');
+    document.getElementById('oppAvatar').innerText = oppDisplayAvatar;
+    document.getElementById('oppElo').innerText = 'Rating: ' + oppDisplayElo;
 
-    // Audio Engine
+    // ==========================================
+    // PROCEDURAL AUDIO ENGINE & SOUND EFFECTS
+    // ==========================================
     let audioCtx = null;
-    function playTone(freq, dur, type = 'sine') {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.type = type;
-        osc.connect(g);
-        g.connect(audioCtx.destination);
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-        osc.start();
-        osc.stop(audioCtx.currentTime + dur);
-      } catch (e) {}
+    let bgTimer = null;
+    let isMusicMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    const sndMove = () => playTone(540, 0.08);
-    const sndCapture = () => playTone(840, 0.12, 'triangle');
-    const sndCheck = () => playTone(280, 0.22, 'sawtooth');
+    // Auto Unlock procedural audio on first tap
+    document.addEventListener('click', () => {
+      initAudio();
+      if (!bgTimer && !isMusicMuted) startProceduralLoFi();
+    }, { once: true });
+    document.addEventListener('touchstart', () => {
+      initAudio();
+      if (!bgTimer && !isMusicMuted) startProceduralLoFi();
+    }, { once: true });
+
+    const chords = [
+      [261.63, 329.63, 392.00],
+      [220.00, 261.63, 329.63],
+      [174.61, 220.00, 261.63],
+      [196.00, 246.94, 293.66]
+    ];
+    let chordStep = 0;
+
+    function playLoFiChord() {
+      if (!audioCtx || isMusicMuted) return;
+      const notes = chords[chordStep % chords.length];
+      chordStep++;
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        g.gain.setValueAtTime(0, audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(0.015 / (idx + 1), audioCtx.currentTime + 0.3);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 2.5);
+      });
+    }
+
+    function startProceduralLoFi() {
+      playLoFiChord();
+      bgTimer = setInterval(playLoFiChord, 2800);
+    }
+
+    // Realistic Wooden Piece Impact FX
+    function playWoodMoveSfx(isCapture = false) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(isCapture ? 420 : 280, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
 
     function removeHints() {
       $('#chessBoard .hint-dot, #chessBoard .hint-capture-ring').remove();
@@ -255,7 +349,7 @@
     }
 
     function performMove(from, to) {
-      if (isPeekingPrevious) togglePeekPreviousMove(); // Live board pe return karo pehle
+      if (isPeekingPrevious) togglePeekPreviousMove();
       removeHints();
       const move = game.move({ from: from, to: to, promotion: 'q' });
       if (!move) return false;
@@ -266,11 +360,7 @@
 
       board.position(game.fen());
       renderHighlights();
-
-      if (move.captured) sndCapture();
-      else if (game.in_check()) sndCheck();
-      else sndMove();
-
+      playWoodMoveSfx(!!move.captured);
       updateClocksUI();
 
       if (game.game_over()) {
@@ -278,11 +368,11 @@
         return true;
       }
 
-      if (mode === 'bot') window.setTimeout(botTurn, 400);
+      if (mode === 'bot') window.setTimeout(runBotEngineTurn, 450);
       return true;
     }
 
-    // Board Init
+    // High-Res Staunton 3D Pieces Link
     board = Chessboard('chessBoard', {
       draggable: false,
       position: 'start',
@@ -297,7 +387,7 @@
       e.preventDefault();
       if (game.game_over() || isGameOver) return;
       if (isPeekingPrevious) {
-        togglePeekPreviousMove(); // Board tap par automatically live state par return
+        togglePeekPreviousMove();
         return;
       }
 
@@ -323,30 +413,25 @@
       }
     });
 
-    // PEEK PREVIOUS MOVE FUNCTION (No Rewind)
+    // Peeking Previous Move (No state rewind)
     function togglePeekPreviousMove() {
       const history = game.history();
       if (history.length === 0) {
-        alert("Abhi koi move chala hi nahi gaya!");
+        alert("No moves played yet!");
         return;
       }
-
       const btnText = document.getElementById('peekBtnText');
       const btn = document.getElementById('btnPeekMove');
 
       if (!isPeekingPrevious) {
-        // Pichle move ki position dikhao
         const tempSim = new Chess();
-        for (let i = 0; i < history.length - 1; i++) {
-          tempSim.move(history[i]);
-        }
+        for (let i = 0; i < history.length - 1; i++) tempSim.move(history[i]);
         board.position(tempSim.fen());
         removeHints();
         isPeekingPrevious = true;
         btnText.innerText = "Live Board";
         btn.classList.add('border-amber-500/80', 'bg-amber-500/20');
       } else {
-        // Current live position par reset karo
         board.position(game.fen());
         renderHighlights();
         isPeekingPrevious = false;
@@ -355,26 +440,57 @@
       }
     }
 
-    function botTurn() {
-      if (game.game_over() || isGameOver) return;
-      const legal = game.moves({ verbose: true });
-      if (legal.length === 0) return;
+    // ==========================================
+    // 10-LEVEL MATERIAL BOT EVALUATION ENGINE
+    // ==========================================
+    const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
-      let moveChoice = legal[Math.floor(Math.random() * legal.length)];
-      if (botLevel !== 'easy') {
-        const caps = legal.filter(m => m.captured);
-        if (caps.length > 0) moveChoice = caps[Math.floor(Math.random() * caps.length)];
+    function evaluatePositionScore(sim) {
+      let score = 0;
+      const b = sim.board();
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = b[r][c];
+          if (p) {
+            const val = pieceValues[p.type] || 0;
+            score += (p.color === 'w' ? val : -val);
+          }
+        }
+      }
+      return score;
+    }
+
+    function runBotEngineTurn() {
+      if (game.game_over() || isGameOver) return;
+      const moves = game.moves({ verbose: true });
+      if (moves.length === 0) return;
+
+      let chosen = null;
+      // Blunder Check based on Bot Personality
+      if (Math.random() < currentBot.blunderRate) {
+        chosen = moves[Math.floor(Math.random() * moves.length)];
+      } else {
+        let bestEval = (game.turn() === 'w') ? -999999 : 999999;
+        for (let i = 0; i < moves.length; i++) {
+          const sim = new Chess(game.fen());
+          sim.move(moves[i]);
+          let score = evaluatePositionScore(sim);
+          if (moves[i].captured) score += (game.turn() === 'w' ? 50 : -50);
+
+          if (game.turn() === 'w') {
+            if (score > bestEval) { bestEval = score; chosen = moves[i]; }
+          } else {
+            if (score < bestEval) { bestEval = score; chosen = moves[i]; }
+          }
+        }
       }
 
-      game.move(moveChoice);
+      if (!chosen) chosen = moves[0];
+      game.move(chosen);
       board.position(game.fen());
-      lastMove = { from: moveChoice.from, to: moveChoice.to };
+      lastMove = { from: chosen.from, to: chosen.to };
       renderHighlights();
-
-      if (moveChoice.captured) sndCapture();
-      else if (game.in_check()) sndCheck();
-      else sndMove();
-
+      playWoodMoveSfx(!!chosen.captured);
       updateClocksUI();
 
       if (game.game_over()) checkGameResult();
@@ -424,11 +540,11 @@
       }
     }
 
-    // Dynamic Winner Resolution & Guaranteed LocalStorage Save
     function concludeMatch(winnerColor, reason) {
       if (isGameOver) return;
       isGameOver = true;
       clearInterval(timerInterval);
+      clearInterval(bgTimer);
       removeHints();
 
       if (isPeekingPrevious) {
@@ -436,18 +552,15 @@
         isPeekingPrevious = false;
       }
 
-      let whitePlayerName = playerSide === 'white' ? localPlayerName : oppDisplayName;
-      let blackPlayerName = playerSide === 'black' ? localPlayerName : oppDisplayName;
-
       let isWin = false;
       let winnerText = '';
 
       if (winnerColor === 'Draw') {
         winnerText = "Match Drawn 🤝";
       } else {
-        const winningName = winnerColor === 'White' ? whitePlayerName : blackPlayerName;
-        isWin = winningName === localPlayerName;
-        winnerText = `🎉 ${winningName} (${winnerColor}) Won!`;
+        const winningSide = winnerColor.toLowerCase();
+        isWin = winningSide === playerSide;
+        winnerText = isWin ? `🎉 Victory! You Won!` : `Defeat! ${oppDisplayName} Won`;
       }
 
       const delta = winnerColor === 'Draw' ? 0 : (isWin ? 16 : -14);
@@ -460,15 +573,10 @@
         localStorage.setItem('chess_lost', parseInt(localStorage.getItem('chess_lost') || '0', 10) + 1);
       }
 
-      const rewardCoins = isWin ? 50 : (winnerColor === 'Draw' ? 20 : 10);
-      const rewardDiamonds = isWin ? 2 : (winnerColor === 'Draw' ? 1 : 0);
-
-      const curCoins = parseInt(localStorage.getItem('chess_coins') || '250', 10) + rewardCoins;
-      const curDiamonds = parseInt(localStorage.getItem('chess_diamonds') || '5', 10) + rewardDiamonds;
-      localStorage.setItem('chess_coins', curCoins);
-      localStorage.setItem('chess_diamonds', curDiamonds);
-
-      const matchOpponent = playerSide === 'white' ? blackPlayerName : whitePlayerName;
+      const rewardCoins = isWin ? 50 : 15;
+      const rewardDiamonds = isWin ? 2 : 0;
+      localStorage.setItem('chess_coins', (parseInt(localStorage.getItem('chess_coins') || '350', 10) + rewardCoins));
+      localStorage.setItem('chess_diamonds', (parseInt(localStorage.getItem('chess_diamonds') || '8', 10) + rewardDiamonds));
 
       const matchReport = {
         outcome: winnerText,
@@ -478,58 +586,35 @@
         pgn: game.pgn(),
         moves: game.history(),
         timestamp: Date.now(),
-        opponent: matchOpponent,
+        opponent: oppDisplayName,
         playedSide: playerSide,
         rewardCoins: rewardCoins
       };
 
-      // Guaranteed Save
       try {
         localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
         let historyList = JSON.parse(localStorage.getItem('chess_match_history') || '[]');
         historyList.unshift(matchReport);
         if (historyList.length > 20) historyList.pop();
         localStorage.setItem('chess_match_history', JSON.stringify(historyList));
-      } catch (err) {
-        console.error("Match save error:", err);
-      }
+      } catch (err) {}
 
-      // Display Modal
       document.getElementById('highlightWinnerTitle').innerText = winnerText;
       document.getElementById('subReasonText').innerText = `By ${reason}`;
       document.getElementById('modalRatingDelta').innerText = `${delta >= 0 ? '+' : ''}${delta} (${newElo})`;
       document.getElementById('modalRewards').innerText = `+${rewardCoins} 🪙 | +${rewardDiamonds} 💎`;
-      
-      const modalIcon = document.getElementById('modalIcon');
-      if (isWin) {
-        modalIcon.innerText = "🏆";
-        modalIcon.className = "w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg mt-1";
-        document.getElementById('highlightWinnerTitle').className = "text-base font-black uppercase tracking-wider text-emerald-400 leading-tight";
-      } else if (winnerColor === 'Draw') {
-        modalIcon.innerText = "🤝";
-        modalIcon.className = "w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-3xl shadow-lg mt-1";
-        document.getElementById('highlightWinnerTitle').className = "text-base font-black uppercase tracking-wider text-slate-300 leading-tight";
-      } else {
-        modalIcon.innerText = "💀";
-        modalIcon.className = "w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-3xl shadow-lg mt-1";
-        document.getElementById('highlightWinnerTitle').className = "text-base font-black uppercase tracking-wider text-rose-400 leading-tight";
-      }
-
       document.getElementById('gameOverModal').classList.remove('hidden');
     }
 
-    function goToAnalysis() {
-      window.location.href = 'analysis.html';
-    }
-
+    function goToAnalysis() { window.location.href = 'analysis.html'; }
     function resignGame() {
-      if (confirm('Are you sure you want to resign?')) {
+      if (confirm('Resign this game?')) {
         const winnerColor = playerSide === 'white' ? 'Black' : 'White';
         concludeMatch(winnerColor, 'Resignation');
       }
     }
 
-    if (mode === 'bot' && playerSide === 'black') setTimeout(botTurn, 600);
+    if (mode === 'bot' && playerSide === 'black') setTimeout(runBotEngineTurn, 600);
     updateClocksUI();
   </script>
 </body>
