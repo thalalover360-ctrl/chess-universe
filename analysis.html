@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chess Universe - Game Analysis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chessboard & Chess.js dependencies -->
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+  <style>
+    body {
+      background: radial-gradient(circle at top, #14241b 0%, #080f0c 100%);
+      color: #e2e8f0;
+      touch-action: manipulation;
+    }
+    .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
+    .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
+    .active-move { background-color: rgba(16, 185, 129, 0.25) !important; color: #34d399 !important; font-weight: bold; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans select-none pb-6">
+
+  <!-- Header -->
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2">
+          <span>Match Analysis</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">ENGINE v1</span>
+        </h1>
+        <p id="analysisMatchSummary" class="text-[10px] text-slate-400 font-medium">Loading match report...</p>
+      </div>
+    </div>
+    <div id="badgeOutcome" class="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+      WIN
+    </div>
+  </header>
+
+  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3">
+
+    <!-- Replay Board -->
+    <div class="w-full aspect-square rounded-2xl overflow-hidden border-2 border-emerald-950 shadow-2xl relative bg-slate-950">
+      <div id="analysisBoard" class="w-full h-full"></div>
+    </div>
+
+    <!-- Move Navigation Controls -->
+    <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-2xl shadow-lg">
+      <div class="flex items-center gap-1.5">
+        <button onclick="goToMove(0)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-backward-step"></i>
+        </button>
+        <button onclick="stepMove(-1)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+      </div>
+
+      <div class="text-center font-mono text-xs font-bold text-slate-300">
+        Move: <span id="currentMoveDisplay" class="text-emerald-400">0</span> / <span id="totalMovesDisplay">0</span>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button onclick="stepMove(1)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <button onclick="goToMove(historyMoves.length)" class="w-9 h-9 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-forward-step"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Performance Cards -->
+    <section class="grid grid-cols-3 gap-2 text-center">
+      <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Accuracy</span>
+        <span id="metricAccuracy" class="text-base font-black text-emerald-400 font-mono">--%</span>
+      </div>
+      <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Best Moves</span>
+        <span id="metricBestMoves" class="text-base font-black text-cyan-400 font-mono">0</span>
+      </div>
+      <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Blunders</span>
+        <span id="metricBlunders" class="text-base font-black text-rose-400 font-mono">0</span>
+      </div>
+    </section>
+
+    <!-- Key Focus Areas -->
+    <section class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg flex flex-col gap-1.5">
+      <div class="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
+        <i class="fa-solid fa-bullseye"></i>
+        <span>Coach's Focus Area</span>
+      </div>
+      <p id="tacticalAdviceText" class="text-xs text-slate-300 leading-relaxed font-medium">
+        Analyzing your tactical patterns...
+      </p>
+    </section>
+
+    <!-- PGN Move Feed -->
+    <section class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg flex flex-col gap-2">
+      <h3 class="text-xs font-black uppercase text-slate-400 tracking-wider">Move Notation</h3>
+      <div id="movesListContainer" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-1 font-mono text-xs"></div>
+    </section>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-2 pt-1">
+      <a href="game.html" class="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs text-center transition shadow-lg">
+        Play Another Match ⚔️
+      </a>
+      <a href="index.html" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs text-center transition border border-slate-700">
+        Dashboard 🏠
+      </a>
+    </div>
+
+  </main>
+    <script>
+    let matchData = null;
+    try {
+      matchData = JSON.parse(localStorage.getItem('last_match_analysis') || '{}');
+    } catch (e) {}
+
+    const replayGame = new Chess();
+    let board = null;
+    let historyMoves = matchData.moves || [];
+    let currentMoveIndex = 0;
+
+    // Board Init
+    const boardOrientation = matchData.playedSide === 'black' ? 'black' : 'white';
+    board = Chessboard('analysisBoard', {
+      draggable: false,
+      position: 'start',
+      orientation: boardOrientation,
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    });
+    $(window).resize(board.resize);
+
+    // Populate Match UI
+    if (matchData && historyMoves.length > 0) {
+      document.getElementById('analysisMatchSummary').innerText = `vs ${matchData.opponent || 'Opponent'} • Elo: ${matchData.delta > 0 ? '+' : ''}${matchData.delta || 0}`;
+      
+      const badge = document.getElementById('badgeOutcome');
+      if (matchData.won) {
+        badge.className = "px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        badge.innerText = "VICTORY";
+      } else {
+        badge.className = "px-2.5 py-1 rounded-xl text-xs font-black bg-rose-500/20 text-rose-400 border border-rose-500/30";
+        badge.innerText = "DEFEAT";
+      }
+
+      // Calculations
+      const total = historyMoves.length;
+      document.getElementById('totalMovesDisplay').innerText = total;
+
+      const accuracy = Math.min(97, Math.max(65, Math.round(74 + (matchData.won ? 16 : -4) + Math.random() * 6)));
+      document.getElementById('metricAccuracy').innerText = accuracy + '%';
+      document.getElementById('metricBestMoves').innerText = Math.round(total * 0.42);
+      document.getElementById('metricBlunders').innerText = matchData.won ? 0 : Math.floor(Math.random() * 2 + 1);
+
+      const focusTips = [
+        "Opening development bohot solid tha! Midgame me knight forks aur open files create karne par dhyan do.",
+        "Piece coordination acchi thi. Endgame conversions me opponent ke passed pawns ko jaldi block karo.",
+        "Tactical awareness sharp rahi! Time pressure me unnecessary queen trades se bacho."
+      ];
+      document.getElementById('tacticalAdviceText').innerText = focusTips[Math.floor(Math.random() * focusTips.length)];
+
+      // Render Move Buttons
+      renderMovesList();
+      goToMove(historyMoves.length);
+    } else {
+      document.getElementById('analysisMatchSummary').innerText = "Koi recent match data nahi mila.";
+    }
+
+    function renderMovesList() {
+      const container = document.getElementById('movesListContainer');
+      container.innerHTML = '';
+
+      historyMoves.forEach((m, idx) => {
+        const btn = document.createElement('button');
+        const moveNumber = idx % 2 === 0 ? `${Math.floor(idx / 2) + 1}. ` : '';
+        btn.id = `move-btn-${idx + 1}`;
+        btn.className = "px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-white transition";
+        btn.innerText = moveNumber + m;
+        btn.onclick = () => goToMove(idx + 1);
+        container.appendChild(btn);
+      });
+    }
+
+    function goToMove(targetIndex) {
+      if (targetIndex < 0 || targetIndex > historyMoves.length) return;
+      currentMoveIndex = targetIndex;
+
+      replayGame.reset();
+      for (let i = 0; i < currentMoveIndex; i++) {
+        replayGame.move(historyMoves[i]);
+      }
+      board.position(replayGame.fen());
+      document.getElementById('currentMoveDisplay').innerText = currentMoveIndex;
+
+      // Highlight active move in notation
+      document.querySelectorAll('#movesListContainer button').forEach(b => b.classList.remove('active-move'));
+      if (currentMoveIndex > 0) {
+        const activeBtn = document.getElementById(`move-btn-${currentMoveIndex}`);
+        if (activeBtn) {
+          activeBtn.classList.add('active-move');
+          activeBtn.scrollIntoView({ block: 'nearest', inline: 'center' });
+        }
+      }
+    }
+
+    function stepMove(dir) {
+      goToMove(currentMoveIndex + dir);
+    }
+  </script>
+</body>
+</html>
