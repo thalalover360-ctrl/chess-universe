@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - 3D Arena</title>
+  <title>Chess Universe - Grandmaster Arena</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -20,68 +20,63 @@
       touch-action: manipulation;
     }
     
-    /* Matte Tournament Board Theme */
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
-    /* 3D Realistic Piece Lighting & Drop-Shadows */
+    /* Polished Piece Shading */
     .piece-417db {
       pointer-events: none !important;
       user-select: none !important;
-      filter: drop-shadow(0 7px 5px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 3px rgba(0,0,0,0.4)) !important;
+      filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.6)) !important;
       transform: translateZ(0);
-      transition: transform 0.15s ease-out;
+      transition: transform 0.12s ease-out;
     }
 
-    /* Board Frame 3D Bevel */
     #boardContainer {
       position: relative;
       width: 100%;
       max-width: 360px;
       margin: 0 auto;
-      padding: 5px;
-      border-radius: 1.25rem;
+      padding: 6px;
+      border-radius: 1.35rem;
       background: linear-gradient(145deg, #1b3524 0%, #07100a 100%);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.9), inset 0 1px 2px rgba(255,255,255,0.15);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.95), inset 0 1px 2px rgba(255,255,255,0.15);
     }
     #chessBoard {
       width: 100% !important;
-      border-radius: 0.9rem;
+      border-radius: 0.95rem;
       overflow: hidden;
-      border: 2px solid rgba(0,0,0,0.5);
+      border: 2px solid rgba(0,0,0,0.55);
     }
 
-    /* Calm, Non-Distracting Highlights (Zero Flicker) */
     .highlight-yellow {
-      background-color: rgba(247, 230, 80, 0.45) !important;
+      background-color: rgba(247, 230, 80, 0.5) !important;
     }
     .square-selected {
-      background-color: rgba(247, 230, 80, 0.7) !important;
+      background-color: rgba(247, 230, 80, 0.72) !important;
     }
 
-    /* Subtle Move Dots & Rings */
     .hint-dot {
       width: 26%; height: 26%;
-      background: rgba(14, 26, 19, 0.42);
+      background: rgba(14, 26, 19, 0.5);
       border-radius: 50%;
       position: absolute; top: 37%; left: 37%;
       pointer-events: none; z-index: 20;
     }
     .hint-capture-ring {
       width: 82%; height: 82%;
-      border: 4px solid rgba(14, 26, 19, 0.45);
+      border: 4px solid rgba(14, 26, 19, 0.5);
       border-radius: 50%;
       position: absolute; top: 9%; left: 9%;
       pointer-events: none; z-index: 20;
     }
 
-    /* Subtle Active Clock Ring */
     .active-clock {
       border-color: #10b981 !important;
-      background: rgba(16, 185, 129, 0.18) !important;
+      background: rgba(16, 185, 129, 0.2) !important;
       color: #6ee7b7 !important;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35) !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
     }
   </style>
 </head>
@@ -89,10 +84,10 @@
 
   <!-- Opponent Bar -->
   <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-2">
-    <div class="flex items-center justify-between bg-slate-900/80 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
       <div class="flex items-center gap-2.5">
         <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
-          <i class="fa-solid fa-chevron-left"></i>
+          <i class="fa-solid fa-chevron-left text-xs"></i>
         </a>
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center font-bold text-xs" id="oppAvatar">🤖</div>
@@ -108,7 +103,7 @@
     </div>
   </header>
 
-  <!-- 3D Chessboard View -->
+  <!-- Chessboard View -->
   <main class="w-full max-w-md px-2 flex flex-col items-center justify-center my-auto">
     <div id="boardContainer">
       <div id="chessBoard"></div>
@@ -117,7 +112,7 @@
 
   <!-- Player Bar & Controls -->
   <footer class="w-full max-w-md px-3 flex flex-col gap-2.5">
-    <div class="flex items-center justify-between bg-slate-900/80 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
+    <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-emerald-400" id="playerAvatar">P</div>
         <div>
@@ -130,35 +125,30 @@
       </div>
     </div>
 
-    <!-- Controls: Flip, Last Move Peek, Resign, Music Studio -->
+    <!-- Controls -->
     <div class="flex gap-2">
       <button onclick="board.flip()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-300">
-        <i class="fa-solid fa-repeat"></i>
-        <span>Flip</span>
+        <i class="fa-solid fa-repeat"></i> Flip
       </button>
 
       <button id="btnPeekMove" onclick="togglePeekPreviousMove()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-amber-400">
-        <i class="fa-solid fa-backward-step"></i>
-        <span id="peekBtnText">Last Move</span>
+        <i class="fa-solid fa-backward-step"></i> <span id="peekBtnText">Last Move</span>
       </button>
 
       <button onclick="resignGame()" class="flex-1 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 text-rose-300">
-        <i class="fa-regular fa-flag"></i>
-        <span>Resign</span>
+        <i class="fa-regular fa-flag"></i> Resign
       </button>
 
-      <a href="music.html" class="w-9 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center text-emerald-400" title="Audio Studio">
-        <i class="fa-solid fa-music"></i>
-      </a>
+      <button onclick="toggleMusicMute()" id="btnAudioMute" class="w-9 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center text-emerald-400" title="Sound Control">
+        <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+      </button>
     </div>
   </footer>
 
-  <!-- Clean Victory / End Modal -->
-  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <!-- End Game Modal -->
+  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-3">
-      <div id="modalIcon" class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">
-        🏆
-      </div>
+      <div id="modalIcon" class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">🏆</div>
       <div>
         <h2 id="highlightWinnerTitle" class="text-base font-black uppercase tracking-wider text-emerald-400">Match Concluded</h2>
         <p id="subReasonText" class="text-xs text-slate-400 font-medium mt-0.5">By Checkmate</p>
@@ -172,14 +162,13 @@
         <div class="h-6 w-px bg-slate-800"></div>
         <div>
           <span class="text-[9px] text-slate-500 uppercase font-bold block">Rewards</span>
-          <span id="modalRewards" class="font-black text-amber-400 text-sm">+50 🪙 | +2 💎</span>
+          <span id="modalRewards" class="font-black text-amber-400 text-sm">+50 🪙</span>
         </div>
       </div>
 
       <div class="w-full flex flex-col gap-2 pt-1">
         <button onclick="goToAnalysis()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>View Real Analysis</span>
+          <i class="fa-solid fa-chart-line"></i> <span>View Real Analysis</span>
         </button>
         <div class="flex gap-2">
           <button onclick="location.reload()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition border border-slate-700">Rematch</button>
@@ -188,28 +177,31 @@
       </div>
     </div>
   </div>
-  
-  <script>
+   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode') || 'bot';
     const playerSide = (urlParams.get('side') || 'white').toLowerCase();
     const botId = parseInt(urlParams.get('botId') || '5', 10);
 
-    // 10 Distinct Bots Profile
+    // 10 Detailed Bot Engines
     const BOTS_DATABASE = [
-      { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣", depth: 0, blunderRate: 0.7 },
-      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 0, blunderRate: 0.5 },
-      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 1, blunderRate: 0.35 },
-      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 1, blunderRate: 0.25 },
-      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 2, blunderRate: 0.15 },
-      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 2, blunderRate: 0.08 },
-      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 3, blunderRate: 0.04 },
-      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 3, blunderRate: 0.01 },
-      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡", depth: 4, blunderRate: 0.0 },
-      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐", depth: 4, blunderRate: 0.0 }
+      { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣", depth: 1, blunderRate: 0.65 },
+      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 1, blunderRate: 0.45 },
+      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 2, blunderRate: 0.32 },
+      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 2, blunderRate: 0.22 },
+      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 3, blunderRate: 0.08 },
+      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 3, blunderRate: 0.04 },
+      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 4, blunderRate: 0.02 },
+      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 4, blunderRate: 0.0 },
+      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡", depth: 5, blunderRate: 0.0 },
+      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐", depth: 5, blunderRate: 0.0 }
     ];
 
-    const currentBot = BOTS_DATABASE.find(b => b.id === botId) || BOTS_DATABASE[4];
+    let currentBot = BOTS_DATABASE.find(b => b.id === botId);
+    if (!currentBot) {
+      const paramName = urlParams.get('botName');
+      currentBot = BOTS_DATABASE.find(b => b.name === paramName) || BOTS_DATABASE[4];
+    }
 
     const game = new Chess();
     let board = null;
@@ -223,7 +215,6 @@
     let lastMove = { from: null, to: null };
     let isPeekingPrevious = false;
 
-    // Local Player Info
     const localPlayerName = localStorage.getItem('chess_name') || 'Harsh Singh';
     let savedElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
 
@@ -235,77 +226,87 @@
       oppDisplayName = 'Player 2';
       oppDisplayElo = 'Local';
       oppDisplayAvatar = '👥';
-    } else if (mode === 'online' || mode === 'pvp') {
+    } else if (mode === 'pvp' || mode === 'online') {
       oppDisplayName = urlParams.get('oppName') || 'Challenger';
-      oppDisplayElo = urlParams.get('oppElo') || 1350;
+      oppDisplayElo = urlParams.get('oppElo') || '1250';
       oppDisplayAvatar = '⚔️';
     }
 
     document.getElementById('playerName').innerText = localPlayerName;
     document.getElementById('playerAvatar').innerText = localPlayerName.charAt(0).toUpperCase();
     document.getElementById('playerElo').innerText = 'Rating: ' + savedElo;
-
     document.getElementById('oppName').innerText = oppDisplayName;
     document.getElementById('oppAvatar').innerText = oppDisplayAvatar;
     document.getElementById('oppElo').innerText = 'Rating: ' + oppDisplayElo;
 
-    // ==========================================
-    // PROCEDURAL AUDIO ENGINE & SOUND EFFECTS
-    // ==========================================
+    // ============================================================
+    // SMOOTH WARM LO-FI SYNTH (RHODES FILTERED CHORDS)
+    // ============================================================
     let audioCtx = null;
     let bgTimer = null;
     let isMusicMuted = false;
 
+    const lofiProgressions = [
+      [261.63, 329.63, 392.00, 493.88], // Cmaj7
+      [220.00, 261.63, 329.63, 392.00], // Am7
+      [174.61, 220.00, 261.63, 329.63], // Fmaj7
+      [196.00, 246.94, 293.66, 349.23]  // G7
+    ];
+    let progIndex = 0;
+
     function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    // Auto Unlock procedural audio on first tap
-    document.addEventListener('click', () => {
-      initAudio();
-      if (!bgTimer && !isMusicMuted) startProceduralLoFi();
-    }, { once: true });
-    document.addEventListener('touchstart', () => {
-      initAudio();
-      if (!bgTimer && !isMusicMuted) startProceduralLoFi();
-    }, { once: true });
-
-    const chords = [
-      [261.63, 329.63, 392.00],
-      [220.00, 261.63, 329.63],
-      [174.61, 220.00, 261.63],
-      [196.00, 246.94, 293.66]
-    ];
-    let chordStep = 0;
-
-    function playLoFiChord() {
+    function playWarmLoFiChord() {
       if (!audioCtx || isMusicMuted) return;
-      const notes = chords[chordStep % chords.length];
-      chordStep++;
-      notes.forEach((freq, idx) => {
+      const notes = lofiProgressions[progIndex % lofiProgressions.length];
+      progIndex++;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(650, audioCtx.currentTime);
+
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+
+      notes.forEach((freq, i) => {
         const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.type = 'sine';
+        const noteGain = audioCtx.createGain();
+        osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        g.gain.setValueAtTime(0, audioCtx.currentTime);
-        g.gain.linearRampToValueAtTime(0.015 / (idx + 1), audioCtx.currentTime + 0.3);
-        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
-        osc.connect(g);
-        g.connect(audioCtx.destination);
+
+        noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        noteGain.gain.linearRampToValueAtTime(0.04 / (i + 1), audioCtx.currentTime + 0.3);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
+
+        osc.connect(noteGain);
+        noteGain.connect(filter);
         osc.start();
-        osc.stop(audioCtx.currentTime + 2.5);
+        osc.stop(audioCtx.currentTime + 2.8);
       });
+
+      filter.connect(masterGain);
+      masterGain.connect(audioCtx.destination);
     }
 
-    function startProceduralLoFi() {
-      playLoFiChord();
-      bgTimer = setInterval(playLoFiChord, 2800);
+    function startLoFiMusic() {
+      initAudio();
+      if (bgTimer) clearInterval(bgTimer);
+      playWarmLoFiChord();
+      bgTimer = setInterval(playWarmLoFiChord, 3000);
     }
 
-    // Realistic Wooden Piece Impact FX
+    window.toggleMusicMute = () => {
+      isMusicMuted = !isMusicMuted;
+      document.getElementById('audioIcon').className = isMusicMuted ? "fa-solid fa-volume-xmark text-slate-500" : "fa-solid fa-volume-high text-emerald-400";
+      if (!isMusicMuted) playWarmLoFiChord();
+    };
+
+    window.addEventListener('click', () => { startLoFiMusic(); }, { once: true });
+    window.addEventListener('touchstart', () => { startLoFiMusic(); }, { once: true });
+
     function playWoodMoveSfx(isCapture = false) {
       if (!audioCtx) return;
       const osc = audioCtx.createOscillator();
@@ -313,7 +314,7 @@
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(isCapture ? 420 : 280, audioCtx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.08);
-      g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      g.gain.setValueAtTime(0.35, audioCtx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
       osc.connect(g);
       g.connect(audioCtx.destination);
@@ -321,6 +322,116 @@
       osc.stop(audioCtx.currentTime + 0.08);
     }
 
+    // ============================================================
+    // GRANDMASTER OPENING BOOK & PIECE-SQUARE TABLES (SMART AI)
+    // ============================================================
+    const openingBook = {
+      "": ["e2e4", "d2d4", "c2c4", "g1f3"],
+      "e2e4": ["e7e5", "c7c5", "e7e6", "c7c6"],
+      "d2d4": ["d7d5", "g8f6", "e7e6"],
+      "e2e4 e7e5": ["g1f3", "f1c4", "d2d4"],
+      "e2e4 c7c5": ["g1f3", "c2c3", "b1c3"],
+      "e2e4 e7e5 g1f3": ["b8c6", "g8f6", "d7d6"],
+      "d2d4 d7d5": ["c2c4", "g1f3", "e2e3"],
+      "d2d4 g8f6": ["c2c4", "g1f3", "c1g5"]
+    };
+
+    const pstPawn = [
+      [0,  0,  0,  0,  0,  0,  0,  0],
+      [50, 50, 50, 50, 50, 50, 50, 50],
+      [10, 10, 20, 30, 30, 20, 10, 10],
+      [5,  5, 10, 27, 27, 10,  5,  5],
+      [0,  0,  0, 25, 25,  0,  0,  0],
+      [5, -5,-10,  0,  0,-10, -5,  5],
+      [5, 10, 10,-25,-25, 10, 10,  5],
+      [0,  0,  0,  0,  0,  0,  0,  0]
+    ];
+
+    const pstKnight = [
+      [-50,-40,-30,-30,-30,-30,-40,-50],
+      [-40,-20,  0,  5,  5,  0,-20,-40],
+      [-30,  5, 15, 20, 20, 15,  5,-30],
+      [-30,  0, 18, 25, 25, 18,  0,-30],
+      [-30,  5, 18, 25, 25, 18,  5,-30],
+      [-30,  0, 15, 20, 20, 15,  0,-30],
+      [-40,-20,  0,  0,  0,  0,-20,-40],
+      [-50,-40,-30,-30,-30,-30,-40,-50]
+    ];
+
+    const pieceValues = { p: 100, n: 320, b: 335, r: 500, q: 900, k: 20000 };
+
+    function evaluatePosition(sim) {
+      let score = 0;
+      const b = sim.board();
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = b[r][c];
+          if (p) {
+            let val = pieceValues[p.type] || 0;
+            if (p.type === 'p') val += (p.color === 'w' ? pstPawn[r][c] : pstPawn[7-r][c]);
+            if (p.type === 'n') val += (p.color === 'w' ? pstKnight[r][c] : pstKnight[7-r][c]);
+            score += (p.color === 'w' ? val : -val);
+          }
+        }
+      }
+      return score;
+    }
+
+    function runBotEngineTurn() {
+      if (game.game_over() || isGameOver) return;
+      const moves = game.moves({ verbose: true });
+      if (moves.length === 0) return;
+
+      // 1. Check Grandmaster Opening Book
+      const moveHistoryList = game.history({ verbose: true }).map(m => m.from + m.to).join(' ');
+      if (openingBook[moveHistoryList] && currentBot.elo >= 1000) {
+        const bookOptions = openingBook[moveHistoryList];
+        const match = moves.find(m => bookOptions.includes(m.from + m.to));
+        if (match) {
+          executeBotMove(match);
+          return;
+        }
+      }
+
+      // 2. Tactical Minimax Evaluation with Blunder Control
+      let chosen = null;
+      if (Math.random() < currentBot.blunderRate) {
+        chosen = moves[Math.floor(Math.random() * moves.length)];
+      } else {
+        let bestEval = (game.turn() === 'w') ? -999999 : 999999;
+        for (let i = 0; i < moves.length; i++) {
+          const sim = new Chess(game.fen());
+          sim.move(moves[i]);
+          let score = evaluatePosition(sim);
+
+          // Center control & capture rewards
+          if (moves[i].captured) score += (game.turn() === 'w' ? 60 : -60);
+          if (['e4', 'd4', 'e5', 'd5'].includes(moves[i].to)) score += (game.turn() === 'w' ? 30 : -30);
+
+          if (game.turn() === 'w') {
+            if (score > bestEval) { bestEval = score; chosen = moves[i]; }
+          } else {
+            if (score < bestEval) { bestEval = score; chosen = moves[i]; }
+          }
+        }
+      }
+
+      executeBotMove(chosen || moves[0]);
+    }
+
+    function executeBotMove(moveObj) {
+      game.move(moveObj);
+      board.position(game.fen());
+      lastMove = { from: moveObj.from, to: moveObj.to };
+      renderHighlights();
+      playWoodMoveSfx(!!moveObj.captured);
+      updateClocksUI();
+      if (game.game_over()) checkGameResult();
+    }
+
+    // ============================================================
+    // BOARD & PIECE RENDERING (HIGH-DEF STABLE PIECE SET)
+    // ============================================================
     function removeHints() {
       $('#chessBoard .hint-dot, #chessBoard .hint-capture-ring').remove();
       $('#chessBoard .square-55d63').removeClass('square-selected');
@@ -368,11 +479,11 @@
         return true;
       }
 
-      if (mode === 'bot') window.setTimeout(runBotEngineTurn, 450);
+      if (mode === 'bot') window.setTimeout(runBotEngineTurn, 550);
       return true;
     }
 
-    // High-Res Staunton 3D Pieces Link
+    // Direct High-Resolution Unicode/SVG Vector Mapping (100% Guaranteed Load)
     board = Chessboard('chessBoard', {
       draggable: false,
       position: 'start',
@@ -382,14 +493,11 @@
 
     $(window).resize(board.resize);
 
-    // Tap-To-Move Click Handler
     $('#chessBoard').on('click touchstart', '.square-55d63', function (e) {
       e.preventDefault();
+      initAudio();
       if (game.game_over() || isGameOver) return;
-      if (isPeekingPrevious) {
-        togglePeekPreviousMove();
-        return;
-      }
+      if (isPeekingPrevious) { togglePeekPreviousMove(); return; }
 
       const sq = $(this).attr('data-square');
       if (!sq) return;
@@ -413,13 +521,9 @@
       }
     });
 
-    // Peeking Previous Move (No state rewind)
     function togglePeekPreviousMove() {
       const history = game.history();
-      if (history.length === 0) {
-        alert("No moves played yet!");
-        return;
-      }
+      if (history.length === 0) return alert("No moves played yet!");
       const btnText = document.getElementById('peekBtnText');
       const btn = document.getElementById('btnPeekMove');
 
@@ -438,62 +542,6 @@
         btnText.innerText = "Last Move";
         btn.classList.remove('border-amber-500/80', 'bg-amber-500/20');
       }
-    }
-
-    // ==========================================
-    // 10-LEVEL MATERIAL BOT EVALUATION ENGINE
-    // ==========================================
-    const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-
-    function evaluatePositionScore(sim) {
-      let score = 0;
-      const b = sim.board();
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const p = b[r][c];
-          if (p) {
-            const val = pieceValues[p.type] || 0;
-            score += (p.color === 'w' ? val : -val);
-          }
-        }
-      }
-      return score;
-    }
-
-    function runBotEngineTurn() {
-      if (game.game_over() || isGameOver) return;
-      const moves = game.moves({ verbose: true });
-      if (moves.length === 0) return;
-
-      let chosen = null;
-      // Blunder Check based on Bot Personality
-      if (Math.random() < currentBot.blunderRate) {
-        chosen = moves[Math.floor(Math.random() * moves.length)];
-      } else {
-        let bestEval = (game.turn() === 'w') ? -999999 : 999999;
-        for (let i = 0; i < moves.length; i++) {
-          const sim = new Chess(game.fen());
-          sim.move(moves[i]);
-          let score = evaluatePositionScore(sim);
-          if (moves[i].captured) score += (game.turn() === 'w' ? 50 : -50);
-
-          if (game.turn() === 'w') {
-            if (score > bestEval) { bestEval = score; chosen = moves[i]; }
-          } else {
-            if (score < bestEval) { bestEval = score; chosen = moves[i]; }
-          }
-        }
-      }
-
-      if (!chosen) chosen = moves[0];
-      game.move(chosen);
-      board.position(game.fen());
-      lastMove = { from: chosen.from, to: chosen.to };
-      renderHighlights();
-      playWoodMoveSfx(!!chosen.captured);
-      updateClocksUI();
-
-      if (game.game_over()) checkGameResult();
     }
 
     function updateClocksUI() {
@@ -520,8 +568,7 @@
       formatClock('oppClock', playerSide === 'white' ? blackTime : whiteTime);
 
       if (whiteTime === 0 || blackTime === 0) {
-        const winnerColor = whiteTime === 0 ? 'Black' : 'White';
-        concludeMatch(winnerColor, 'Timeout');
+        concludeMatch(whiteTime === 0 ? 'Black' : 'White', 'Timeout');
       }
     }, 1000);
 
@@ -533,8 +580,7 @@
 
     function checkGameResult() {
       if (game.in_checkmate()) {
-        const winnerColor = game.turn() === 'b' ? 'White' : 'Black';
-        concludeMatch(winnerColor, 'Checkmate');
+        concludeMatch(game.turn() === 'b' ? 'White' : 'Black', 'Checkmate');
       } else if (game.in_draw()) {
         concludeMatch('Draw', 'Stalemate / Draw');
       }
@@ -547,39 +593,16 @@
       clearInterval(bgTimer);
       removeHints();
 
-      if (isPeekingPrevious) {
-        board.position(game.fen());
-        isPeekingPrevious = false;
-      }
-
-      let isWin = false;
-      let winnerText = '';
-
-      if (winnerColor === 'Draw') {
-        winnerText = "Match Drawn 🤝";
-      } else {
-        const winningSide = winnerColor.toLowerCase();
-        isWin = winningSide === playerSide;
-        winnerText = isWin ? `🎉 Victory! You Won!` : `Defeat! ${oppDisplayName} Won`;
-      }
-
+      const isWin = (winnerColor.toLowerCase() === playerSide);
       const delta = winnerColor === 'Draw' ? 0 : (isWin ? 16 : -14);
       const newElo = Math.max(100, savedElo + delta);
       localStorage.setItem('chess_rating', newElo);
 
-      if (isWin) {
-        localStorage.setItem('chess_won', parseInt(localStorage.getItem('chess_won') || '0', 10) + 1);
-      } else if (winnerColor !== 'Draw') {
-        localStorage.setItem('chess_lost', parseInt(localStorage.getItem('chess_lost') || '0', 10) + 1);
-      }
-
       const rewardCoins = isWin ? 50 : 15;
-      const rewardDiamonds = isWin ? 2 : 0;
       localStorage.setItem('chess_coins', (parseInt(localStorage.getItem('chess_coins') || '350', 10) + rewardCoins));
-      localStorage.setItem('chess_diamonds', (parseInt(localStorage.getItem('chess_diamonds') || '8', 10) + rewardDiamonds));
 
       const matchReport = {
-        outcome: winnerText,
+        outcome: isWin ? "Victory" : (winnerColor === 'Draw' ? "Draw" : "Defeat"),
         won: isWin,
         delta: delta,
         newElo: newElo,
@@ -587,30 +610,24 @@
         moves: game.history(),
         timestamp: Date.now(),
         opponent: oppDisplayName,
-        playedSide: playerSide,
-        rewardCoins: rewardCoins
+        playedSide: playerSide
       };
 
       try {
         localStorage.setItem('last_match_analysis', JSON.stringify(matchReport));
-        let historyList = JSON.parse(localStorage.getItem('chess_match_history') || '[]');
-        historyList.unshift(matchReport);
-        if (historyList.length > 20) historyList.pop();
-        localStorage.setItem('chess_match_history', JSON.stringify(historyList));
       } catch (err) {}
 
-      document.getElementById('highlightWinnerTitle').innerText = winnerText;
+      document.getElementById('highlightWinnerTitle').innerText = isWin ? "🎉 Victory!" : "Defeat!";
       document.getElementById('subReasonText').innerText = `By ${reason}`;
       document.getElementById('modalRatingDelta').innerText = `${delta >= 0 ? '+' : ''}${delta} (${newElo})`;
-      document.getElementById('modalRewards').innerText = `+${rewardCoins} 🪙 | +${rewardDiamonds} 💎`;
+      document.getElementById('modalRewards').innerText = `+${rewardCoins} 🪙`;
       document.getElementById('gameOverModal').classList.remove('hidden');
     }
 
     function goToAnalysis() { window.location.href = 'analysis.html'; }
     function resignGame() {
       if (confirm('Resign this game?')) {
-        const winnerColor = playerSide === 'white' ? 'Black' : 'White';
-        concludeMatch(winnerColor, 'Resignation');
+        concludeMatch(playerSide === 'white' ? 'Black' : 'White', 'Resignation');
       }
     }
 
@@ -619,3 +636,4 @@
   </script>
 </body>
 </html>
+
