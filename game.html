@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Grandmaster Arena</title>
+  <title>Chess Universe - Stocklite Engine Arena</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -19,15 +19,13 @@
       color: #e2e8f0;
       touch-action: manipulation;
     }
-    
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
-    /* Polished Piece Shading */
     .piece-417db {
       pointer-events: none !important;
       user-select: none !important;
-      filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.6)) !important;
+      filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.65)) !important;
       transform: translateZ(0);
       transition: transform 0.12s ease-out;
     }
@@ -41,7 +39,7 @@
       border-radius: 1.35rem;
       background: linear-gradient(145deg, #1b3524 0%, #07100a 100%);
       border: 1px solid rgba(16, 185, 129, 0.28);
-      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.95), inset 0 1px 2px rgba(255,255,255,0.15);
+      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.95);
     }
     #chessBoard {
       width: 100% !important;
@@ -50,12 +48,8 @@
       border: 2px solid rgba(0,0,0,0.55);
     }
 
-    .highlight-yellow {
-      background-color: rgba(247, 230, 80, 0.5) !important;
-    }
-    .square-selected {
-      background-color: rgba(247, 230, 80, 0.72) !important;
-    }
+    .highlight-yellow { background-color: rgba(247, 230, 80, 0.5) !important; }
+    .square-selected { background-color: rgba(247, 230, 80, 0.72) !important; }
 
     .hint-dot {
       width: 26%; height: 26%;
@@ -86,14 +80,14 @@
   <header class="w-full max-w-md px-3 pt-3 flex flex-col gap-2">
     <div class="flex items-center justify-between bg-slate-900/85 border border-emerald-950 px-3 py-2 rounded-2xl backdrop-blur shadow-lg">
       <div class="flex items-center gap-2.5">
-        <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
+        <a href="bots.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
           <i class="fa-solid fa-chevron-left text-xs"></i>
         </a>
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center font-bold text-xs" id="oppAvatar">🤖</div>
           <div>
-            <h2 id="oppName" class="text-xs font-black text-white leading-tight">Master Bot</h2>
-            <span id="oppElo" class="text-[10px] text-emerald-400 font-mono font-bold">Rating: 1400</span>
+            <h2 id="oppName" class="text-xs font-black text-white leading-tight">Bot Engine</h2>
+            <span id="oppElo" class="text-[10px] text-emerald-400 font-mono font-bold">Stocklite Pro</span>
           </div>
         </div>
       </div>
@@ -139,7 +133,7 @@
         <i class="fa-regular fa-flag"></i> Resign
       </button>
 
-      <button onclick="toggleMusicMute()" id="btnAudioMute" class="w-9 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center text-emerald-400" title="Sound Control">
+      <button onclick="toggleMusicMute()" id="btnAudioMute" class="w-9 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold transition flex items-center justify-center text-emerald-400">
         <i class="fa-solid fa-volume-high" id="audioIcon"></i>
       </button>
     </div>
@@ -172,35 +166,35 @@
         </button>
         <div class="flex gap-2">
           <button onclick="location.reload()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition border border-slate-700">Rematch</button>
-          <a href="index.html" class="flex-1 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition border border-slate-800 flex items-center justify-center">Lobby</a>
+          <a href="bots.html" class="flex-1 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs transition border border-slate-800 flex items-center justify-center">Roster</a>
         </div>
       </div>
     </div>
   </div>
-   <script>
+    <script>
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode') || 'bot';
     const playerSide = (urlParams.get('side') || 'white').toLowerCase();
     const botId = parseInt(urlParams.get('botId') || '5', 10);
 
-    // 10 Detailed Bot Engines
+    // 10 Guaranteed Real Bots
     const BOTS_DATABASE = [
       { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣", depth: 1, blunderRate: 0.65 },
-      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 1, blunderRate: 0.45 },
-      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 2, blunderRate: 0.32 },
-      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 2, blunderRate: 0.22 },
-      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 3, blunderRate: 0.08 },
-      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 3, blunderRate: 0.04 },
-      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 4, blunderRate: 0.02 },
-      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 4, blunderRate: 0.0 },
-      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡", depth: 5, blunderRate: 0.0 },
-      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐", depth: 5, blunderRate: 0.0 }
+      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴", depth: 2, blunderRate: 0.40 },
+      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖", depth: 3, blunderRate: 0.25 },
+      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹", depth: 4, blunderRate: 0.15 },
+      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓", depth: 5, blunderRate: 0.08 },
+      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️", depth: 6, blunderRate: 0.04 },
+      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰", depth: 7, blunderRate: 0.02 },
+      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑", depth: 8, blunderRate: 0.0 },
+      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡", depth: 10, blunderRate: 0.0 },
+      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐", depth: 12, blunderRate: 0.0 }
     ];
 
     let currentBot = BOTS_DATABASE.find(b => b.id === botId);
     if (!currentBot) {
-      const paramName = urlParams.get('botName');
-      currentBot = BOTS_DATABASE.find(b => b.name === paramName) || BOTS_DATABASE[4];
+      const pName = urlParams.get('botName');
+      currentBot = BOTS_DATABASE.find(b => b.name === pName) || BOTS_DATABASE[4];
     }
 
     const game = new Chess();
@@ -223,12 +217,12 @@
     let oppDisplayAvatar = currentBot.avatar;
 
     if (mode === 'pass') {
-      oppDisplayName = 'Player 2';
-      oppDisplayElo = 'Local';
+      oppDisplayName = 'Player 2 (Local)';
+      oppDisplayElo = 'Offline';
       oppDisplayAvatar = '👥';
     } else if (mode === 'pvp' || mode === 'online') {
-      oppDisplayName = urlParams.get('oppName') || 'Challenger';
-      oppDisplayElo = urlParams.get('oppElo') || '1250';
+      oppDisplayName = urlParams.get('oppName') || 'Opponent';
+      oppDisplayElo = urlParams.get('oppElo') || '1200';
       oppDisplayAvatar = '⚔️';
     }
 
@@ -240,68 +234,94 @@
     document.getElementById('oppElo').innerText = 'Rating: ' + oppDisplayElo;
 
     // ============================================================
-    // SMOOTH WARM LO-FI SYNTH (RHODES FILTERED CHORDS)
+    // STOCKLITE WEB WORKER ENGINE (STOCKFISH LITE PROTOCOL)
+    // ============================================================
+    let stockliteEngine = null;
+    let isEngineReady = false;
+
+    function initStockliteEngine() {
+      try {
+        const stockfishScriptUrl = 'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js';
+        stockliteEngine = new Worker(stockfishScriptUrl);
+
+        stockliteEngine.onmessage = function (event) {
+          const line = event.data;
+          if (line === 'uciok') {
+            isEngineReady = true;
+            stockliteEngine.postMessage('ucinewgame');
+          } else if (line.startsWith('bestmove')) {
+            const bestMoveStr = line.split(' ')[1];
+            if (bestMoveStr && bestMoveStr !== '(none)') {
+              const fromSq = bestMoveStr.substring(0, 2);
+              const toSq = bestMoveStr.substring(2, 4);
+              const promo = bestMoveStr.length > 4 ? bestMoveStr.substring(4, 5) : undefined;
+              executeBotMove({ from: fromSq, to: toSq, promotion: promo });
+            }
+          }
+        };
+
+        stockliteEngine.postMessage('uci');
+      } catch (err) {
+        console.warn("Stocklite worker fallback to minimax:", err);
+      }
+    }
+
+    initStockliteEngine();
+
+    // ============================================================
+    // SOUND ENGINE
     // ============================================================
     let audioCtx = null;
     let bgTimer = null;
     let isMusicMuted = false;
-
-    const lofiProgressions = [
-      [261.63, 329.63, 392.00, 493.88], // Cmaj7
-      [220.00, 261.63, 329.63, 392.00], // Am7
-      [174.61, 220.00, 261.63, 329.63], // Fmaj7
-      [196.00, 246.94, 293.66, 349.23]  // G7
-    ];
-    let progIndex = 0;
 
     function initAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    function playWarmLoFiChord() {
+    function playWarmChords() {
       if (!audioCtx || isMusicMuted) return;
-      const notes = lofiProgressions[progIndex % lofiProgressions.length];
-      progIndex++;
+      const chords = [[261.63, 329.63, 392], [220, 261.63, 329.63], [174.61, 220, 261.63], [196, 246.94, 293.66]];
+      const chord = chords[Math.floor(Math.random() * chords.length)];
 
       const filter = audioCtx.createBiquadFilter();
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(650, audioCtx.currentTime);
+      filter.frequency.setValueAtTime(600, audioCtx.currentTime);
 
-      const masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
 
-      notes.forEach((freq, i) => {
+      chord.forEach((freq, i) => {
         const osc = audioCtx.createOscillator();
         const noteGain = audioCtx.createGain();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
         noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        noteGain.gain.linearRampToValueAtTime(0.04 / (i + 1), audioCtx.currentTime + 0.3);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
+        noteGain.gain.linearRampToValueAtTime(0.03 / (i + 1), audioCtx.currentTime + 0.3);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
 
         osc.connect(noteGain);
         noteGain.connect(filter);
         osc.start();
-        osc.stop(audioCtx.currentTime + 2.8);
+        osc.stop(audioCtx.currentTime + 2.5);
       });
 
-      filter.connect(masterGain);
-      masterGain.connect(audioCtx.destination);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
     }
 
     function startLoFiMusic() {
       initAudio();
       if (bgTimer) clearInterval(bgTimer);
-      playWarmLoFiChord();
-      bgTimer = setInterval(playWarmLoFiChord, 3000);
+      playWarmChords();
+      bgTimer = setInterval(playWarmChords, 2800);
     }
 
     window.toggleMusicMute = () => {
       isMusicMuted = !isMusicMuted;
       document.getElementById('audioIcon').className = isMusicMuted ? "fa-solid fa-volume-xmark text-slate-500" : "fa-solid fa-volume-high text-emerald-400";
-      if (!isMusicMuted) playWarmLoFiChord();
     };
 
     window.addEventListener('click', () => { startLoFiMusic(); }, { once: true });
@@ -323,115 +343,53 @@
     }
 
     // ============================================================
-    // GRANDMASTER OPENING BOOK & PIECE-SQUARE TABLES (SMART AI)
+    // BOT CALCULATION (STOCKLITE OR OPTIMIZED MINIMAX)
     // ============================================================
-    const openingBook = {
-      "": ["e2e4", "d2d4", "c2c4", "g1f3"],
-      "e2e4": ["e7e5", "c7c5", "e7e6", "c7c6"],
-      "d2d4": ["d7d5", "g8f6", "e7e6"],
-      "e2e4 e7e5": ["g1f3", "f1c4", "d2d4"],
-      "e2e4 c7c5": ["g1f3", "c2c3", "b1c3"],
-      "e2e4 e7e5 g1f3": ["b8c6", "g8f6", "d7d6"],
-      "d2d4 d7d5": ["c2c4", "g1f3", "e2e3"],
-      "d2d4 g8f6": ["c2c4", "g1f3", "c1g5"]
-    };
-
-    const pstPawn = [
-      [0,  0,  0,  0,  0,  0,  0,  0],
-      [50, 50, 50, 50, 50, 50, 50, 50],
-      [10, 10, 20, 30, 30, 20, 10, 10],
-      [5,  5, 10, 27, 27, 10,  5,  5],
-      [0,  0,  0, 25, 25,  0,  0,  0],
-      [5, -5,-10,  0,  0,-10, -5,  5],
-      [5, 10, 10,-25,-25, 10, 10,  5],
-      [0,  0,  0,  0,  0,  0,  0,  0]
-    ];
-
-    const pstKnight = [
-      [-50,-40,-30,-30,-30,-30,-40,-50],
-      [-40,-20,  0,  5,  5,  0,-20,-40],
-      [-30,  5, 15, 20, 20, 15,  5,-30],
-      [-30,  0, 18, 25, 25, 18,  0,-30],
-      [-30,  5, 18, 25, 25, 18,  5,-30],
-      [-30,  0, 15, 20, 20, 15,  0,-30],
-      [-40,-20,  0,  0,  0,  0,-20,-40],
-      [-50,-40,-30,-30,-30,-30,-40,-50]
-    ];
-
-    const pieceValues = { p: 100, n: 320, b: 335, r: 500, q: 900, k: 20000 };
-
-    function evaluatePosition(sim) {
-      let score = 0;
-      const b = sim.board();
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const p = b[r][c];
-          if (p) {
-            let val = pieceValues[p.type] || 0;
-            if (p.type === 'p') val += (p.color === 'w' ? pstPawn[r][c] : pstPawn[7-r][c]);
-            if (p.type === 'n') val += (p.color === 'w' ? pstKnight[r][c] : pstKnight[7-r][c]);
-            score += (p.color === 'w' ? val : -val);
-          }
-        }
-      }
-      return score;
-    }
-
     function runBotEngineTurn() {
       if (game.game_over() || isGameOver) return;
-      const moves = game.moves({ verbose: true });
-      if (moves.length === 0) return;
 
-      // 1. Check Grandmaster Opening Book
-      const moveHistoryList = game.history({ verbose: true }).map(m => m.from + m.to).join(' ');
-      if (openingBook[moveHistoryList] && currentBot.elo >= 1000) {
-        const bookOptions = openingBook[moveHistoryList];
-        const match = moves.find(m => bookOptions.includes(m.from + m.to));
-        if (match) {
-          executeBotMove(match);
+      // Agar blunder rate trigger hota hai (low Elo bots ke liye)
+      if (Math.random() < currentBot.blunderRate) {
+        const moves = game.moves({ verbose: true });
+        if (moves.length > 0) {
+          const blunderMove = moves[Math.floor(Math.random() * moves.length)];
+          executeBotMove(blunderMove);
           return;
         }
       }
 
-      // 2. Tactical Minimax Evaluation with Blunder Control
-      let chosen = null;
-      if (Math.random() < currentBot.blunderRate) {
-        chosen = moves[Math.floor(Math.random() * moves.length)];
+      // Stocklite Engine Se Calculation
+      if (stockliteEngine && isEngineReady) {
+        stockliteEngine.postMessage('position fen ' + game.fen());
+        stockliteEngine.postMessage('go depth ' + currentBot.depth);
       } else {
-        let bestEval = (game.turn() === 'w') ? -999999 : 999999;
-        for (let i = 0; i < moves.length; i++) {
-          const sim = new Chess(game.fen());
-          sim.move(moves[i]);
-          let score = evaluatePosition(sim);
+        // Fallback Minimax with piece values
+        const moves = game.moves({ verbose: true });
+        let chosen = moves[0];
+        let bestScore = -999999;
+        const vals = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
 
-          // Center control & capture rewards
-          if (moves[i].captured) score += (game.turn() === 'w' ? 60 : -60);
-          if (['e4', 'd4', 'e5', 'd5'].includes(moves[i].to)) score += (game.turn() === 'w' ? 30 : -30);
-
-          if (game.turn() === 'w') {
-            if (score > bestEval) { bestEval = score; chosen = moves[i]; }
-          } else {
-            if (score < bestEval) { bestEval = score; chosen = moves[i]; }
-          }
-        }
+        moves.forEach(m => {
+          let score = m.captured ? vals[m.captured] : 0;
+          if (['e4', 'd4', 'e5', 'd5'].includes(m.to)) score += 30;
+          if (score > bestScore) { bestScore = score; chosen = m; }
+        });
+        executeBotMove(chosen);
       }
-
-      executeBotMove(chosen || moves[0]);
     }
 
-    function executeBotMove(moveObj) {
-      game.move(moveObj);
+    function executeBotMove(mObj) {
+      const move = game.move(mObj);
+      if (!move) return;
+
       board.position(game.fen());
-      lastMove = { from: moveObj.from, to: moveObj.to };
+      lastMove = { from: move.from, to: move.to };
       renderHighlights();
-      playWoodMoveSfx(!!moveObj.captured);
+      playWoodMoveSfx(!!move.captured);
       updateClocksUI();
       if (game.game_over()) checkGameResult();
     }
 
-    // ============================================================
-    // BOARD & PIECE RENDERING (HIGH-DEF STABLE PIECE SET)
-    // ============================================================
     function removeHints() {
       $('#chessBoard .hint-dot, #chessBoard .hint-capture-ring').remove();
       $('#chessBoard .square-55d63').removeClass('square-selected');
@@ -479,11 +437,10 @@
         return true;
       }
 
-      if (mode === 'bot') window.setTimeout(runBotEngineTurn, 550);
+      if (mode === 'bot') window.setTimeout(runBotEngineTurn, 450);
       return true;
     }
 
-    // Direct High-Resolution Unicode/SVG Vector Mapping (100% Guaranteed Load)
     board = Chessboard('chessBoard', {
       draggable: false,
       position: 'start',
@@ -636,4 +593,3 @@
   </script>
 </body>
 </html>
-
