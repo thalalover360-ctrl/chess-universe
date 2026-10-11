@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Friends Hub | Chess Universe</title>
+  <title>Friends Network | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
@@ -14,10 +14,21 @@
       color: #e2e8f0;
       touch-action: manipulation;
     }
-    .glass-card {
+    .friend-tab.active {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #10b981 !important;
+      color: #34d399 !important;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    }
+    .friend-card {
       background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.16);
+      transition: all 0.2s ease;
+    }
+    .friend-card:hover {
+      border-color: rgba(16, 185, 129, 0.45);
+      transform: translateY(-2px);
     }
   </style>
 </head>
@@ -31,10 +42,10 @@
       </a>
       <div>
         <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
-          <span>Friends Network</span>
+          <span>Social Network</span>
           <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">10-DIGIT UID</span>
         </h1>
-        <p class="text-[10px] text-slate-400 font-medium">Add Friends & Direct Duel</p>
+        <p class="text-[10px] text-slate-400 font-medium">Real Friends & Direct Live Duels</p>
       </div>
     </div>
     <div class="flex items-center gap-1 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl font-mono text-xs">
@@ -45,49 +56,120 @@
 
   <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3.5">
 
-    <!-- My UID Share Card -->
-    <div class="glass-card rounded-2xl p-3 flex items-center justify-between">
-      <div>
-        <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Your Permanent Game UID</span>
-        <div id="myUidText" class="font-mono text-sm font-black text-emerald-400 tracking-wider">Loading...</div>
+    <!-- My UID Card & WhatsApp Share -->
+    <div class="friend-card rounded-2xl p-3 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400" id="myAvatarInitial">H</div>
+        <div>
+          <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Your Permanent Game UID</span>
+          <div id="myUidText" class="font-mono text-sm font-black text-emerald-400 tracking-wider">Loading...</div>
+        </div>
       </div>
-      <button onclick="copyMyUid()" class="px-3 py-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold text-slate-300 flex items-center gap-1.5 transition">
-        <i class="fa-regular fa-copy text-emerald-400"></i> Copy
-      </button>
-    </div>
-
-    <!-- Search / Add Friend by UID -->
-    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
-      <h3 class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
-        <i class="fa-solid fa-user-plus text-emerald-400"></i>
-        <span>Add Friend by 10-Digit UID</span>
-      </h3>
-      <div class="flex items-center gap-2">
-        <input type="tel" id="inputFriendUid" maxlength="10" placeholder="Enter Friend's 10-Digit UID" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono tracking-widest focus:outline-none focus:border-emerald-500">
-        <button onclick="searchAndAddFriend()" id="btnFindFriend" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
-          Add
+      <div class="flex gap-1.5">
+        <button onclick="copyMyUid()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs transition" title="Copy UID">
+          <i class="fa-regular fa-copy text-emerald-400"></i>
+        </button>
+        <button onclick="shareMyUidOnWhatsApp()" class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:text-white flex items-center justify-center text-xs transition" title="Share via WhatsApp">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
         </button>
       </div>
     </div>
 
-    <!-- Friends Roster List -->
-    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
-      <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-300">
-          Saved Friends (<span id="friendsCount">0</span>)
+    <!-- Social Sub-Tabs -->
+    <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
+      <button onclick="switchTab('friends')" id="tab-friends" class="friend-tab active py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
+        Friends (<span id="countFriends">0</span>)
+      </button>
+      <button onclick="switchTab('requests')" id="tab-requests" class="friend-tab py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
+        Live Duels (<span id="countRequests">0</span>)
+      </button>
+      <button onclick="switchTab('add')" id="tab-add" class="friend-tab py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
+        Add UID
+      </button>
+    </div>
+
+    <!-- VIEW 1: Friends Roster Feed -->
+    <div id="viewFriends" class="flex flex-col gap-2.5">
+      <div id="friendsListContainer" class="flex flex-col gap-2"></div>
+    </div>
+
+    <!-- VIEW 2: Live Duel Invites / Requests -->
+    <div id="viewRequests" class="hidden flex flex-col gap-2.5">
+      <div id="requestsListContainer" class="flex flex-col gap-2"></div>
+    </div>
+
+    <!-- VIEW 3: Add / Search Friend by 10-Digit UID -->
+    <div id="viewAdd" class="hidden flex flex-col gap-3">
+      <div class="friend-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
+        <h3 class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-emerald-400"></i>
+          <span>Search Player by 10-Digit UID</span>
         </h3>
-      </div>
-      <div id="friendsListContainer" class="flex flex-col gap-2 max-h-72 overflow-y-auto custom-scroll pr-1">
-        <div class="text-center py-6 text-xs text-slate-500 font-medium">
-          No friends added yet. Enter a 10-digit UID above!
+        <div class="flex items-center gap-2">
+          <input type="tel" id="inputFriendUid" maxlength="10" placeholder="e.g. 8830464849" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono tracking-widest focus:outline-none focus:border-emerald-500">
+          <button onclick="searchAndAddFriend()" id="btnFindFriend" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
+            Search
+          </button>
         </div>
       </div>
+      <div id="searchedCardResult" class="hidden friend-card rounded-2xl p-3 flex items-center justify-between"></div>
     </div>
 
   </main>
-    <script type="module">
+    <!-- Challenge Configuration Modal -->
+  <div id="duelModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-3.5 relative">
+      <button onclick="closeDuelModal()" class="absolute top-4 right-4 w-7 h-7 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+
+      <div class="flex items-center gap-3 pt-1">
+        <div id="modalTargetAvatar" class="w-12 h-12 rounded-2xl bg-slate-950 border border-emerald-500/40 flex items-center justify-center text-xl font-bold text-emerald-400">P</div>
+        <div>
+          <h3 id="modalTargetName" class="text-sm font-black text-white leading-tight">Opponent</h3>
+          <div id="modalTargetElo" class="text-xs font-mono font-bold text-emerald-400 mt-0.5">1200 Elo</div>
+        </div>
+      </div>
+
+      <!-- Time Format Selection -->
+      <div class="flex flex-col gap-1.5 pt-1">
+        <span class="text-[10px] uppercase font-bold text-slate-400">Match Clock Format</span>
+        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono font-bold">
+          <button onclick="setDuelTime(180)" id="dtime-180" class="duel-time-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 transition">
+            3 Min Blitz
+          </button>
+          <button onclick="setDuelTime(600)" id="dtime-600" class="duel-time-btn py-2 rounded-xl bg-slate-950 border-2 border-emerald-500 text-white transition">
+            10 Min Rapid
+          </button>
+          <button onclick="setDuelTime(900)" id="dtime-900" class="duel-time-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 transition">
+            15 Min Classic
+          </button>
+        </div>
+      </div>
+
+      <!-- Side Selector -->
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[10px] uppercase font-bold text-slate-400">Play As</span>
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+          <button onclick="setDuelSide('white')" id="dside-white" class="duel-side-btn py-2 rounded-xl bg-slate-950 border-2 border-emerald-500 text-white flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-chess-pawn text-slate-100"></i> White
+          </button>
+          <button onclick="setDuelSide('black')" id="dside-black" class="duel-side-btn py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-chess-pawn text-emerald-400"></i> Black
+          </button>
+        </div>
+      </div>
+
+      <button onclick="confirmAndLaunchDuel()" class="w-full mt-2 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+        <i class="fa-solid fa-swords text-sm"></i>
+        <span>Send Live Challenge</span>
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
@@ -105,16 +187,34 @@
     const myUID = localStorage.getItem('chess_game_uid') || '0000000000';
     const myFirebaseUid = localStorage.getItem('chess_firebase_uid') || '';
     const myCoins = parseInt(localStorage.getItem('chess_coins'), 10) || 350;
+    const myElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
 
     document.getElementById('myUidText').innerText = myUID;
+    document.getElementById('myAvatarInitial').innerText = myName.charAt(0).toUpperCase();
     document.getElementById('friendCoinsDisplay').innerText = myCoins;
 
-    window.copyMyUid = () => {
+    let selectedDuelTarget = null;
+    let selectedDuelSeconds = 600;
+    let selectedDuelSide = 'white';
+        window.copyMyUid = () => {
       navigator.clipboard.writeText(myUID);
-      alert("Game UID copied to clipboard: " + myUID);
+      alert("Game UID copied: " + myUID);
     };
 
-    // Load Local + Firestore Friends
+    window.shareMyUidOnWhatsApp = () => {
+      const msg = encodeURIComponent(`♟️ Add me on Chess Universe!\nMy 10-Digit Game UID is: *${myUID}*\nEnter this in Friends Network to challenge me directly!`);
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    };
+
+    window.switchTab = (tab) => {
+      ['friends', 'requests', 'add'].forEach(t => {
+        document.getElementById('tab-' + t).classList.remove('active');
+        document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
+      });
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+    };
+
     function getStoredFriends() {
       try {
         return JSON.parse(localStorage.getItem('chess_friends_cache') || '[]');
@@ -126,43 +226,123 @@
     function renderFriendsUI() {
       const list = getStoredFriends();
       const container = document.getElementById('friendsListContainer');
-      document.getElementById('friendsCount').innerText = list.length;
+      document.getElementById('countFriends').innerText = list.length;
 
       if (list.length === 0) {
-        container.innerHTML = `<div class="text-center py-6 text-xs text-slate-500 font-medium">No friends added yet. Enter a 10-digit UID above!</div>`;
+        container.innerHTML = `<div class="text-center py-8 text-xs text-slate-500 font-medium">No friends added yet. Tap "Add UID" to connect!</div>`;
         return;
       }
 
       container.innerHTML = '';
-      list.forEach((fr, idx) => {
+      list.forEach(fr => {
         const item = document.createElement('div');
-        item.className = "p-2.5 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-between";
+        item.className = "friend-card p-3 rounded-2xl flex items-center justify-between shadow-md";
         item.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-xs">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-sm">
               ${fr.name.charAt(0).toUpperCase()}
             </div>
             <div>
               <h4 class="text-xs font-black text-white leading-tight">${fr.name}</h4>
-              <span class="text-[9px] font-mono text-slate-400">${fr.uid} • ${fr.rating || 1200} Elo</span>
+              <div class="text-[10px] font-mono text-slate-400 mt-0.5">
+                <span class="text-emerald-400 font-bold">${fr.rating || 1200} Elo</span> • UID: ${fr.uid}
+              </div>
             </div>
           </div>
-          <button onclick="duelFriend('${fr.uid}', '${encodeURIComponent(fr.name)}', ${fr.rating || 1200})" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition">
-            Duel ⚔️
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="openDuelModal('${fr.uid}', '${encodeURIComponent(fr.name)}', ${fr.rating || 1200})" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
+              Duel ⚔️
+            </button>
+            <button onclick="removeFriend('${fr.uid}')" class="w-8 h-8 rounded-xl bg-slate-950 hover:bg-rose-950/40 border border-slate-800 text-slate-500 hover:text-rose-400 flex items-center justify-center text-xs transition">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
         `;
         container.appendChild(item);
       });
     }
 
+    window.openDuelModal = (uid, name, rating) => {
+      selectedDuelTarget = { uid, name: decodeURIComponent(name), rating };
+      document.getElementById('modalTargetName').innerText = selectedDuelTarget.name;
+      document.getElementById('modalTargetAvatar').innerText = selectedDuelTarget.name.charAt(0).toUpperCase();
+      document.getElementById('modalTargetElo').innerText = selectedDuelTarget.rating + ' Elo';
+      document.getElementById('duelModal').classList.remove('hidden');
+    };
+
+    window.closeDuelModal = () => {
+      document.getElementById('duelModal').classList.add('hidden');
+    };
+
+    window.setDuelTime = (sec) => {
+      selectedDuelSeconds = sec;
+      [180, 600, 900].forEach(s => {
+        const btn = document.getElementById('dtime-' + s);
+        btn.classList.remove('border-2', 'border-emerald-500', 'text-white');
+        btn.classList.add('border-slate-800', 'text-slate-400');
+      });
+      const active = document.getElementById('dtime-' + sec);
+      active.classList.add('border-2', 'border-emerald-500', 'text-white');
+      active.classList.remove('border-slate-800', 'text-slate-400');
+    };
+
+    window.setDuelSide = (side) => {
+      selectedDuelSide = side;
+      ['white', 'black'].forEach(s => {
+        const btn = document.getElementById('dside-' + s);
+        btn.classList.remove('border-2', 'border-emerald-500', 'text-white');
+        btn.classList.add('border-slate-800', 'text-slate-400');
+      });
+      const active = document.getElementById('dside-' + side);
+      active.classList.add('border-2', 'border-emerald-500', 'text-white');
+      active.classList.remove('border-slate-800', 'text-slate-400');
+    };
+
+    window.confirmAndLaunchDuel = async () => {
+      if (!selectedDuelTarget) return;
+      const duelRoomId = 'DUEL-' + Math.floor(1000 + Math.random() * 9000);
+      try {
+        const roomRef = doc(db, "rooms", duelRoomId);
+        await setDoc(roomRef, {
+          roomId: duelRoomId,
+          hostName: myName,
+          hostUID: myUID,
+          hostElo: myElo,
+          targetUID: selectedDuelTarget.uid,
+          guestName: selectedDuelTarget.name,
+          guestUID: selectedDuelTarget.uid,
+          guestElo: selectedDuelTarget.rating,
+          timeLimit: selectedDuelSeconds,
+          status: 'waiting',
+          currentTurn: 'w',
+          fen: 'start',
+          createdAt: Date.now()
+        });
+
+        const baseUrl = window.location.origin + window.location.pathname.replace('friend.html', '') + 'game.html';
+        const opponentSide = selectedDuelSide === 'white' ? 'black' : 'white';
+        const inviteUrl = `${baseUrl}?mode=pvp&room=${duelRoomId}&side=${opponentSide}&oppName=${encodeURIComponent(myName)}&oppElo=${myElo}`;
+
+        const shareChoice = confirm(`Challenge room created against ${selectedDuelTarget.name}!\n\nOpen WhatsApp to send match link now?`);
+        if (shareChoice) {
+          const msg = encodeURIComponent(`⚔️ *Direct Duel Challenge on Chess Universe!*\n${myName} has challenged you to a game!\nRoom Code: ${duelRoomId}\nPlay now: ${inviteUrl}`);
+          window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+        }
+        window.location.href = `game.html?mode=pvp&room=${duelRoomId}&side=${selectedDuelSide}&oppName=${encodeURIComponent(selectedDuelTarget.name)}&oppElo=${selectedDuelTarget.rating}`;
+      } catch (err) {
+        console.error(err);
+        alert("Failed to initialize match room.");
+      }
+    };
+
     window.searchAndAddFriend = async () => {
       const uid = document.getElementById('inputFriendUid').value.trim();
       if (!uid || uid.length !== 10 || isNaN(uid)) {
-        alert("Please enter a valid 10-digit Game UID!");
+        alert("Enter a valid 10-digit Game UID!");
         return;
       }
       if (uid === myUID) {
-        alert("You cannot add yourself as a friend!");
+        alert("You cannot add your own UID!");
         return;
       }
 
@@ -175,49 +355,130 @@
         const uidSnap = await getDoc(uidDocRef);
 
         if (uidSnap.exists()) {
-          const friendData = uidSnap.data();
-          const newFriend = {
-            name: friendData.name || "Player",
-            uid: uid,
-            rating: friendData.rating || 1200
-          };
-
-          let current = getStoredFriends();
-          if (current.some(f => f.uid === uid)) {
-            alert("This friend is already in your list!");
-          } else {
-            current.push(newFriend);
-            localStorage.setItem('chess_friends_cache', JSON.stringify(current));
-
-            if (myFirebaseUid) {
-              try {
-                await updateDoc(doc(db, "users", myFirebaseUid), {
-                  friends: arrayUnion(uid)
-                });
-              } catch (e) {}
-            }
-
-            alert(`Added ${newFriend.name} to your friends!`);
-            document.getElementById('inputFriendUid').value = '';
-            renderFriendsUI();
-          }
+          const data = uidSnap.data();
+          const card = document.getElementById('searchedCardResult');
+          card.classList.remove('hidden');
+          card.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-sm">
+                ${data.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-white">${data.name}</h4>
+                <div class="text-[10px] font-mono text-slate-400">${data.rating || 1200} Elo • UID: ${uid}</div>
+              </div>
+            </div>
+            <button onclick="saveFriend('${uid}', '${encodeURIComponent(data.name)}', ${data.rating || 1200})" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
+              Add Friend +
+            </button>
+          `;
         } else {
           alert("No player found with UID: " + uid);
         }
       } catch (err) {
         console.error(err);
-        alert("Search error: " + err.message);
+        alert("Search failed: " + err.message);
       } finally {
-        btn.innerText = "Add";
+        btn.innerText = "Search";
         btn.disabled = false;
       }
     };
 
-    window.duelFriend = (uid, name, rating) => {
-      window.location.href = `multiplayer.html?challengeUid=${uid}&name=${name}&elo=${rating}`;
+    window.saveFriend = async (uid, nameEnc, rating) => {
+      const name = decodeURIComponent(nameEnc);
+      let list = getStoredFriends();
+      if (list.some(f => f.uid === uid)) {
+        alert("Already in your friends list!");
+        return;
+      }
+      list.push({ uid, name, rating });
+      localStorage.setItem('chess_friends_cache', JSON.stringify(list));
+
+      if (myFirebaseUid) {
+        try {
+          await updateDoc(doc(db, "users", myFirebaseUid), {
+            friends: arrayUnion(uid)
+          });
+        } catch (e) {}
+      }
+
+      alert(`${name} added to Friends!`);
+      document.getElementById('inputFriendUid').value = '';
+      document.getElementById('searchedCardResult').classList.add('hidden');
+      renderFriendsUI();
+      switchTab('friends');
+    };
+
+    window.removeFriend = async (uid) => {
+      if (!confirm("Remove this friend?")) return;
+      let list = getStoredFriends().filter(f => f.uid !== uid);
+      localStorage.setItem('chess_friends_cache', JSON.stringify(list));
+
+      if (myFirebaseUid) {
+        try {
+          await updateDoc(doc(db, "users", myFirebaseUid), {
+            friends: arrayRemove(uid)
+          });
+        } catch (e) {}
+      }
+      renderFriendsUI();
+    };
+
+    // Live Incoming Duel Listener
+    function listenForIncomingDuels() {
+      try {
+        const q = query(collection(db, "rooms"), where("targetUID", "==", myUID), where("status", "==", "waiting"));
+        onSnapshot(q, (snapshot) => {
+          const container = document.getElementById('requestsListContainer');
+          document.getElementById('countRequests').innerText = snapshot.docs.length;
+
+          if (snapshot.empty) {
+            container.innerHTML = `<div class="text-center py-8 text-xs text-slate-500 font-medium">No pending duel requests.</div>`;
+            return;
+          }
+
+          container.innerHTML = '';
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const item = document.createElement('div');
+            item.className = "friend-card p-3 rounded-2xl flex items-center justify-between border-cyan-500/30";
+            item.innerHTML = `
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-sm">
+                  ${data.hostName.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 class="text-xs font-black text-white leading-tight">${data.hostName}</h4>
+                  <div class="text-[10px] font-mono text-cyan-400 mt-0.5">${data.hostElo || 1200} Elo • Challenged You!</div>
+                </div>
+              </div>
+              <button onclick="acceptDuelChallenge('${data.roomId}', '${encodeURIComponent(data.hostName)}', ${data.hostElo || 1200})" class="px-3.5 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition">
+                Accept ⚔️
+              </button>
+            `;
+            container.appendChild(item);
+          });
+        });
+      } catch (e) {
+        console.warn("Duel listener:", e);
+      }
+    }
+
+    window.acceptDuelChallenge = async (roomId, hostNameEnc, hostElo) => {
+      try {
+        const roomRef = doc(db, "rooms", roomId);
+        await updateDoc(roomRef, {
+          status: 'active'
+        });
+        window.location.href = `game.html?mode=pvp&room=${roomId}&side=black&oppName=${hostNameEnc}&oppElo=${hostElo}`;
+      } catch (err) {
+        alert("Failed to join challenge: " + err.message);
+      }
     };
 
     renderFriendsUI();
+    listenForIncomingDuels();
   </script>
 </body>
 </html>
+
