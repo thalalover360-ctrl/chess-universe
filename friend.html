@@ -3,233 +3,402 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Friends & Duel | Chess Universe</title>
+  <title>Friends & Social Hub | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body { background-color: #0b0f17; }
+    body { background-color: #07090e; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased">
+<body class="min-h-screen flex flex-col select-none antialiased">
 
   <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/60 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-sm">
+  <header class="border-b border-slate-800 bg-slate-900/90 px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
     <div class="flex items-center gap-2">
-      <a href="index.html" class="text-slate-400 hover:text-white text-lg mr-1">←</a>
-      <span class="font-bold text-sm tracking-wide text-white">FRIEND DUEL</span>
+      <a href="index.html" class="text-slate-400 hover:text-white text-xl font-bold transition">←</a>
+      <div>
+        <h1 class="font-black text-sm tracking-wide text-white leading-tight">FRIENDS & DUEL</h1>
+        <p class="text-[10px] text-emerald-400 font-mono font-bold" id="myUidHeader">MY UID: ----------</p>
+      </div>
     </div>
-    <div class="flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
-      <span class="text-[11px] text-slate-400">My UID:</span>
-      <span id="myUID" class="text-xs font-mono font-bold text-emerald-400">----------</span>
-    </div>
+    <button id="btnCopyMyUID" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-2.5 py-1 rounded-xl font-mono font-bold transition">
+      Copy UID
+    </button>
   </header>
 
-  <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4">
+  <!-- Main Container -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4 pb-12">
 
-    <!-- Search Friend by 10-Digit UID -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Search by 10-Digit UID</h3>
+    <!-- 1. Search Friend by UID -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+      <h3 class="text-xs font-black uppercase text-slate-400 tracking-wider">Search by 10-Digit UID</h3>
       <div class="flex gap-2">
-        <input type="text" id="inputSearchUID" maxlength="10" placeholder="e.g. 4920183749" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 font-mono focus:outline-none focus:border-emerald-500">
-        <button id="btnSearchFriend" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition">
+        <input id="inputSearchUid" type="number" placeholder="e.g. 1029384756" class="flex-1 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none font-mono tracking-wider">
+        <button id="btnSearchFriend" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl transition shadow">
           Search
         </button>
       </div>
-
-      <!-- Search Result Display Box -->
-      <div id="searchResultBox" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <img id="foundAvatar" src="" class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700" alt="Player">
-          <div>
-            <h4 id="foundName" class="text-xs font-bold text-white">Player Name</h4>
-            <span id="foundUID" class="text-[10px] text-slate-400 font-mono">UID: ----------</span>
-          </div>
-        </div>
-        <button id="btnAddFriend" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition">
-          + Add
-        </button>
-      </div>
+      <!-- Search Result Box -->
+      <div id="searchResultBox" class="hidden pt-2 border-t border-slate-800/80"></div>
     </div>
 
-    <!-- Private Room Code Section -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
-      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Quick Private Room</h3>
-      
-      <div class="grid grid-cols-2 gap-2">
-        <button id="btnCreateRoom" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-xl text-xs font-bold text-white transition flex items-center justify-center gap-1.5">
-          <span>➕</span> Create Room
-        </button>
-        <button id="btnJoinRoom" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 py-2.5 rounded-xl text-xs font-bold text-white transition flex items-center justify-center gap-1.5">
-          <span>🔑</span> Join Room
-        </button>
-      </div>
-
-      <button id="btnWhatsAppInvite" class="w-full bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
-        <span>💬</span> Challenge via WhatsApp
+    <!-- 2. Navigation Tabs (Friends, Requests, Chat) -->
+    <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+      <button id="tabBtnFriends" class="flex-1 py-2 rounded-lg bg-emerald-500 text-slate-950 transition">
+        Friends (<span id="friendsCount">0</span>)
+      </button>
+      <button id="tabBtnRequests" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition relative">
+        Requests
+        <span id="reqBadge" class="hidden ml-1 px-1.5 py-0.2 bg-red-500 text-white rounded-full text-[10px]">0</span>
       </button>
     </div>
 
-    <!-- Friends List Section -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">My Friends</h3>
-        <span id="friendCount" class="text-[11px] font-mono text-emerald-400">0 Friends</span>
+    <!-- 3. Friends List View -->
+    <div id="viewFriends" class="space-y-2.5">
+      <div id="friendsListContainer" class="space-y-2.5">
+        <p class="text-center text-xs text-slate-500 py-6">Abhi koi friend add nahi kiya. Upar UID search karke add karo!</p>
       </div>
+    </div>
 
-      <div id="friendsListContainer" class="space-y-2">
-        <p class="text-xs text-slate-500 text-center py-4">Abhi koi friend add nahi kiya. Upar 10-digit UID search karke add karo!</p>
+    <!-- 4. Requests List View -->
+    <div id="viewRequests" class="space-y-2.5 hidden">
+      <div id="requestsListContainer" class="space-y-2.5">
+        <p class="text-center text-xs text-slate-500 py-6">Koi nayi friend request nahi hai.</p>
       </div>
     </div>
 
   </main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+  <!-- CHAT & DUEL SLIDE-OVER MODAL -->
+  <div id="chatModal" class="fixed inset-0 bg-black/85 flex flex-col justify-end z-50 hidden backdrop-blur-sm">
+    <div class="bg-slate-900 border-t border-slate-800 rounded-t-3xl max-w-md w-full mx-auto h-[82vh] flex flex-col p-4 shadow-2xl">
+      <!-- Chat Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <img id="chatFriendAvatar" src="" class="w-9 h-9 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="">
+          <div>
+            <h3 id="chatFriendName" class="text-sm font-black text-white">Friend</h3>
+            <span id="chatFriendStatus" class="text-[10px] text-emerald-400 font-mono">Online</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnChallengeFriend" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl transition shadow">
+            ⚔️ Duel
+          </button>
+          <button id="btnCloseChat" class="text-slate-400 hover:text-white text-lg p-1.5">✕</button>
+        </div>
+      </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
-      authDomain: "chess-universe-5a7cb.firebaseapp.com",
-      projectId: "chess-universe-5a7cb",
-      storageBucket: "chess-universe-5a7cb.firebasestorage.app",
-      messagingSenderId: "145519167856",
-      appId: "1:145519167856:web:bf124bc275895447fd27b5"
-    };
+      <!-- Messages Window -->
+      <div id="chatMessages" class="flex-1 overflow-y-auto py-3 space-y-2 text-xs">
+        <!-- Messages bubble dynamically -->
+      </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
+      <!-- Chat Input -->
+      <div class="pt-2 border-t border-slate-800 flex gap-2">
+        <input id="inputChatMessage" type="text" placeholder="Type a message..." class="flex-1 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none">
+        <button id="btnSendChatMessage" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2.5 rounded-xl font-black text-xs transition">
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+    <script>
     if (!localStorage.getItem('chess_auth')) {
       window.location.href = 'login.html';
     }
 
-    const myFirebaseUID = localStorage.getItem('chess_firebase_uid');
-    const myGameUID = localStorage.getItem('chess_game_uid') || '1029384756';
-    document.getElementById('myUID').innerText = myGameUID;
+    const myUID = localStorage.getItem('chess_game_uid') || '1029384756';
+    const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
+    const myRating = localStorage.getItem('chess_rating') || '1200';
+    const myAvatar = localStorage.getItem('chess_avatar') || `https://api.dicebear.com/7.x/identicon/svg?seed=${myUID}`;
 
-    let targetFriend = null;
+    document.getElementById('myUidHeader').innerText = 'MY UID: ' + myUID;
 
-    // Search by 10-digit UID
+    // Firebase Initialization (Tera existing project config)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummyKeyReplaceIfDifferent",
+      authDomain: "chess-universe-360.firebaseapp.com",
+      databaseURL: "https://chess-universe-360-default-rtdb.firebaseio.com",
+      projectId: "chess-universe-360",
+      storageBucket: "chess-universe-360.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // Register active user in public directory
+    db.ref('users/' + myUID).update({
+      uid: myUID,
+      name: myName,
+      rating: myRating,
+      avatar: myAvatar,
+      lastActive: Date.now()
+    });
+
+    let currentChatFriend = null;
+
+    // Tabs Switcher
+    const tabBtnFriends = document.getElementById('tabBtnFriends');
+    const tabBtnRequests = document.getElementById('tabBtnRequests');
+    const viewFriends = document.getElementById('viewFriends');
+    const viewRequests = document.getElementById('viewRequests');
+
+    tabBtnFriends.onclick = () => {
+      tabBtnFriends.className = "flex-1 py-2 rounded-lg bg-emerald-500 text-slate-950 transition font-bold";
+      tabBtnRequests.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition relative font-bold";
+      viewFriends.classList.remove('hidden');
+      viewRequests.classList.add('hidden');
+    };
+
+    tabBtnRequests.onclick = () => {
+      tabBtnRequests.className = "flex-1 py-2 rounded-lg bg-emerald-500 text-slate-950 transition font-bold relative";
+      tabBtnFriends.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition font-bold";
+      viewRequests.classList.remove('hidden');
+      viewFriends.classList.add('hidden');
+    };
+
+    // Copy UID
+    document.getElementById('btnCopyMyUID').onclick = () => {
+      navigator.clipboard.writeText(myUID);
+      alert('UID copied: ' + myUID);
+    };
+
+    // Search Friend by UID
     document.getElementById('btnSearchFriend').onclick = async () => {
-      const queryUID = document.getElementById('inputSearchUID').value.trim();
-      if (queryUID.length !== 10 || isNaN(queryUID)) {
-        return alert("10-digit numeric UID daalo!");
-      }
-      if (queryUID === myGameUID) {
-        return alert("Apna khud ka UID add nahi kar sakte!");
-      }
-
+      const searchVal = document.getElementById('inputSearchUid').value.trim();
       const resBox = document.getElementById('searchResultBox');
-      resBox.classList.add('hidden');
 
-      try {
-        const snap = await getDoc(doc(db, "uids", queryUID));
-        if (!snap.exists()) {
-          alert("Is UID ka koi player nahi mila!");
-          return;
-        }
+      if (!searchVal || searchVal === myUID) {
+        alert(searchVal === myUID ? "Apna khud ka UID search nahi kar sakte!" : "UID daalo!");
+        return;
+      }
 
-        const data = snap.data();
-        targetFriend = {
-          gameUID: queryUID,
-          name: data.name,
-          rating: data.rating || 1200,
-          avatar: `https://api.dicebear.com/7.x/identicon/svg?seed=${queryUID}`
+      resBox.classList.remove('hidden');
+      resBox.innerHTML = `<p class="text-xs text-slate-400 py-1">Searching UID...</p>`;
+
+      const snap = await db.ref('users/' + searchVal).once('value');
+      const targetUser = snap.val();
+
+      if (!targetUser) {
+        resBox.innerHTML = `<p class="text-xs text-red-400 py-1">Player nahi mila! Check karo ki samne wale ne login kiya ho.</p>`;
+        return;
+      }
+
+      resBox.innerHTML = `
+        <div class="flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <img src="${targetUser.avatar || myAvatar}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="">
+            <div>
+              <h4 class="text-xs font-bold text-white">${targetUser.name || 'Chess Player'}</h4>
+              <p class="text-[10px] text-emerald-400 font-mono">Rating: ${targetUser.rating || 1200}</p>
+            </div>
+          </div>
+          <button id="btnSendReq" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl transition shadow">
+            + Add Friend
+          </button>
+        </div>
+      `;
+
+      document.getElementById('btnSendReq').onclick = () => {
+        db.ref(`requests/${searchVal}/${myUID}`).set({
+          fromUID: myUID,
+          fromName: myName,
+          fromAvatar: myAvatar,
+          timestamp: Date.now()
+        });
+        alert('Friend request bhej di gayi!');
+        resBox.classList.add('hidden');
+      };
+    };
+
+    // Listen to Incoming Requests
+    db.ref('requests/' + myUID).on('value', (snap) => {
+      const data = snap.val();
+      const container = document.getElementById('requestsListContainer');
+      const badge = document.getElementById('reqBadge');
+
+      if (!data) {
+        badge.classList.add('hidden');
+        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Koi nayi friend request nahi hai.</p>`;
+        return;
+      }
+
+      const reqKeys = Object.keys(data);
+      badge.classList.remove('hidden');
+      badge.innerText = reqKeys.length;
+      container.innerHTML = '';
+
+      reqKeys.forEach(senderUID => {
+        const item = data[senderUID];
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded-2xl shadow-lg";
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <img src="${item.fromAvatar || myAvatar}" class="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="">
+            <div>
+              <h4 class="text-xs font-bold text-white">${item.fromName || 'Player'}</h4>
+              <p class="text-[10px] text-slate-400 font-mono">UID: ${item.fromUID}</p>
+            </div>
+          </div>
+          <div class="flex gap-1.5">
+            <button class="btn-acc bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black px-2.5 py-1.5 rounded-xl">Accept</button>
+            <button class="btn-rej bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-2.5 py-1.5 rounded-xl">Reject</button>
+          </div>
+        `;
+
+        row.querySelector('.btn-acc').onclick = () => {
+          // Both add each other
+          db.ref(`friends/${myUID}/${item.fromUID}`).set({
+            uid: item.fromUID,
+            name: item.fromName,
+            avatar: item.fromAvatar
+          });
+          db.ref(`friends/${item.fromUID}/${myUID}`).set({
+            uid: myUID,
+            name: myName,
+            avatar: myAvatar
+          });
+          db.ref(`requests/${myUID}/${senderUID}`).remove();
         };
 
-        document.getElementById('foundName').innerText = targetFriend.name;
-        document.getElementById('foundUID').innerText = `UID: ${targetFriend.gameUID}`;
-        document.getElementById('foundAvatar').src = targetFriend.avatar;
-        resBox.classList.remove('hidden');
-      } catch (err) {
-        console.error(err);
-        alert("Search failed: " + err.message);
+        row.querySelector('.btn-rej').onclick = () => {
+          db.ref(`requests/${myUID}/${senderUID}`).remove();
+        };
+
+        container.appendChild(row);
+      });
+    });
+
+    // Listen to Friends List
+    db.ref('friends/' + myUID).on('value', (snap) => {
+      const data = snap.val();
+      const container = document.getElementById('friendsListContainer');
+      const countEl = document.getElementById('friendsCount');
+
+      if (!data) {
+        countEl.innerText = '0';
+        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Abhi koi friend add nahi kiya. Upar UID search karke add karo!</p>`;
+        return;
       }
-    };
 
-    // Add Friend in Firestore
-    document.getElementById('btnAddFriend').onclick = async () => {
-      if (!targetFriend || !myFirebaseUID) return;
+      const friendKeys = Object.keys(data);
+      countEl.innerText = friendKeys.length;
+      container.innerHTML = '';
 
-      try {
-        const userRef = doc(db, "users", myFirebaseUID);
-        await updateDoc(userRef, {
-          friends: arrayUnion(targetFriend)
-        });
-
-        alert(`${targetFriend.name} dost ban gaya!`);
-        document.getElementById('searchResultBox').classList.add('hidden');
-        document.getElementById('inputSearchUID').value = '';
-        loadFriends();
-      } catch (err) {
-        console.error(err);
-        alert("Friend add karne me problem hui: " + err.message);
-      }
-    };
-
-    // Load Friends from Database
-    async function loadFriends() {
-      if (!myFirebaseUID) return;
-      try {
-        const userSnap = await getDoc(doc(db, "users", myFirebaseUID));
-        if (!userSnap.exists()) return;
-
-        const friends = userSnap.data().friends || [];
-        document.getElementById('friendCount').innerText = `${friends.length} Friends`;
-
-        const container = document.getElementById('friendsListContainer');
-        if (friends.length === 0) {
-          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Abhi koi friend add nahi kiya. Upar 10-digit UID search karke add karo!</p>';
-          return;
-        }
-
-        container.innerHTML = '';
-        friends.forEach(f => {
-          const item = document.createElement('div');
-          item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between';
-          item.innerHTML = `
-            <div class="flex items-center gap-3">
-              <img src="${f.avatar}" class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700" alt="">
-              <div>
-                <h4 class="text-xs font-bold text-white">${f.name}</h4>
-                <span class="text-[10px] text-slate-400 font-mono">UID: ${f.gameUID} • ${f.rating} Elo</span>
-              </div>
+      friendKeys.forEach(fUID => {
+        const friend = data[fUID];
+        const card = document.createElement('div');
+        card.className = "flex items-center justify-between p-3.5 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 rounded-2xl transition shadow-lg";
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <img src="${friend.avatar || myAvatar}" class="w-11 h-11 rounded-xl object-cover border border-slate-700 bg-slate-800" alt="">
+            <div>
+              <h4 class="text-xs font-black text-white">${friend.name}</h4>
+              <p class="text-[10px] text-emerald-400 font-mono">UID: ${friend.uid}</p>
             </div>
-            <button onclick="challengeFriend('${f.gameUID}')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-              Duel ⚔️
-            </button>
-          `;
-          container.appendChild(item);
-        });
-      } catch (err) {
-        console.error(err);
-      }
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-chat bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-700">Chat 💬</button>
+            <button class="btn-duel bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl">Duel ⚔️</button>
+          </div>
+        `;
+
+        card.querySelector('.btn-chat').onclick = () => openChatWith(friend);
+        card.querySelector('.btn-duel').onclick = () => challengeToDuel(friend);
+
+        container.appendChild(card);
+      });
+    });
+
+    // Real-Time 1-on-1 Chat Logic
+    function getChatRoomId(uidA, uidB) {
+      return uidA < uidB ? `${uidA}_${uidB}` : `${uidB}_${uidA}`;
     }
 
-    window.challengeFriend = (uid) => {
-      const room = Math.floor(100000 + Math.random() * 900000);
-      alert(`Duel link ban gaya!\nRoom Code: ${room}\nOpponent UID: ${uid}`);
-      window.location.href = `online.html?room=${room}&side=white`;
-    };
+    function openChatWith(friend) {
+      currentChatFriend = friend;
+      document.getElementById('chatFriendName').innerText = friend.name;
+      document.getElementById('chatFriendAvatar').src = friend.avatar || myAvatar;
+      document.getElementById('chatModal').classList.remove('hidden');
 
-    document.getElementById('btnCreateRoom').onclick = () => {
-      const room = Math.floor(100000 + Math.random() * 900000);
-      prompt("Room ban gaya! Ye code apne dost ko do:", room);
-      window.location.href = `online.html?room=${room}&side=white`;
-    };
+      const roomId = getChatRoomId(myUID, friend.uid);
+      const chatContainer = document.getElementById('chatMessages');
 
-    document.getElementById('btnJoinRoom').onclick = () => {
-      const room = prompt("Enter 6-digit Room Code:");
-      if (room && room.trim().length === 6) {
-        window.location.href = `online.html?room=${room.trim()}&side=black`;
+      // Listen to messages
+      db.ref(`chats/${roomId}`).off();
+      db.ref(`chats/${roomId}`).limitToLast(50).on('value', (snap) => {
+        chatContainer.innerHTML = '';
+        const msgs = snap.val();
+        if (!msgs) return;
+
+        Object.values(msgs).forEach(m => {
+          const isMe = m.senderUID === myUID;
+          const bubble = document.createElement('div');
+          bubble.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+          bubble.innerHTML = `
+            <div class="max-w-[75%] px-3 py-2 rounded-2xl text-xs ${isMe ? 'bg-emerald-500 text-slate-950 font-medium' : 'bg-slate-800 text-white border border-slate-700'}">
+              ${m.text}
+            </div>
+          `;
+          chatContainer.appendChild(bubble);
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      });
+    }
+
+    document.getElementById('btnCloseChat').onclick = () => {
+      document.getElementById('chatModal').classList.add('hidden');
+      if (currentChatFriend) {
+        db.ref(`chats/${getChatRoomId(myUID, currentChatFriend.uid)}`).off();
+        currentChatFriend = null;
       }
     };
 
-    document.getElementById('btnWhatsAppInvite').onclick = () => {
-      const text = `Chess me duel khelega? Mera 10-digit UID hai: ${myGameUID}. Room join kar: https://thalalover360-ctrl.github.io/chess-universe/friend.html`;
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    document.getElementById('btnSendChatMessage').onclick = sendChatMessage;
+    document.getElementById('inputChatMessage').onkeydown = (e) => {
+      if (e.key === 'Enter') sendChatMessage();
     };
 
-    loadFriends();
+    function sendChatMessage() {
+      const input = document.getElementById('inputChatMessage');
+      const text = input.value.trim();
+      if (!text || !currentChatFriend) return;
+
+      const roomId = getChatRoomId(myUID, currentChatFriend.uid);
+      db.ref(`chats/${roomId}`).push({
+        senderUID: myUID,
+        senderName: myName,
+        text: text,
+        timestamp: Date.now()
+      });
+      input.value = '';
+    }
+
+    // Direct Duel Challenge
+    function challengeToDuel(friend) {
+      const roomCode = Math.floor(100000 + Math.random() * 900000).toString();
+      db.ref(`chats/${getChatRoomId(myUID, friend.uid)}`).push({
+        senderUID: myUID,
+        senderName: myName,
+        text: `⚔️ Match Challenge! Room Code: ${roomCode}. Join karke aao!`,
+        timestamp: Date.now()
+      });
+      alert(`Room Created! Code: ${roomCode}\nFriend ko chat me code bhej diya gaya hai.`);
+      window.location.href = `online.html?room=${roomCode}&creator=1`;
+    }
+
+    document.getElementById('btnChallengeFriend').onclick = () => {
+      if (currentChatFriend) challengeToDuel(currentChatFriend);
+    };
   </script>
 </body>
 </html>
+
