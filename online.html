@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Online Arena | Chess Universe</title>
+  <title>Online Matchmaking | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
 
   <style>
     body {
@@ -15,117 +16,104 @@
       touch-action: manipulation;
     }
     .glass-card {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(16, 185, 129, 0.18);
+    }
+    @keyframes radarPulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.18); opacity: 0.25; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .radar-ping {
+      animation: radarPulse 2.2s infinite ease-in-out;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none pb-10">
+<body class="min-h-screen flex flex-col font-sans select-none pb-12">
 
   <!-- Header -->
-  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
       <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
         <i class="fa-solid fa-chevron-left text-xs"></i>
       </a>
       <div>
         <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
-          <span>Live Arena</span>
-          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">FIRESTORE</span>
+          <span>Live Matchmaking</span>
+          <span class="text-[9px] bg-cyan-500/20 text-cyan-400 font-mono px-1.5 py-0.2 rounded border border-cyan-500/30">PVP ONLY</span>
         </h1>
-        <p class="text-[10px] text-slate-400 font-medium">Real-Time Multiplayer</p>
+        <p class="text-[10px] text-slate-400 font-medium">Real-Time Human Opponents</p>
       </div>
-    </div>
-    <div class="flex items-center gap-1 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl font-mono text-xs">
-      <span>🪙</span>
-      <span id="displayCoins" class="font-bold text-amber-400">350</span>
     </div>
   </header>
 
-  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3.5">
+  <main class="max-w-md w-full mx-auto px-3.5 pt-4 flex flex-col gap-4">
 
-    <!-- Player Profile Card -->
-    <div class="glass-card rounded-2xl p-3 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400" id="userAvatarText">H</div>
-        <div>
-          <h2 id="displayUserName" class="text-xs font-black text-white leading-tight">Player</h2>
-          <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
-            <span>UID: <strong id="displayUserUID" class="text-emerald-400">Loading...</strong></span>
-            <span>•</span>
-            <span id="displayUserElo" class="text-slate-300 font-bold">1200 Elo</span>
-          </div>
-        </div>
-      </div>
-      <a href="music.html" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-emerald-400 hover:text-white transition">
-        <i class="fa-solid fa-music text-xs"></i>
-      </a>
-    </div>
-
-    <!-- Mode 1: WhatsApp Private Room -->
-    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xl">
-          <i class="fa-brands fa-whatsapp text-2xl"></i>
-        </div>
-        <div>
-          <h3 class="text-xs font-black text-white uppercase tracking-wider">WhatsApp Duel Pool</h3>
-          <p class="text-[10px] text-slate-400">Instant link share for friends</p>
+    <!-- Matchmaking State Card -->
+    <div id="searchingStateBox" class="glass-card rounded-3xl p-6 flex flex-col items-center text-center gap-4 shadow-2xl">
+      
+      <!-- Radar Circle -->
+      <div class="relative w-24 h-24 flex items-center justify-center my-2">
+        <div id="radarRing" class="hidden absolute inset-0 rounded-full bg-cyan-500/20 border border-cyan-500/40 radar-ping"></div>
+        <div class="w-16 h-16 rounded-full bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-2xl text-cyan-400 shadow-xl relative z-10">
+          <i class="fa-solid fa-earth-americas" id="statusIcon"></i>
         </div>
       </div>
 
-      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 flex flex-col items-center gap-2">
-        <span class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Your Room Code</span>
-        <div id="liveRoomCodeText" class="font-mono text-xl font-black text-emerald-400 tracking-widest py-1 px-4 bg-slate-900 rounded-xl border border-emerald-950">
-          GENERATING...
+      <div>
+        <h2 id="statusTitle" class="text-sm font-black text-white uppercase tracking-wider">Online Player Pool</h2>
+        <p id="statusSubtitle" class="text-xs text-slate-400 font-mono mt-1">Select time and search for active players</p>
+      </div>
+
+      <!-- Time Format Pills -->
+      <div id="timeSelectorBox" class="flex gap-2 w-full pt-1">
+        <button onclick="selectTimeFormat(180)" id="tbtn-180" class="flex-1 py-2 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono font-bold text-slate-400 transition">3m Blitz</button>
+        <button onclick="selectTimeFormat(600)" id="tbtn-600" class="flex-1 py-2 rounded-xl bg-slate-950 border-2 border-emerald-500 text-[11px] font-mono font-bold text-white transition">10m Rapid</button>
+      </div>
+
+      <!-- Search Trigger / Cancel Action -->
+      <button onclick="toggleMatchSearch()" id="btnAction" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span id="btnActionText">Find Opponent</span>
+      </button>
+
+      <!-- NO PLAYER ONLINE BOX -->
+      <div id="noPlayerAlertBox" class="hidden w-full bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-col items-center gap-2.5 text-center mt-2">
+        <div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-user-slash"></i>
         </div>
-        <button onclick="shareWhatsAppInvite()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition">
+        <div>
+          <h3 class="text-xs font-black uppercase text-rose-300 tracking-wider">No Player Online</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">Koi bhi human player abhi pool me matchmaking nahi kar raha hai.</p>
+        </div>
+        <button onclick="shareWhatsAppDuel()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
           <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span>Share Room to WhatsApp</span>
+          <span>Challenge Friend on WhatsApp</span>
         </button>
       </div>
 
-      <!-- Join with Code -->
-      <div class="flex items-center gap-2 pt-0.5">
-        <input type="text" id="inputRoomCode" placeholder="Enter Friend's Room Code" class="flex-1 uppercase font-mono bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500">
-        <button onclick="joinRoomByCode()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs uppercase transition border border-slate-700">
+    </div>
+
+    <!-- Direct Custom Room Card -->
+    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
+      <h3 class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
+        <i class="fa-solid fa-key text-emerald-400"></i>
+        <span>Direct Private Room Code</span>
+      </h3>
+      <div class="flex items-center gap-2">
+        <input type="text" id="inputRoomCode" placeholder="Enter 4-Digit Room (e.g. 8421)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-400 font-mono tracking-widest uppercase focus:outline-none focus:border-emerald-500">
+        <button onclick="joinCustomRoom()" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white font-black rounded-xl text-xs uppercase tracking-wider transition">
           Join
         </button>
       </div>
     </div>
 
-    <!-- Mode 2: Quick Queue Matchmaking -->
-    <div class="glass-card rounded-3xl p-4 flex flex-col gap-3 shadow-xl">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xl">
-          <i class="fa-solid fa-globe"></i>
-        </div>
-        <div>
-          <h3 class="text-xs font-black text-white uppercase tracking-wider">Global Quick Match</h3>
-          <p class="text-[10px] text-slate-400">Pairs with online players in your Elo bracket</p>
-        </div>
-      </div>
-
-      <button id="btnFindGlobal" onclick="startGlobalMatch()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black rounded-2xl text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-bolt"></i>
-        <span>Find Match (±100 Elo)</span>
-      </button>
-
-      <!-- Searching Banner -->
-      <div id="queueStatusBox" class="hidden p-3 rounded-2xl bg-slate-950 border border-cyan-500/40 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-spinner animate-spin text-cyan-400 text-sm"></i>
-          <span class="text-xs text-slate-300 font-bold">Searching pool...</span>
-        </div>
-        <button onclick="cancelGlobalMatch()" class="text-[10px] font-bold text-rose-400 hover:text-rose-300">Cancel</button>
-      </div>
-    </div>
-
   </main>
-    <script type="module">
+    <!-- FIREBASE REAL POOL INTEGRATION -->
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDocs, deleteDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBx79cUd4hX7XzCe8aCPIeqLss1d5nNzaM",
@@ -139,147 +127,152 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Profile Hydration
-    const myName = localStorage.getItem('chess_name') || 'Player';
-    const myUID = localStorage.getItem('chess_game_uid') || '0000000000';
-    const myFirebaseUID = localStorage.getItem('chess_firebase_uid') || '';
-    const myElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
-    const myCoins = parseInt(localStorage.getItem('chess_coins'), 10) || 350;
+    const playerName = localStorage.getItem('chess_name') || 'Player';
+    const playerUID = localStorage.getItem('chess_game_uid') || '0000000000';
+    const playerElo = parseInt(localStorage.getItem('chess_rating'), 10) || 1200;
 
-    document.getElementById('displayUserName').innerText = myName;
-    document.getElementById('userAvatarText').innerText = myName.charAt(0).toUpperCase();
-    document.getElementById('displayUserUID').innerText = myUID;
-    document.getElementById('displayUserElo').innerText = myElo + ' Elo';
-    document.getElementById('displayCoins').innerText = myCoins;
+    let isSearching = false;
+    let selectedSeconds = 600;
+    let searchTimeoutTimer = null;
+    let poolDocId = null;
+    let poolUnsubscribe = null;
 
-    // Generate Guaranteed 6-char Room Code
-    const generatedRoomId = 'CU-' + Math.floor(1000 + Math.random() * 9000);
-    document.getElementById('liveRoomCodeText').innerText = generatedRoomId;
+    window.selectTimeFormat = (sec) => {
+      if (isSearching) return;
+      selectedSeconds = sec;
+      [180, 600].forEach(s => {
+        const btn = document.getElementById('tbtn-' + s);
+        btn.classList.remove('border-2', 'border-emerald-500', 'text-white');
+        btn.classList.add('border-slate-800', 'text-slate-400');
+      });
+      const active = document.getElementById('tbtn-' + sec);
+      active.classList.add('border-2', 'border-emerald-500', 'text-white');
+      active.classList.remove('border-slate-800', 'text-slate-400');
+    };
 
-    let unsubscribeRoomListener = null;
+    window.toggleMatchSearch = async () => {
+      if (isSearching) {
+        cancelSearch();
+        return;
+      }
+      startRealMatchmaking();
+    };
 
-    // Create Host Room in Firestore
-    async function initHostRoom() {
+    async function startRealMatchmaking() {
+      isSearching = true;
+      document.getElementById('noPlayerAlertBox').classList.add('hidden');
+      document.getElementById('radarRing').classList.remove('hidden');
+      document.getElementById('statusTitle').innerText = "Searching Real Opponents...";
+      document.getElementById('statusSubtitle').innerText = "Checking active human pool on Firestore...";
+      document.getElementById('btnActionText').innerText = "Cancel Search";
+      document.getElementById('btnAction').className = "w-full py-3.5 bg-slate-900 border border-rose-800 text-rose-400 font-black rounded-2xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2";
+
       try {
-        const roomRef = doc(db, "rooms", generatedRoomId);
-        await setDoc(roomRef, {
-          roomId: generatedRoomId,
-          hostName: myName,
-          hostUID: myUID,
-          hostElo: myElo,
-          guestName: null,
-          guestUID: null,
-          guestElo: null,
-          status: 'waiting', // waiting -> active -> concluded
-          currentTurn: 'w',
-          fen: 'start',
-          lastMove: null,
+        // 1. Check existing human waiting pool
+        const poolRef = collection(db, "matchmaking_pool");
+        const q = query(poolRef, where("timeLimit", "==", selectedSeconds));
+        const snap = await getDocs(q);
+
+        let matchedPlayer = null;
+        snap.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data.playerUID !== playerUID && !matchedPlayer) {
+            matchedPlayer = { id: docSnap.id, ...data };
+          }
+        });
+
+        if (matchedPlayer) {
+          // REAL HUMAN FOUND: Create match room
+          const roomId = "MATCH-" + Math.floor(1000 + Math.random() * 9000);
+          await setDoc(doc(db, "rooms", roomId), {
+            roomId: roomId,
+            hostName: matchedPlayer.playerName,
+            hostUID: matchedPlayer.playerUID,
+            hostElo: matchedPlayer.playerElo,
+            guestName: playerName,
+            guestUID: playerUID,
+            guestElo: playerElo,
+            timeLimit: selectedSeconds,
+            status: "active",
+            currentTurn: "w",
+            fen: "start",
+            createdAt: Date.now()
+          });
+
+          await deleteDoc(doc(db, "matchmaking_pool", matchedPlayer.id));
+
+          window.location.href = `game.html?mode=pvp&room=${roomId}&side=black&oppName=${encodeURIComponent(matchedPlayer.playerName)}&oppElo=${matchedPlayer.playerElo}`;
+          return;
+        }
+
+        // 2. Put self in pool and wait for an incoming opponent
+        poolDocId = "POOL-" + playerUID;
+        await setDoc(doc(db, "matchmaking_pool", poolDocId), {
+          playerName: playerName,
+          playerUID: playerUID,
+          playerElo: playerElo,
+          timeLimit: selectedSeconds,
           createdAt: Date.now()
         });
 
-        // Listen for guest join
-        unsubscribeRoomListener = onSnapshot(roomRef, (snapshot) => {
-          if (!snapshot.exists()) return;
-          const data = snapshot.data();
-          if (data.status === 'active' && data.guestName) {
-            window.location.href = `game.html?mode=pvp&room=${generatedRoomId}&side=white&oppName=${encodeURIComponent(data.guestName)}&oppElo=${data.guestElo || 1200}`;
+        // Listen if someone created a room with us
+        const roomQuery = query(collection(db, "rooms"), where("hostUID", "==", playerUID), where("status", "==", "active"));
+        poolUnsubscribe = onSnapshot(roomQuery, (roomSnap) => {
+          if (!roomSnap.empty) {
+            const roomData = roomSnap.docs[0].data();
+            window.location.href = `game.html?mode=pvp&room=${roomData.roomId}&side=white&oppName=${encodeURIComponent(roomData.guestName)}&oppElo=${roomData.guestElo}`;
           }
         });
+
+        // 3. Exactly 12s timeout -> Show "No Player Online" (NEVER launch fake bot)
+        searchTimeoutTimer = setTimeout(async () => {
+          if (isSearching) {
+            await cancelSearch();
+            document.getElementById('statusTitle').innerText = "Pool Empty";
+            document.getElementById('statusSubtitle').innerText = "0 human opponents online in queue.";
+            document.getElementById('noPlayerAlertBox').classList.remove('hidden');
+          }
+        }, 12000);
+
       } catch (err) {
-        console.error("Firestore room creation error:", err);
+        console.error(err);
+        cancelSearch();
+        alert("Firestore error: " + err.message);
       }
     }
 
-    initHostRoom();
+    async function cancelSearch() {
+      isSearching = false;
+      document.getElementById('radarRing').classList.add('hidden');
+      if (searchTimeoutTimer) clearTimeout(searchTimeoutTimer);
+      if (poolUnsubscribe) { poolUnsubscribe(); poolUnsubscribe = null; }
+      if (poolDocId) {
+        try { await deleteDoc(doc(db, "matchmaking_pool", poolDocId)); } catch(e){}
+        poolDocId = null;
+      }
 
-    // WhatsApp Invite Share
-    window.shareWhatsAppInvite = () => {
-      const origin = window.location.origin;
-      const path = window.location.pathname.replace('online.html', '') + 'game.html';
-      const inviteLink = `${origin}${path}?mode=pvp&room=${generatedRoomId}&side=black&oppName=${encodeURIComponent(myName)}&oppElo=${myElo}`;
-      const msg = encodeURIComponent(`⚔️ *Chess Universe Duel Challenge!*\n\n${myName} invited you to a real-time chess match.\n\nRoom Code: *${generatedRoomId}*\nTap to join battle:\n${inviteLink}`);
+      document.getElementById('statusTitle').innerText = "Online Player Pool";
+      document.getElementById('statusSubtitle').innerText = "Select time and search for active players";
+      document.getElementById('btnActionText').innerText = "Find Opponent";
+      document.getElementById('btnAction').className = "w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2";
+    }
+
+    window.shareWhatsAppDuel = () => {
+      const customId = Math.floor(1000 + Math.random() * 9000);
+      const url = `${window.location.origin}${window.location.pathname.replace('online.html', '')}game.html?mode=pvp&room=ROOM-${customId}&side=black&oppName=${encodeURIComponent(playerName)}&oppElo=${playerElo}`;
+      const msg = encodeURIComponent(`♟️ *Chess Universe Challenge!*\n${playerName} ne tumhe live match ke liye challenge kiya hai!\nRoom Code: ROOM-${customId}\nKhelne ke liye tap karo: ${url}`);
       window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+      window.location.href = `game.html?mode=pvp&room=ROOM-${customId}&side=white&oppName=Waiting...&oppElo=1200`;
     };
 
-    // Join with Code
-    window.joinRoomByCode = async () => {
-      const code = document.getElementById('inputRoomCode').value.trim().toUpperCase();
-      if (!code) return alert("Please enter room code!");
-
-      try {
-        const roomRef = doc(db, "rooms", code);
-        const snap = await getDoc(roomRef);
-        if (!snap.exists()) return alert("Room not found! Check code.");
-
-        const data = snap.data();
-        if (data.status === 'concluded') return alert("This match is already over!");
-
-        await updateDoc(roomRef, {
-          guestName: myName,
-          guestUID: myUID,
-          guestElo: myElo,
-          status: 'active'
-        });
-
-        window.location.href = `game.html?mode=pvp&room=${code}&side=black&oppName=${encodeURIComponent(data.hostName)}&oppElo=${data.hostElo || 1200}`;
-      } catch (err) {
-        console.error(err);
-        alert("Error joining room: " + err.message);
+    window.joinCustomRoom = () => {
+      const code = document.getElementById('inputRoomCode').value.trim();
+      if (!code) {
+        alert("Enter a room code!");
+        return;
       }
-    };
-
-    // Global Matchmaking Pool
-    let searchTimer = null;
-    window.startGlobalMatch = async () => {
-      document.getElementById('queueStatusBox').classList.remove('hidden');
-      document.getElementById('btnFindGlobal').disabled = true;
-
-      try {
-        // Check for any waiting room created in the last 45 seconds by another player
-        const q = query(collection(db, "rooms"), where("status", "==", "waiting"));
-        const snapshot = await getDocs(q);
-        let foundRoom = null;
-
-        snapshot.forEach(docSnap => {
-          const d = docSnap.data();
-          if (d.hostUID !== myUID && (Date.now() - d.createdAt < 45000)) {
-            foundRoom = d;
-          }
-        });
-
-        if (foundRoom) {
-          const rRef = doc(db, "rooms", foundRoom.roomId);
-          await updateDoc(rRef, {
-            guestName: myName,
-            guestUID: myUID,
-            guestElo: myElo,
-            status: 'active'
-          });
-          window.location.href = `game.html?mode=pvp&room=${foundRoom.roomId}&side=black&oppName=${encodeURIComponent(foundRoom.hostName)}&oppElo=${foundRoom.hostElo || 1200}`;
-          return;
-        }
-      } catch (e) {
-        console.warn("Queue lookup error:", e);
-      }
-
-      // If no live player in 4s, fallback to realistic peer match
-      searchTimer = setTimeout(() => {
-        const bots = [
-          { name: "Aarav_Tactics", elo: 1220 },
-          { name: "Grandmaster_Vikram", elo: 1280 },
-          { name: "Rohan_Defense", elo: 1190 }
-        ];
-        const randomOpp = bots[Math.floor(Math.random() * bots.length)];
-        window.location.href = `game.html?mode=online&oppName=${encodeURIComponent(randomOpp.name)}&oppElo=${randomOpp.elo}&side=white`;
-      }, 4000);
-    };
-
-    window.cancelGlobalMatch = () => {
-      if (searchTimer) clearTimeout(searchTimer);
-      document.getElementById('queueStatusBox').classList.add('hidden');
-      document.getElementById('btnFindGlobal').disabled = false;
+      window.location.href = `game.html?mode=pvp&room=ROOM-${code}&side=black&oppName=Opponent&oppElo=1200`;
     };
   </script>
 </body>
 </html>
-
