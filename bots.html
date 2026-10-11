@@ -3,460 +3,415 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chess Universe - Grandmaster Bot Arena</title>
+  <title>Bot Arena | Chess Universe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
 
   <style>
     body {
       background: radial-gradient(circle at top, #14241b 0%, #060e09 100%);
       color: #e2e8f0;
       touch-action: manipulation;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .tier-tab.active {
-      background: rgba(16, 185, 129, 0.25) !important;
-      border-color: #10b981 !important;
-      color: #34d399 !important;
-      box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
-    }
-
-    .bot-card-pro {
+    .glass-card {
       background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(16, 185, 129, 0.16);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(16, 185, 129, 0.18);
       transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .bot-card-pro:hover {
+    .glass-card:hover {
       border-color: rgba(16, 185, 129, 0.45);
       transform: translateY(-2px);
       box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.75), 0 0 16px rgba(16, 185, 129, 0.2);
     }
-
-    .bot-avatar-ring {
-      box-shadow: 0 0 14px rgba(16, 185, 129, 0.28);
+    .glass-card:active {
+      transform: scale(0.98);
     }
 
-    .stake-chip.selected {
-      border-color: #f59e0b !important;
-      background: rgba(245, 158, 11, 0.22) !important;
-      color: #fbbf24 !important;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
-    }
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 4px; }
 
-    .custom-scroll::-webkit-scrollbar {
-      width: 4px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: rgba(16, 185, 129, 0.3);
-      border-radius: 4px;
-    }
+    .tier-badge-novice { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .tier-badge-club { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .tier-badge-master { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .tier-badge-titan { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none pb-12">
+<body class="min-h-screen flex flex-col font-sans select-none pb-16">
 
-  <!-- Header with Live Currency & Audio Studio Link -->
-  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3 py-2.5 flex items-center justify-between">
+  <!-- Header -->
+  <header class="border-b border-emerald-950 bg-emerald-950/40 backdrop-blur sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
       <a href="index.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
         <i class="fa-solid fa-chevron-left text-xs"></i>
       </a>
       <div>
         <h1 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-1.5">
-          <span>Bot Roster</span>
-          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">10 ENGINES</span>
+          <span>BOT ENGINE ARENA</span>
+          <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-mono px-1.5 py-0.2 rounded border border-emerald-500/30">10 BOTS</span>
         </h1>
-        <p class="text-[10px] text-slate-400 font-medium">Select Opponent & Win Stakes</p>
+        <p class="text-[10px] text-slate-400 font-medium">Stockfish AI & Persona Challenges</p>
       </div>
     </div>
 
     <!-- Currency Counters -->
     <div class="flex items-center gap-1.5 font-mono text-xs">
       <div class="flex items-center gap-1 bg-slate-950 border border-amber-500/40 px-2.5 py-1 rounded-xl shadow-inner">
-        <span class="text-xs">🪙</span>
-        <span id="headerCoins" class="font-bold text-amber-400">350</span>
+        <span>🪙</span>
+        <span id="botArenaCoins" class="font-bold text-amber-400">350</span>
       </div>
-      <a href="music.html" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs hover:text-emerald-400 transition" title="Sound Studio">
-        <i class="fa-solid fa-music"></i>
-      </a>
     </div>
   </header>
 
-  <main class="max-w-md w-full mx-auto px-3 pt-3 flex flex-col gap-3">
+  <main class="max-w-md w-full mx-auto px-3.5 pt-3.5 flex flex-col gap-3.5">
 
-    <!-- Active Tier Tabs Navigation -->
-    <div class="grid grid-cols-4 gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800/80 shadow-md">
-      <button onclick="filterTier('all')" id="tab-all" class="tier-tab active py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
-        All
-      </button>
-      <button onclick="filterTier('novice')" id="tab-novice" class="tier-tab py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
-        Novice
-      </button>
-      <button onclick="filterTier('master')" id="tab-master" class="tier-tab py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
-        Master
-      </button>
-      <button onclick="filterTier('titan')" id="tab-titan" class="tier-tab py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-400 border border-transparent transition text-center">
-        Titan
-      </button>
-    </div>
-
-    <!-- Quick Play Side Selector -->
-    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 flex items-center justify-between shadow-md">
-      <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-        <i class="fa-solid fa-chess-board text-emerald-400"></i> Board Side:
-      </span>
-      <div class="flex gap-1.5">
-        <button onclick="selectBoardSide('white')" id="btnSideWhite" class="px-2.5 py-1 rounded-xl border-2 border-emerald-500 bg-slate-950 text-xs font-black text-white flex items-center gap-1 transition">
-          <i class="fa-solid fa-chess-pawn text-slate-100"></i> White
-        </button>
-        <button onclick="selectBoardSide('random')" id="btnSideRandom" class="px-2 py-1 rounded-xl border border-slate-800 bg-slate-950 text-xs font-black text-slate-400 flex items-center gap-1 transition">
-          <i class="fa-solid fa-dice text-amber-400"></i> Auto
-        </button>
-        <button onclick="selectBoardSide('black')" id="btnSideBlack" class="px-2.5 py-1 rounded-xl border border-slate-800 bg-slate-950 text-xs font-black text-slate-400 flex items-center gap-1 transition">
-          <i class="fa-solid fa-chess-pawn text-emerald-400"></i> Black
-        </button>
+    <!-- Overview Banner -->
+    <div class="glass-card rounded-3xl p-4 flex items-center justify-between shadow-xl">
+      <div>
+        <h2 class="text-xs font-black uppercase text-white tracking-wider flex items-center gap-2">
+          <span>Choose Your Opponent</span>
+        </h2>
+        <p class="text-[11px] text-slate-400 mt-0.5">Defeat bots to unlock coins and level up your rating</p>
+      </div>
+      <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg shadow-md">
+        🤖
       </div>
     </div>
 
-    <!-- 10 Bots Cards Dynamic Container -->
-    <div id="botsFeed" class="flex flex-col gap-2.5">
-      <!-- Injected via JavaScript -->
+    <!-- Section: Novice Tier (400 - 1100) -->
+    <div class="flex items-center justify-between px-1">
+      <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+        <i class="fa-solid fa-seedling text-emerald-400"></i> Novice Tier
+      </span>
+      <span class="text-[9px] font-mono tier-badge-novice px-2 py-0.5 rounded-md font-bold">Casual</span>
+    </div>
+
+    <!-- Bot 1: Pawn Piper -->
+    <div onclick="openSetupModal(1)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">🐣</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Pawn Piper</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">400 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Learner • Makes frequent blunders</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+
+    <!-- Bot 2: Rusty Knight -->
+    <div onclick="openSetupModal(2)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">🐴</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Rusty Knight</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">700 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Jumping knights • Misses forks</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+
+    <!-- Bot 3: Scholar Sam -->
+    <div onclick="openSetupModal(3)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">📖</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Scholar Sam</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">950 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Opening textbook • Weak endgame</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+
+    <!-- Bot 4: Tactical Tara -->
+    <div onclick="openSetupModal(4)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">🏹</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Tactical Tara</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">1100 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Sharp attacker • Pins & Skewers</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+        <!-- Section: Club & Intermediate Tier (1300 - 1750) -->
+    <div class="flex items-center justify-between px-1 pt-2">
+      <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved text-cyan-400"></i> Club Tier
+      </span>
+      <span class="text-[9px] font-mono tier-badge-club px-2 py-0.5 rounded-md font-bold">Competitive</span>
+    </div>
+
+    <!-- Bot 5: Coach Vikram -->
+    <div onclick="openSetupModal(5)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer border-emerald-500/30">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-emerald-500/40 flex items-center justify-center text-2xl shadow-md">👓</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Coach Vikram</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">1300 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Positional defender • Solid center</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-[10px] transition uppercase tracking-wider shadow">Play</button>
+    </div>
+
+    <!-- Bot 6: Master Arjun -->
+    <div onclick="openSetupModal(6)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">🛡️</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Master Arjun</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">1550 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Pawn structures • Punishes blunders</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+
+    <!-- Bot 7: Iron Rook -->
+    <div onclick="openSetupModal(7)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">🏰</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Iron Rook</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">1750 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Heavy rook batteries & deep calculation</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+
+    <!-- Section: Grandmaster Tier (2000 - 2600) -->
+    <div class="flex items-center justify-between px-1 pt-2">
+      <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+        <i class="fa-solid fa-crown text-amber-400"></i> Grandmaster Tier
+      </span>
+      <span class="text-[9px] font-mono tier-badge-titan px-2 py-0.5 rounded-md font-bold">Stockfish Core</span>
+    </div>
+
+    <!-- Bot 8: Grandmaster Arya -->
+    <div onclick="openSetupModal(8)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">👑</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Grandmaster Arya</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">2000 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Ruthless conversion • Precision play</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+
+    <!-- Bot 9: Cyber Magnus -->
+    <div onclick="openSetupModal(9)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-lg cursor-pointer">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl shadow-md">⚡</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">Cyber Magnus</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">2300 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Endgame virtuoso • Squeezes small edges</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-xl text-[10px] font-bold text-emerald-400 transition uppercase tracking-wider">Play</button>
+    </div>
+
+    <!-- Bot 10: The Immortal Engine -->
+    <div onclick="openSetupModal(10)" class="glass-card rounded-3xl p-3.5 flex items-center justify-between shadow-xl cursor-pointer border-amber-500/40">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-amber-500/50 flex items-center justify-center text-2xl shadow-md">🪐</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-xs font-black text-white leading-tight">The Immortal Engine</h3>
+            <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">2600 Elo</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Full Depth 16 • Zero blunders</p>
+        </div>
+      </div>
+      <button class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-[10px] transition uppercase tracking-wider shadow">Duel</button>
     </div>
 
   </main>
-    <!-- Detailed Bot Pre-Match Challenge Modal -->
-  <div id="challengeModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-3.5 relative">
+
+  <!-- Match Setup & Wager Modal -->
+  <div id="matchSetupModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
       
-      <!-- Close Button -->
-      <button onclick="closeChallengeModal()" class="absolute top-4 right-4 w-7 h-7 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
-        <i class="fa-solid fa-xmark text-xs"></i>
-      </button>
-
-      <!-- Bot Big Header Card -->
-      <div class="flex items-center gap-3.5 pt-1">
-        <div id="modalBotAvatar" class="w-14 h-14 rounded-2xl bg-slate-950 border-2 border-emerald-500/40 flex items-center justify-center text-3xl bot-avatar-ring">
-          🤖
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h3 id="modalBotName" class="text-sm font-black text-white leading-tight">Master Bot</h3>
-            <span id="modalBotBadge" class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-mono">MASTER</span>
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-xl" id="modalBotAvatar">🤖</div>
+          <div>
+            <h3 class="text-xs font-black text-white uppercase" id="modalBotName">Coach Vikram</h3>
+            <span class="text-[10px] font-mono text-emerald-400 font-bold" id="modalBotElo">1300 Elo</span>
           </div>
-          <div id="modalBotElo" class="text-xs font-mono font-bold text-emerald-400 mt-0.5">Rating: 1500</div>
-          <p id="modalBotStyle" class="text-[10px] text-slate-400 italic">"Sharp piece sac & tactics."</p>
         </div>
+        <button onclick="closeSetupModal()" class="w-8 h-8 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
 
-      <!-- Personality Quote -->
-      <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 italic flex items-center gap-2">
-        <i class="fa-solid fa-quote-left text-emerald-400 text-sm"></i>
-        <span id="modalBotQuote">"Every pawn carries the soul of a queen."</span>
-      </div>
-
-      <!-- Engine Specs Grid -->
-      <div class="grid grid-cols-3 gap-2 text-center font-mono text-[10px]">
-        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-          <span class="text-slate-500 font-bold block uppercase">Depth</span>
-          <span id="modalBotDepth" class="font-black text-white text-xs">4 Plies</span>
-        </div>
-        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-          <span class="text-slate-500 font-bold block uppercase">Blunders</span>
-          <span id="modalBotBlunder" class="font-black text-rose-400 text-xs">Low (5%)</span>
-        </div>
-        <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-          <span class="text-slate-500 font-bold block uppercase">Playstyle</span>
-          <span id="modalBotPlaystyle" class="font-black text-cyan-400 text-xs">Tactical</span>
-        </div>
-      </div>
-
-      <!-- Coin Stake / Betting Pool System -->
-      <div class="flex flex-col gap-1.5 pt-1">
-        <div class="flex justify-between items-center text-xs">
-          <span class="font-bold text-slate-300 flex items-center gap-1">
-            <span>🪙 Wager Stake:</span>
-            <span class="text-[10px] text-slate-500">(2x Return)</span>
-          </span>
-          <span id="stakeProfitText" class="font-mono text-emerald-400 font-bold">Free Mode</span>
-        </div>
-        <div class="grid grid-cols-4 gap-2">
-          <button onclick="setStake(0)" id="stake-0" class="stake-chip selected py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs font-bold transition text-center">
-            Free
+      <!-- Color Selection -->
+      <div>
+        <label class="text-[10px] font-mono text-slate-400 uppercase font-bold block mb-1.5">Select Side</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="selectColor('white')" id="colorBtn-white" class="py-2.5 rounded-xl border-2 border-emerald-500 bg-slate-950 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition">
+            <span>⚪</span> White
           </button>
-          <button onclick="setStake(25)" id="stake-25" class="stake-chip py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs font-bold transition text-center">
-            25 🪙
+          <button onclick="selectColor('random')" id="colorBtn-random" class="py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5 transition">
+            <span>🎲</span> Random
           </button>
-          <button onclick="setStake(50)" id="stake-50" class="stake-chip py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs font-bold transition text-center">
-            50 🪙
-          </button>
-          <button onclick="setStake(100)" id="stake-100" class="stake-chip py-1.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs font-bold transition text-center">
-            100 🪙
+          <button onclick="selectColor('black')" id="colorBtn-black" class="py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5 transition">
+            <span>⚫</span> Black
           </button>
         </div>
       </div>
 
-      <!-- Confirm Duel Action Button -->
-      <button onclick="launchMatch()" class="w-full mt-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
-        <i class="fa-solid fa-swords text-sm"></i>
-        <span>Start Duel In Arena</span>
+      <!-- Wager Selection -->
+      <div>
+        <label class="text-[10px] font-mono text-slate-400 uppercase font-bold block mb-1.5">Coin Wager (Double on Win)</label>
+        <div class="grid grid-cols-4 gap-1.5 font-mono text-xs">
+          <button onclick="selectWager(0)" id="wagerBtn-0" class="py-2 rounded-xl border-2 border-emerald-500 bg-slate-950 text-white font-bold transition">Free</button>
+          <button onclick="selectWager(25)" id="wagerBtn-25" class="py-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold transition">25 🪙</button>
+          <button onclick="selectWager(50)" id="wagerBtn-50" class="py-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold transition">50 🪙</button>
+          <button onclick="selectWager(100)" id="wagerBtn-100" class="py-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold transition">100 🪙</button>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button onclick="startConfiguredMatch()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2 mt-1">
+        <i class="fa-solid fa-play text-xs"></i>
+        <span>Start Battle</span>
       </button>
 
     </div>
   </div>
     <script>
-    let currentSelectedSide = 'white';
-    let currentStake = 0;
-    let selectedBotObj = null;
-
-    // Currency Sync
-    let userCoins = parseInt(localStorage.getItem('chess_coins'), 10) || 350;
-    document.getElementById('headerCoins').innerText = userCoins;
-
-    function selectBoardSide(side) {
-      currentSelectedSide = side;
-      ['btnSideWhite', 'btnSideRandom', 'btnSideBlack'].forEach(id => {
-        const btn = document.getElementById(id);
-        btn.classList.remove('border-2', 'border-emerald-500', 'text-white');
-        btn.classList.add('border-slate-800', 'text-slate-400');
-      });
-
-      const activeId = side === 'white' ? 'btnSideWhite' : (side === 'black' ? 'btnSideBlack' : 'btnSideRandom');
-      const activeBtn = document.getElementById(activeId);
-      activeBtn.classList.add('border-2', 'border-emerald-500', 'text-white');
-      activeBtn.classList.remove('border-slate-800', 'text-slate-400');
-    }
-
-    // 10 Detailed Bot Engines Roster
-    const BOTS_DATABASE = [
-      {
-        id: 1,
-        name: "Pawn Piper",
-        elo: 400,
-        tier: "novice",
-        avatar: "🐣",
-        badge: "NOVICE",
-        style: "Random & Curious",
-        quote: "Hey! Let's play chess. I just learned how pawns take diagonally!",
-        depth: "1 Ply",
-        blunder: "High (70%)",
-        desc: "Plays loose, leaves hanging pieces. Perfect warm-up for beginners."
-      },
-      {
-        id: 2,
-        name: "Rusty Knight",
-        elo: 700,
-        tier: "novice",
-        avatar: "🐴",
-        badge: "CASUAL",
-        style: "Galloping Forks",
-        quote: "Knights on the rim are dim, but mine are jumping everywhere!",
-        depth: "1 Ply",
-        blunder: "Medium (45%)",
-        desc: "Loves tricky knight hops but falls for basic back-rank pins."
-      },
-      {
-        id: 3,
-        name: "Scholar Sam",
-        elo: 950,
-        tier: "novice",
-        avatar: "📖",
-        badge: "TRICKY",
-        style: "Early Queen Attack",
-        quote: "Watch out for f7! I love an early Scholar's Mate surprise.",
-        depth: "2 Plies",
-        blunder: "Moderate (30%)",
-        desc: "Attacks early with queen. Punish his overextended pieces to win."
-      },
-      {
-        id: 4,
-        name: "Tactical Tara",
-        elo: 1100,
-        tier: "novice",
-        avatar: "🏹",
-        badge: "AGGRESSIVE",
-        style: "Sharp Gambits",
-        quote: "Material is overrated. Let's blast open the center files!",
-        depth: "2 Plies",
-        blunder: "Low (20%)",
-        desc: "Aggressive pawn pusher, actively seeks tactical trade combos."
-      },
-      {
-        id: 5,
-        name: "Coach Vikram",
-        elo: 1300,
-        tier: "master",
-        avatar: "👓",
-        badge: "BALANCED",
-        style: "Opening Principles",
-        quote: "Develop pieces, control center, castle early. Classic discipline.",
-        depth: "3 Plies",
-        blunder: "Rare (12%)",
-        desc: "Disciplined player following classical chess fundamentals."
-      },
-      {
-        id: 6,
-        name: "Master Arjun",
-        elo: 1550,
-        tier: "master",
-        avatar: "🛡️",
-        badge: "SOLID",
-        style: "Pawn Chains",
-        quote: "A single weak pawn will cause your entire empire to collapse.",
-        depth: "3 Plies",
-        blunder: "Very Low (6%)",
-        desc: "Builds unshakeable pawn chains and punishes inaccuracies ruthlessly."
-      },
-      {
-        id: 7,
-        name: "Iron Rook",
-        elo: 1750,
-        tier: "master",
-        avatar: "🏰",
-        badge: "DEFENSIVE",
-        style: "Heavy Piece Rook Squeeze",
-        quote: "You will not break through my fortress. Endgames are my domain.",
-        depth: "4 Plies",
-        blunder: "Minimal (3%)",
-        desc: "Elite defensive technique. Excels in active rook files and king safety."
-      },
-      {
-        id: 8,
-        name: "Grandmaster Arya",
-        elo: 2000,
-        tier: "titan",
-        avatar: "👑",
-        badge: "MASTER",
-        style: "Positional Squeeze",
-        quote: "True mastery is winning without giving your opponent any counterplay.",
-        depth: "4 Plies",
-        blunder: "Subtle (1%)",
-        desc: "Calculates deep tactical traps and maneuvers with diamond precision."
-      },
-      {
-        id: 9,
-        name: "Cyber Magnus",
-        elo: 2300,
-        tier: "titan",
-        avatar: "⚡",
-        badge: "RUTHLESS",
-        style: "Zero-Blunder Engine",
-        quote: "Every move you make has already been calculated 5 moves ahead.",
-        depth: "5 Plies",
-        blunder: "None (0%)",
-        desc: "Speed-blitz champion logic. Squeezes every fractional material edge."
-      },
-      {
-        id: 10,
-        name: "The Immortal Engine",
-        elo: 2600,
-        tier: "titan",
-        avatar: "🪐",
-        badge: "TITAN",
-        style: "Centipawn Dominance",
-        quote: "I see 10,000 possibilities per second. Checkmate is inevitable.",
-        depth: "6 Plies",
-        blunder: "Zero (0%)",
-        desc: "Maximum depth Stockfish-level calculation. True endgame god."
-      }
+    // Bots Registry (Exact Match to game.html)
+    const BOTS = [
+      { id: 1, name: "Pawn Piper", elo: 400, avatar: "🐣" },
+      { id: 2, name: "Rusty Knight", elo: 700, avatar: "🐴" },
+      { id: 3, name: "Scholar Sam", elo: 950, avatar: "📖" },
+      { id: 4, name: "Tactical Tara", elo: 1100, avatar: "🏹" },
+      { id: 5, name: "Coach Vikram", elo: 1300, avatar: "👓" },
+      { id: 6, name: "Master Arjun", elo: 1550, avatar: "🛡️" },
+      { id: 7, name: "Iron Rook", elo: 1750, avatar: "🏰" },
+      { id: 8, name: "Grandmaster Arya", elo: 2000, avatar: "👑" },
+      { id: 9, name: "Cyber Magnus", elo: 2300, avatar: "⚡" },
+      { id: 10, name: "The Immortal Engine", elo: 2600, avatar: "🪐" }
     ];
-          function renderBots(filter = 'all') {
-      const feed = document.getElementById('botsFeed');
-      feed.innerHTML = '';
 
-      const filtered = BOTS_DATABASE.filter(b => filter === 'all' || b.tier === filter);
+    let currentSelectedBot = BOTS[4];
+    let selectedColor = 'white';
+    let selectedWagerAmount = 0;
 
-      filtered.forEach(bot => {
-        const card = document.createElement('div');
-        card.className = "bot-card-pro p-3.5 rounded-2xl flex items-center justify-between shadow-lg";
-        card.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl bot-avatar-ring">
-              ${bot.avatar}
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-xs font-black text-white">${bot.name}</h3>
-                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${bot.tier === 'titan' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : (bot.tier === 'master' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30')} font-mono">
-                  ${bot.badge}
-                </span>
-              </div>
-              <div class="text-[10px] text-emerald-400 font-mono font-bold">Rating: ${bot.elo}</div>
-              <p class="text-[10px] text-slate-400 leading-tight mt-0.5 max-w-[190px] truncate">${bot.desc}</p>
-            </div>
-          </div>
-          <button onclick="openChallengeModal(${bot.id})" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase rounded-xl tracking-wider transition shadow-md">
-            Fight
-          </button>
-        `;
-        feed.appendChild(card);
+    // Sync Local Coins
+    function refreshCoins() {
+      const coins = localStorage.getItem('chess_coins') || '350';
+      document.getElementById('botArenaCoins').innerText = coins;
+    }
+    refreshCoins();
+
+    window.openSetupModal = (botId) => {
+      const found = BOTS.find(b => b.id === botId);
+      if (!found) return;
+      currentSelectedBot = found;
+
+      document.getElementById('modalBotAvatar').innerText = found.avatar;
+      document.getElementById('modalBotName').innerText = found.name;
+      document.getElementById('modalBotElo').innerText = found.elo + ' Elo';
+
+      selectColor('white');
+      selectWager(0);
+      document.getElementById('matchSetupModal').classList.remove('hidden');
+    };
+
+    window.closeSetupModal = () => {
+      document.getElementById('matchSetupModal').classList.add('hidden');
+    };
+
+    window.selectColor = (c) => {
+      selectedColor = c;
+      ['white', 'random', 'black'].forEach(col => {
+        const btn = document.getElementById('colorBtn-' + col);
+        if (col === c) {
+          btn.className = "py-2.5 rounded-xl border-2 border-emerald-500 bg-slate-950 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition";
+        } else {
+          btn.className = "py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5 transition";
+        }
       });
-    }
+    };
 
-    function filterTier(tier) {
-      document.querySelectorAll('.tier-tab').forEach(b => b.classList.remove('active'));
-      document.getElementById('tab-' + tier).classList.add('active');
-      renderBots(tier);
-    }
-
-    function openChallengeModal(botId) {
-      selectedBotObj = BOTS_DATABASE.find(b => b.id === botId);
-      if (!selectedBotObj) return;
-
-      document.getElementById('modalBotAvatar').innerText = selectedBotObj.avatar;
-      document.getElementById('modalBotName').innerText = selectedBotObj.name;
-      document.getElementById('modalBotBadge').innerText = selectedBotObj.badge;
-      document.getElementById('modalBotElo').innerText = 'Rating: ' + selectedBotObj.elo;
-      document.getElementById('modalBotStyle').innerText = `"${selectedBotObj.style}"`;
-      document.getElementById('modalBotQuote').innerText = `"${selectedBotObj.quote}"`;
-      document.getElementById('modalBotDepth').innerText = selectedBotObj.depth;
-      document.getElementById('modalBotBlunder').innerText = selectedBotObj.blunder;
-      document.getElementById('modalBotPlaystyle').innerText = selectedBotObj.tier.toUpperCase();
-
-      setStake(0);
-      document.getElementById('challengeModal').classList.remove('hidden');
-    }
-
-    function closeChallengeModal() {
-      document.getElementById('challengeModal').classList.add('hidden');
-    }
-
-    function setStake(amount) {
-      if (amount > userCoins) {
-        alert("Not enough coins! You have only " + userCoins + " coins.");
+    window.selectWager = (amt) => {
+      const currentCoins = parseInt(localStorage.getItem('chess_coins') || '350', 10);
+      if (amt > currentCoins) {
+        alert("Not enough coins for this wager!");
         return;
       }
-      currentStake = amount;
-      [0, 25, 50, 100].forEach(a => {
-        const btn = document.getElementById('stake-' + a);
-        if (btn) btn.classList.remove('selected');
+      selectedWagerAmount = amt;
+      [0, 25, 50, 100].forEach(val => {
+        const btn = document.getElementById('wagerBtn-' + val);
+        if (val === amt) {
+          btn.className = "py-2 rounded-xl border-2 border-emerald-500 bg-slate-950 text-white font-bold transition";
+        } else {
+          btn.className = "py-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold transition";
+        }
       });
-      const activeBtn = document.getElementById('stake-' + amount);
-      if (activeBtn) activeBtn.classList.add('selected');
+    };
 
-      document.getElementById('stakeProfitText').innerText = amount === 0 ? "Free Mode" : `+${amount * 2} Coins Payout`;
-    }
-
-    function launchMatch() {
-      if (!selectedBotObj) return;
-      let finalSide = currentSelectedSide;
+    window.startConfiguredMatch = () => {
+      // Pick random side if chosen
+      let finalSide = selectedColor;
       if (finalSide === 'random') {
-        finalSide = Math.random() > 0.5 ? 'white' : 'black';
+        finalSide = Math.random() < 0.5 ? 'white' : 'black';
       }
 
-      if (currentStake > 0) {
-        userCoins -= currentStake;
-        localStorage.setItem('chess_coins', userCoins);
-        localStorage.setItem('active_match_stake', currentStake);
-      } else {
-        localStorage.removeItem('active_match_stake');
+      // Deduct wager coins if applied
+      if (selectedWagerAmount > 0) {
+        const currentCoins = parseInt(localStorage.getItem('chess_coins') || '350', 10);
+        localStorage.setItem('chess_coins', currentCoins - selectedWagerAmount);
       }
 
-      window.location.href = `game.html?mode=bot&botId=${selectedBotObj.id}&side=${finalSide}&botName=${encodeURIComponent(selectedBotObj.name)}&oppElo=${selectedBotObj.elo}`;
-    }
+      // Navigate with exact URL query parameters
+      const url = `game.html?mode=bot&botId=${currentSelectedBot.id}&side=${finalSide}&botName=${encodeURIComponent(currentSelectedBot.name)}&oppElo=${currentSelectedBot.elo}&wager=${selectedWagerAmount}`;
+      window.location.href = url;
+    };
 
-    // Initial Render
-    renderBots('all');
+    // Close modal on escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSetupModal();
+    });
+
+    // Auto-update coins if modified in another tab
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'chess_coins') refreshCoins();
+    });
   </script>
 </body>
 </html>
