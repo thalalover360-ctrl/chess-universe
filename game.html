@@ -18,38 +18,51 @@
       color: #e2e8f0;
       touch-action: manipulation;
     }
-    /* Chess.com Classic Forest Green */
+    /* Chess.com Classic Forest Green Board */
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
-    /* Yellow Last Move Highlight */
-    .highlight-yellow {
-      background-color: rgba(247, 230, 80, 0.65) !important;
-      box-shadow: inset 0 0 3px 1px rgba(234, 179, 8, 0.8) !important;
+    /* Piece Container Fit (No Floating) */
+    .piece-417db {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+      user-select: none;
+      -webkit-user-drag: none;
     }
 
-    /* Legal Move Hint Dots */
-    .legal-dot {
+    /* Selected Piece Square Highlight */
+    .square-selected {
+      background-color: rgba(247, 230, 80, 0.7) !important;
+    }
+
+    /* Yellow Last Move Highlight */
+    .highlight-yellow {
+      background-color: rgba(247, 230, 80, 0.5) !important;
+    }
+
+    /* Tap-To-Move Legal Dot */
+    .legal-dot-wrapper {
       position: absolute;
-      width: 32%;
-      height: 32%;
-      background: rgba(20, 20, 20, 0.28);
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      cursor: pointer;
+      z-index: 20;
+    }
+    .legal-dot {
+      width: 28%;
+      height: 28%;
+      background: rgba(20, 20, 20, 0.35);
       border-radius: 50%;
-      top: 34%;
-      left: 34%;
-      pointer-events: none;
-      z-index: 5;
     }
     .legal-ring {
-      position: absolute;
-      width: 90%;
-      height: 90%;
-      border: 4px solid rgba(20, 20, 20, 0.35);
+      width: 82%;
+      height: 82%;
+      border: 4px solid rgba(20, 20, 20, 0.4);
       border-radius: 50%;
-      top: 5%;
-      left: 5%;
-      pointer-events: none;
-      z-index: 5;
     }
 
     .active-clock {
@@ -134,7 +147,11 @@
     let timerInterval = null;
     let isGameOver = false;
 
-    // Mobile Safe Sound System
+    let selectedSquare = null;
+    let legalMovesForSelected = [];
+    let lastMoveSquares = { from: null, to: null };
+
+    // Mobile Audio Unlock
     let audioCtx = null;
     function getAudioCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -162,7 +179,7 @@
     const sndCapture = () => playTone(880, 0.12, 'triangle');
     const sndCheck = () => playTone(260, 0.25, 'sawtooth');
 
-    // Profile & Elo Sanitization (No NaN)
+    // Profile & Elo
     const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
     let savedElo = parseInt(localStorage.getItem('chess_rating'), 10);
     if (isNaN(savedElo) || !savedElo) savedElo = 1200;
@@ -178,59 +195,88 @@
       document.getElementById('oppElo').innerText = 'Local PvP';
     }
 
-    // Legal Dots & Highlights
-    function removeGreyDots() {
-      $('#chessBoard .legal-dot, #chessBoard .legal-ring').remove();
-    }
-
-    function greySquare(square, isCapture) {
-      const $square =$('#chessBoard .square-' + square);
-      if ($square.length === 0) return;
-      const el = isCapture ? '<div class="legal-ring"></div>' : '<div class="legal-dot"></div>';
-      $square.append(el);
-    }
-
-    function setYellowHighlight(s, t) {
-      $('#chessBoard .square-55d63').removeClass('highlight-yellow');
-      if (s) $('#chessBoard .square-' + s).addClass('highlight-yellow');
-      if (t) $('#chessBoard .square-' + t).addClass('highlight-yellow');
-    }
-
-    // Neo High-Res SVGs for Pro Feel
+    // Clean SVG Vector Pieces (Lichess Cburnett - No Floating)
     function getPieceUrl(piece) {
-      const color = piece[0]; // 'w' ya 'b'
-      const type = piece[1].toUpperCase(); // 'P', 'N', etc.
-      return `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${color}${type.toLowerCase()}.png`;
+      return `https://lichess1.org/assets/piece/cburnett/${piece}.svg`;
     }
 
-    // Board Configuration
+    function clearDots() {
+      $('#chessBoard .legal-dot-wrapper').remove();
+      $('#chessBoard .square-55d63').removeClass('square-selected');
+    }
+
+    function renderHighlights() {
+      $('#chessBoard .square-55d63').removeClass('highlight-yellow');
+      if (lastMoveSquares.from) $('#chessBoard .square-' + lastMoveSquares.from).addClass('highlight-yellow');
+      if (lastMoveSquares.to) $('#chessBoard .square-' + lastMoveSquares.to).addClass('highlight-yellow');
+    }
+
+    function showLegalDots(square) {
+      clearDots();
+      selectedSquare = square;
+      $('#chessBoard .square-' + square).addClass('square-selected');
+
+      legalMovesForSelected = game.moves({ square: square, verbose: true });
+      legalMovesForSelected.forEach(m => {
+        const $sq =$('#chessBoard .square-' + m.to);
+        const dotHtml = $(`
+          <div class="legal-dot-wrapper">
+            <div class="${m.captured ? 'legal-ring' : 'legal-dot'}"></div>
+          </div>
+        `);
+        dotHtml.on('click touchend', (e) => {
+          e.stopPropagation();
+          executeMove(selectedSquare, m.to);
+        });
+        $sq.append(dotHtml);
+      });
+    }
+
+    function executeMove(from, to) {
+      clearDots();
+      const move = game.move({ from: from, to: to, promotion: 'q' });
+      if (move === null) return;
+
+      lastMoveSquares = { from: from, to: to };
+      board.position(game.fen());
+      renderHighlights();
+
+      if (move.captured) sndCapture();
+      else if (game.in_check()) sndCheck();
+      else sndMove();
+
+      updateClocksUI();
+
+      if (game.game_over()) {
+        endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
+        return;
+      }
+
+      if (mode === 'bot') window.setTimeout(botTurn, 350);
+    }
+
+    // Board Init
     const boardConfig = {
       draggable: true,
       position: 'start',
       orientation: playerSide === 'black' ? 'black' : 'white',
       pieceTheme: getPieceUrl,
       onDragStart: (source, piece) => {
-        getAudioCtx(); // unlock audio on tap
+        getAudioCtx();
         if (game.game_over() || isGameOver) return false;
-        
         const turn = game.turn();
         if (mode === 'bot') {
           if (playerSide === 'white' && (turn !== 'w' || piece.search(/^w/) === -1)) return false;
           if (playerSide === 'black' && (turn !== 'b' || piece.search(/^b/) === -1)) return false;
         }
-
-        // Show Legal Dots
-        removeGreyDots();
-        const moves = game.moves({ square: source, verbose: true });
-        if (moves.length === 0) return;
-        moves.forEach(m => greySquare(m.to, !!m.captured));
+        showLegalDots(source);
       },
       onDrop: (source, target) => {
-        removeGreyDots();
         const move = game.move({ from: source, to: target, promotion: 'q' });
+        clearDots();
         if (move === null) return 'snapback';
 
-        setYellowHighlight(source, target);
+        lastMoveSquares = { from: source, to: target };
         if (move.captured) sndCapture();
         else if (game.in_check()) sndCheck();
         else sndMove();
@@ -245,13 +291,43 @@
         if (mode === 'bot') window.setTimeout(botTurn, 350);
       },
       onSnapEnd: () => {
-        removeGreyDots();
         board.position(game.fen());
+        renderHighlights();
       }
     };
 
     board = Chessboard('chessBoard', boardConfig);
     $(window).resize(board.resize);
+
+    // Tap-To-Move Click Handler on Board Squares
+    $('#chessBoard').on('click touchend', '.square-55d63', function (e) {
+      getAudioCtx();
+      if (game.game_over() || isGameOver) return;
+
+      const square = $(this).attr('data-square');
+      const piece = game.get(square);
+      const turn = game.turn();
+      const isMyPiece = piece && ((turn === 'w' && piece.color === 'w') || (turn === 'b' && piece.color === 'b'));
+
+      if (isMyPiece) {
+        if (mode === 'bot') {
+          if (playerSide === 'white' && piece.color !== 'w') return;
+          if (playerSide === 'black' && piece.color !== 'b') return;
+        }
+        showLegalDots(square);
+      } else if (selectedSquare) {
+        // Agar pehle piece chuna tha aur khali square ya opponent piece pe tap kiya
+        const isLegal = legalMovesForSelected.some(m => m.to === square);
+        if (isLegal) {
+          executeMove(selectedSquare, square);
+        } else {
+          clearDots();
+          selectedSquare = null;
+        }
+      } else {
+        clearDots();
+      }
+    });
 
     function botTurn() {
       if (game.game_over() || isGameOver) return;
@@ -266,7 +342,8 @@
 
       game.move(moveChoice);
       board.position(game.fen());
-      setYellowHighlight(moveChoice.from, moveChoice.to);
+      lastMoveSquares = { from: moveChoice.from, to: moveChoice.to };
+      renderHighlights();
 
       if (moveChoice.captured) sndCapture();
       else if (game.in_check()) sndCheck();
@@ -316,6 +393,7 @@
     function endGame(res) {
       isGameOver = true;
       clearInterval(timerInterval);
+      clearDots();
 
       const won = res.toLowerCase().includes(playerSide);
       const delta = won ? 16 : -14;
