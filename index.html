@@ -131,7 +131,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 class="text-sm font-black text-white uppercase tracking-wide leading-tight">Friends & Duels</h3>
-              <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded font-bold">ONLINE</span>
+              <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">ONLINE</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium">Friend Requests, Live Chat & Matches</p>
           </div>
@@ -148,7 +148,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 class="text-sm font-black text-white uppercase tracking-wide leading-tight">Clan & Guilds (7 Squad)</h3>
-              <span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.2 rounded font-bold">CLAN WARS</span>
+              <span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded font-bold">CLAN WARS</span>
             </div>
             <p class="text-[11px] text-slate-400 font-medium">Create 7-Player Clan, Group Chat & Elo</p>
           </div>
@@ -169,7 +169,7 @@
       </div>
 
       <div id="matchHistoryFeed" class="flex flex-col gap-2 max-h-56 overflow-y-auto">
-        <p class="text-center text-xs text-slate-500 py-6">Abhi koi match record nahi hua.</p>
+        <p class="text-center text-xs text-slate-500 py-6">No matches recorded yet.</p>
       </div>
     </section>
 
@@ -231,11 +231,11 @@
   </div>
 
   <script>
-    // UID persistence (Fallbacks to main permanent account)
+    // Permanent UID Fallback
     let myUID = localStorage.getItem('chess_game_uid') || localStorage.getItem('chess_uid') || '8830464849';
     localStorage.setItem('chess_game_uid', myUID);
 
-    // Currency Initialization
+    // Economy Initialization
     let coins = parseInt(localStorage.getItem('chess_coins'), 10);
     if (isNaN(coins)) coins = 250;
     localStorage.setItem('chess_coins', coins);
@@ -295,7 +295,7 @@
         btn.disabled = false;
         btn.innerText = "Watch Ad (Earn Loot) 📺";
         closeRewardModal();
-        alert("🎉 Reward Claimed: +100 Coins & +3 Diamonds!");
+        alert("Reward Claimed: +100 Coins & +3 Diamonds!");
       }, 3000);
     }
 
@@ -311,7 +311,7 @@
       badge.innerText = `${history.length} Games`;
 
       if (history.length === 0) {
-        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Abhi koi match record nahi hua.</p>`;
+        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">No matches recorded yet.</p>`;
         return;
       }
 
@@ -347,3 +347,4 @@
   </script>
 </body>
 </html>
+
