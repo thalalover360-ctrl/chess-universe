@@ -22,47 +22,36 @@
     .white-1e1d7 { background-color: #ebecd0 !important; color: #739552 !important; }
     .black-3c85d { background-color: #739552 !important; color: #ebecd0 !important; }
 
-    /* Piece Container Fit (No Floating) */
-    .piece-417db {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: contain !important;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
-
-    /* Selected Piece Square Highlight */
-    .square-selected {
-      background-color: rgba(247, 230, 80, 0.7) !important;
-    }
-
-    /* Yellow Last Move Highlight */
+    /* Yellow Highlights */
     .highlight-yellow {
-      background-color: rgba(247, 230, 80, 0.5) !important;
+      background-color: rgba(247, 230, 80, 0.65) !important;
+    }
+    .square-selected {
+      background-color: rgba(247, 230, 80, 0.75) !important;
     }
 
-    /* Tap-To-Move Legal Dot */
-    .legal-dot-wrapper {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: auto;
-      cursor: pointer;
-      z-index: 20;
+    /* Move Hint Dots - Perfectly Centered, Non-blocking */
+    .hint-dot {
+      width: 26% !important;
+      height: 26% !important;
+      background: rgba(30, 30, 30, 0.38) !important;
+      border-radius: 50% !important;
+      position: absolute !important;
+      top: 37% !important;
+      left: 37% !important;
+      pointer-events: none !important;
+      z-index: 10 !important;
     }
-    .legal-dot {
-      width: 28%;
-      height: 28%;
-      background: rgba(20, 20, 20, 0.35);
-      border-radius: 50%;
-    }
-    .legal-ring {
-      width: 82%;
-      height: 82%;
-      border: 4px solid rgba(20, 20, 20, 0.4);
-      border-radius: 50%;
+    .hint-capture-ring {
+      width: 84% !important;
+      height: 84% !important;
+      border: 4px solid rgba(30, 30, 30, 0.42) !important;
+      border-radius: 50% !important;
+      position: absolute !important;
+      top: 8% !important;
+      left: 8% !important;
+      pointer-events: none !important;
+      z-index: 10 !important;
     }
 
     .active-clock {
@@ -148,10 +137,10 @@
     let isGameOver = false;
 
     let selectedSquare = null;
-    let legalMovesForSelected = [];
-    let lastMoveSquares = { from: null, to: null };
+    let legalTargets = [];
+    let lastMove = { from: null, to: null };
 
-    // Mobile Audio Unlock
+    // Mobile Audio Synthesizer
     let audioCtx = null;
     function getAudioCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -179,7 +168,7 @@
     const sndCapture = () => playTone(880, 0.12, 'triangle');
     const sndCheck = () => playTone(260, 0.25, 'sawtooth');
 
-    // Profile & Elo
+    // Profile Setup
     const myName = localStorage.getItem('chess_name') || 'Harsh Singh';
     let savedElo = parseInt(localStorage.getItem('chess_rating'), 10);
     if (isNaN(savedElo) || !savedElo) savedElo = 1200;
@@ -195,49 +184,43 @@
       document.getElementById('oppElo').innerText = 'Local PvP';
     }
 
-    // Clean SVG Vector Pieces (Lichess Cburnett - No Floating)
-    function getPieceUrl(piece) {
-      return `https://lichess1.org/assets/piece/cburnett/${piece}.svg`;
-    }
-
-    function clearDots() {
-      $('#chessBoard .legal-dot-wrapper').remove();
+    function removeDots() {
+      $('#chessBoard .hint-dot, #chessBoard .hint-capture-ring').remove();
       $('#chessBoard .square-55d63').removeClass('square-selected');
     }
 
     function renderHighlights() {
       $('#chessBoard .square-55d63').removeClass('highlight-yellow');
-      if (lastMoveSquares.from) $('#chessBoard .square-' + lastMoveSquares.from).addClass('highlight-yellow');
-      if (lastMoveSquares.to) $('#chessBoard .square-' + lastMoveSquares.to).addClass('highlight-yellow');
+      if (lastMove.from) $('#chessBoard .square-' + lastMove.from).addClass('highlight-yellow');
+      if (lastMove.to) $('#chessBoard .square-' + lastMove.to).addClass('highlight-yellow');
     }
 
-    function showLegalDots(square) {
-      clearDots();
+    function showDots(square) {
+      removeDots();
       selectedSquare = square;
+      legalTargets = [];
       $('#chessBoard .square-' + square).addClass('square-selected');
 
-      legalMovesForSelected = game.moves({ square: square, verbose: true });
-      legalMovesForSelected.forEach(m => {
+      const moves = game.moves({ square: square, verbose: true });
+      moves.forEach(m => {
+        legalTargets.push(m.to);
         const $sq =$('#chessBoard .square-' + m.to);
-        const dotHtml = $(`
-          <div class="legal-dot-wrapper">
-            <div class="${m.captured ? 'legal-ring' : 'legal-dot'}"></div>
-          </div>
-        `);
-        dotHtml.on('click touchend', (e) => {
-          e.stopPropagation();
-          executeMove(selectedSquare, m.to);
-        });
-        $sq.append(dotHtml);
+        if ($sq.length) {
+          const el = m.captured ? '<div class="hint-capture-ring"></div>' : '<div class="hint-dot"></div>';
+          $sq.append(el);
+        }
       });
     }
 
-    function executeMove(from, to) {
-      clearDots();
+    function makeMove(from, to) {
+      removeDots();
       const move = game.move({ from: from, to: to, promotion: 'q' });
-      if (move === null) return;
+      if (!move) return false;
 
-      lastMoveSquares = { from: from, to: to };
+      lastMove = { from: from, to: to };
+      selectedSquare = null;
+      legalTargets = [];
+
       board.position(game.fen());
       renderHighlights();
 
@@ -249,10 +232,11 @@
 
       if (game.game_over()) {
         endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
-        return;
+        return true;
       }
 
       if (mode === 'bot') window.setTimeout(botTurn, 350);
+      return true;
     }
 
     // Board Init
@@ -260,7 +244,7 @@
       draggable: true,
       position: 'start',
       orientation: playerSide === 'black' ? 'black' : 'white',
-      pieceTheme: getPieceUrl,
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
       onDragStart: (source, piece) => {
         getAudioCtx();
         if (game.game_over() || isGameOver) return false;
@@ -269,26 +253,13 @@
           if (playerSide === 'white' && (turn !== 'w' || piece.search(/^w/) === -1)) return false;
           if (playerSide === 'black' && (turn !== 'b' || piece.search(/^b/) === -1)) return false;
         }
-        showLegalDots(source);
+        showDots(source);
       },
       onDrop: (source, target) => {
-        const move = game.move({ from: source, to: target, promotion: 'q' });
-        clearDots();
-        if (move === null) return 'snapback';
-
-        lastMoveSquares = { from: source, to: target };
-        if (move.captured) sndCapture();
-        else if (game.in_check()) sndCheck();
-        else sndMove();
-
-        updateClocksUI();
-
-        if (game.game_over()) {
-          endGame(game.in_checkmate() ? (game.turn() === 'b' ? 'White wins!' : 'Black wins!') : 'Draw!');
-          return;
+        if (!makeMove(source, target)) {
+          removeDots();
+          return 'snapback';
         }
-
-        if (mode === 'bot') window.setTimeout(botTurn, 350);
       },
       onSnapEnd: () => {
         board.position(game.fen());
@@ -299,33 +270,31 @@
     board = Chessboard('chessBoard', boardConfig);
     $(window).resize(board.resize);
 
-    // Tap-To-Move Click Handler on Board Squares
-    $('#chessBoard').on('click touchend', '.square-55d63', function (e) {
+    // Reliable Tap-To-Move Click Handler on Squares
+    $('#chessBoard').on('click pointerup', '.square-55d63', function (e) {
       getAudioCtx();
       if (game.game_over() || isGameOver) return;
 
-      const square = $(this).attr('data-square');
-      const piece = game.get(square);
-      const turn = game.turn();
-      const isMyPiece = piece && ((turn === 'w' && piece.color === 'w') || (turn === 'b' && piece.color === 'b'));
+      const sq = $(this).attr('data-square');
+      if (!sq) return;
 
-      if (isMyPiece) {
-        if (mode === 'bot') {
-          if (playerSide === 'white' && piece.color !== 'w') return;
-          if (playerSide === 'black' && piece.color !== 'b') return;
-        }
-        showLegalDots(square);
-      } else if (selectedSquare) {
-        // Agar pehle piece chuna tha aur khali square ya opponent piece pe tap kiya
-        const isLegal = legalMovesForSelected.some(m => m.to === square);
-        if (isLegal) {
-          executeMove(selectedSquare, square);
-        } else {
-          clearDots();
-          selectedSquare = null;
-        }
+      // 1. Agar dot wale square pe tap kiya -> Chal do!
+      if (selectedSquare && legalTargets.includes(sq)) {
+        makeMove(selectedSquare, sq);
+        return;
+      }
+
+      // 2. Agar piece par tap kiya -> Show dots
+      const piece = game.get(sq);
+      const turn = game.turn();
+      const isMyTurn = (playerSide === 'white' && turn === 'w') || (playerSide === 'black' && turn === 'b') || (mode === 'pass');
+
+      if (piece && piece.color === turn && isMyTurn) {
+        showDots(sq);
       } else {
-        clearDots();
+        removeDots();
+        selectedSquare = null;
+        legalTargets = [];
       }
     });
 
@@ -342,7 +311,7 @@
 
       game.move(moveChoice);
       board.position(game.fen());
-      lastMoveSquares = { from: moveChoice.from, to: moveChoice.to };
+      lastMove = { from: moveChoice.from, to: moveChoice.to };
       renderHighlights();
 
       if (moveChoice.captured) sndCapture();
@@ -393,7 +362,7 @@
     function endGame(res) {
       isGameOver = true;
       clearInterval(timerInterval);
-      clearDots();
+      removeDots();
 
       const won = res.toLowerCase().includes(playerSide);
       const delta = won ? 16 : -14;
@@ -436,5 +405,5 @@
     updateClocksUI();
   </script>
 </body>
-</html>
+  </html>
 
